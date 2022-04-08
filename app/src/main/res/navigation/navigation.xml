@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/mapFragment">
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.yuyu.barhopping.map.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" />
+    <fragment
+        android:id="@+id/champFragment"
+        android:name="com.yuyu.barhopping.champ.ChampFragment"
+        android:label="fragment_champ"
+        tools:layout="@layout/fragment_champ" />
+    <fragment
+        android:id="@+id/postFragment"
+        android:name="com.yuyu.barhopping.post.PostFragment"
+        android:label="fragment_post"
+        tools:layout="@layout/fragment_post" />
+    <fragment
+        android:id="@+id/exploreFragment"
+        android:name="com.yuyu.barhopping.explore.ExploreFragment"
+        android:label="fragment_explore"
+        tools:layout="@layout/fragment_explore" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.yuyu.barhopping.profile.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <action android:id="@+id/navigate_to_map_fragment" app:destination="@id/mapFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action android:id="@+id/navigate_to_champ_fragment" app:destination="@id/champFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action android:id="@+id/navigate_to_post_fragment" app:destination="@id/postFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action android:id="@+id/navigate_to_explore_fragment" app:destination="@id/exploreFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+    <action android:id="@+id/navigate_to_profile_fragment" app:destination="@id/profileFragment"
+        app:popUpTo="@id/navigation"
+        app:popUpToInclusive="true" />
+</navigation>
