@@ -2,10 +2,10 @@ package com.yuyu.barhopping.util
 
 import com.yuyu.barhopping.R
 
-enum class CurrentFragmentType(val value: String) {
-    MAP("${R.string.map}"),
-    CHAMP("${R.string.champ}"),
-    POST("${R.string.post}"),
-    EXPLORE("${R.string.explore}"),
-    PROFILE("${R.string.profile}")
+enum class CurrentFragmentType(val value: String, val index: Int) {
+    MAP("${R.string.map}", 1),
+    CHAMP("${R.string.champ}", 2),
+    POST("${R.string.post}", 3),
+    EXPLORE("${R.string.explore}", 4),
+    PROFILE("${R.string.profile}", 5)
 }
