@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">BarHopping</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- General -->
+    <string name="map">地圖</string>
+    <string name="champ">排行</string>
+    <string name="post">貼文</string>
+    <string name="explore">探索</string>
+    <string name="profile">個人</string>
+
 </resources>
