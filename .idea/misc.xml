@@ -5,12 +5,16 @@
       <map>
         <entry key="app/src/main/res/drawable/ic_champ_24.xml" value="0.1565" />
         <entry key="app/src/main/res/drawable/ic_map_24.xml" value="0.1565" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.20108695652173914" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_champ.xml" value="0.10729166666666666" />
         <entry key="app/src/main/res/layout/fragment_explore.xml" value="0.21467391304347827" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.21467391304347827" />
+        <entry key="app/src/main/res/layout/fragment_person_rank.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_post.xml" value="0.21467391304347827" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.21467391304347827" />
+        <entry key="app/src/main/res/layout/fragment_route_rank.xml" value="0.4320652173913043" />
+        <entry key="app/src/main/res/layout/item_person_rank.xml" value="0.35452793834296725" />
+        <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.1" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.23802083333333332" />
       </map>
     </option>

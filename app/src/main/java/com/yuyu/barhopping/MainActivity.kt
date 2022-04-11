@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -31,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavView.apply {
 
             add(MeowBottomNavigation.Model(CurrentFragmentType.MAP.index, R.drawable.ic_map_24))
-            add(MeowBottomNavigation.Model(CurrentFragmentType.CHAMP.index, R.drawable.ic_champ_24))
+            add(MeowBottomNavigation.Model(CurrentFragmentType.RANK.index, R.drawable.ic_champ_24))
             add(MeowBottomNavigation.Model(CurrentFragmentType.POST.index, R.drawable.ic_add_24))
             add(MeowBottomNavigation.Model(CurrentFragmentType.EXPLORE.index, R.drawable.ic_explore_24))
             add(MeowBottomNavigation.Model(CurrentFragmentType.PROFILE.index, R.drawable.ic_person_24))
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                 CurrentFragmentType.MAP.index -> {
                     navController.navigate(NavigationDirections.navigateToMapFragment())
                 }
-                CurrentFragmentType.CHAMP.index -> {
+                CurrentFragmentType.RANK.index -> {
                     navController.navigate(NavigationDirections.navigateToChampFragment())
                 }
                 CurrentFragmentType.POST.index -> {
@@ -70,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
             viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
                 R.id.mapFragment -> CurrentFragmentType.MAP
-                R.id.champFragment -> CurrentFragmentType.CHAMP
+                R.id.champFragment -> CurrentFragmentType.RANK
                 R.id.postFragment -> CurrentFragmentType.POST
                 R.id.exploreFragment -> CurrentFragmentType.EXPLORE
                 R.id.profileFragment -> CurrentFragmentType.PROFILE

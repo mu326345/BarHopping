@@ -12,9 +12,9 @@
         tools:layout="@layout/fragment_map" />
     <fragment
         android:id="@+id/champFragment"
-        android:name="com.yuyu.barhopping.champ.ChampFragment"
+        android:name="com.yuyu.barhopping.rank.RankFragment"
         android:label="fragment_champ"
-        tools:layout="@layout/fragment_champ" />
+        tools:layout="@layout/fragment_rank" />
     <fragment
         android:id="@+id/postFragment"
         android:name="com.yuyu.barhopping.post.PostFragment"
@@ -46,4 +46,14 @@
     <action android:id="@+id/navigate_to_profile_fragment" app:destination="@id/profileFragment"
         app:popUpTo="@id/navigation"
         app:popUpToInclusive="true" />
+    <fragment
+        android:id="@+id/routeFragment"
+        android:name="com.yuyu.barhopping.RouteFragment"
+        android:label="fragment_route"
+        tools:layout="@layout/fragment_route_rank" />
+    <fragment
+        android:id="@+id/personFragment"
+        android:name="com.yuyu.barhopping.PersonFragment"
+        android:label="fragment_person"
+        tools:layout="@layout/fragment_person_rank" />
 </navigation>

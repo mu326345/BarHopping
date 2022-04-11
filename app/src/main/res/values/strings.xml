@@ -4,9 +4,22 @@
 
     <!-- General -->
     <string name="map">地圖</string>
-    <string name="champ">排行</string>
+    <string name="rank">排行</string>
     <string name="post">貼文</string>
     <string name="explore">探索</string>
     <string name="profile">個人</string>
+    <string name="route">路線</string>
+    <string name="person">名人</string>
+
+    <!-- Rank market -->
+    <string name="count">超商數量：</string>
+    <string name="length">路程長度：</string>
+    <string name="degree">難易程度：</string>
+
+    <!-- Rank person -->
+    <string name="length_total">路程總計：</string>
+    <string name="market_total">超商總計：</string>
+    <string name="bar_total">酒吧總計：</string>
+    <string name="follow">追蹤</string>
 
 </resources>
