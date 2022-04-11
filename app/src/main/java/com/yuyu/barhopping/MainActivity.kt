@@ -1,6 +1,8 @@
 package com.yuyu.barhopping
 
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -9,6 +11,7 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.yuyu.barhopping.databinding.ActivityMainBinding
+import com.yuyu.barhopping.map.MapFragment
 import com.yuyu.barhopping.util.CurrentFragmentType
 
 class MainActivity : AppCompatActivity() {
@@ -76,5 +79,20 @@ class MainActivity : AppCompatActivity() {
                 else -> viewModel.currentFragmentType.value
             }
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when(requestCode) {
+            1 -> {
+                val newArr  = permissions.map{ it }
+                val fragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as MapFragment
+                fragment.onRequestPermissionsResult(requestCode, newArr.toTypedArray(), grantResults)
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

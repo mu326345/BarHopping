@@ -22,4 +22,9 @@
     <string name="bar_total">酒吧總計：</string>
     <string name="follow">追蹤</string>
 
+    <!-- Request permission -->
+    <string name="location_permission_denied">Deny</string>
+    <string name="permission_required_toast">dialog dismiss</string>
+    <string name="permission_rationale_location">we need your location to do the game</string>
+
 </resources>
