@@ -23,8 +23,8 @@
     <string name="follow">追蹤</string>
 
     <!-- Request permission -->
-    <string name="location_permission_denied">Deny</string>
-    <string name="permission_required_toast">dialog dismiss</string>
-    <string name="permission_rationale_location">we need your location to do the game</string>
+    <string name="location_permission_denied">位置權限拒絕</string>
+    <string name="permission_required_toast">權限要求通知</string>
+    <string name="permission_rationale_location">我們需要您的位置來開始遊戲</string>
 
 </resources>

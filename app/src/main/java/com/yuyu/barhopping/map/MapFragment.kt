@@ -2,9 +2,12 @@ package com.yuyu.barhopping.map
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +15,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
@@ -31,9 +40,12 @@ class MapFragment : Fragment(),
     private var permissionDenied = false
     private lateinit var map: GoogleMap
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var lastLocation: Location
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
     }
 
     override fun onCreateView(
@@ -53,9 +65,11 @@ class MapFragment : Fragment(),
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
         googleMap.setOnMyLocationButtonClickListener(this)
         googleMap.setOnMyLocationClickListener(this)
         enableMyLocation()
+        getLastLocation()
     }
 
     /**
@@ -101,6 +115,18 @@ class MapFragment : Fragment(),
             ),
             LOCATION_PERMISSION_REQUEST_CODE
         )
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getLastLocation() {
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location : Location? ->
+                if (location != null) {
+                    lastLocation = location
+                    val currentLatLong = LatLng(location.latitude, location.longitude)
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLong, 15f))
+                }
+            }
     }
 
 
@@ -149,12 +175,12 @@ class MapFragment : Fragment(),
             permissionDenied = true
         }
     }
-    /**
-     * Displays a dialog with error message explaining that the location permission is missing.
-     */
-    private fun showMissingPermissionError() {
-        newInstance(true).show(childFragmentManager, "dialog")
-    }
+//    /**
+//     * Displays a dialog with error message explaining that the location permission is missing.
+//     */
+//    private fun showMissingPermissionError() {
+//        newInstance(true).show(childFragmentManager, "dialog")
+//    }
 
     companion object {
         /**
