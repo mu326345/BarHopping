@@ -12,6 +12,10 @@
     <string name="person">名人</string>
 
     <!-- Rank market -->
+    <string name="search">在這裡搜尋</string>
+
+
+    <!-- Rank market -->
     <string name="count">超商數量：</string>
     <string name="length">路程長度：</string>
     <string name="degree">難易程度：</string>

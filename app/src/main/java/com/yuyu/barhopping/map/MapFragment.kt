@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -19,11 +18,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.PointOfInterest
+import com.google.android.gms.maps.model.PolylineOptions
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
@@ -41,11 +40,15 @@ class MapFragment : Fragment(),
     private lateinit var map: GoogleMap
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
+    private val defaultLocation = LatLng(24.00432669769251, 121.54043510577722)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireActivity())
     }
 
     override fun onCreateView(
@@ -60,15 +63,28 @@ class MapFragment : Fragment(),
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        binding.locationBtn.setOnClickListener {
+            map.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        lastLocation.latitude,
+                        lastLocation.longitude
+                    ), 15f
+                )
+            )
+        }
+
         return binding.root
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+        map.uiSettings.isMyLocationButtonEnabled = false
 
-        googleMap.setOnMyLocationButtonClickListener(this)
-        googleMap.setOnMyLocationClickListener(this)
+        map.setOnMyLocationButtonClickListener(this)
+        map.setOnMyLocationClickListener(this)
         enableMyLocation()
+        getDeviceLocation()
         getLastLocation()
     }
 
@@ -120,13 +136,50 @@ class MapFragment : Fragment(),
     @SuppressLint("MissingPermission")
     private fun getLastLocation() {
         fusedLocationClient.lastLocation
-            .addOnSuccessListener { location : Location? ->
+            .addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     lastLocation = location
                     val currentLatLong = LatLng(location.latitude, location.longitude)
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLong, 15f))
                 }
             }
+    }
+
+    /**
+     * Get the best and most recent location of the device, which may be null in rare
+     * cases when a location is not available.
+     */
+    @SuppressLint("MissingPermission")
+    private fun getDeviceLocation() {
+        try {
+            if (permissionDenied) {
+                val locationResult = fusedLocationProviderClient.lastLocation
+                locationResult.addOnCompleteListener(requireActivity()) { task ->
+                    if (task.isSuccessful) {
+                        // Set the map's camera position to the current location of the device.
+                        lastLocation = task.result
+                        map.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                LatLng(
+                                    lastLocation.latitude,
+                                    lastLocation.longitude
+                                ), DEFAULT_ZOOM.toFloat()
+                            )
+                        )
+                    } else {
+                        Log.d(TAG, "Current location is null. Using defaults.")
+                        Log.e(TAG, "Exception: %s", task.exception)
+                        map.moveCamera(
+                            CameraUpdateFactory
+                                .newLatLngZoom(defaultLocation, DEFAULT_ZOOM.toFloat())
+                        )
+                        map.uiSettings.isMyLocationButtonEnabled = false
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.e("Exception: %s", e.message, e)
+        }
     }
 
 
@@ -188,6 +241,8 @@ class MapFragment : Fragment(),
          *
          * @see .onRequestPermissionsResult
          */
+        private val TAG = MapFragment::class.java.simpleName
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val DEFAULT_ZOOM = 15
     }
 }
