@@ -2,7 +2,6 @@ package com.yuyu.barhopping.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -15,25 +14,20 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.PointOfInterest
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
-import com.yuyu.barhopping.util.PermissionUtils.PermissionDeniedDialog.Companion.newInstance
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 
 class MapFragment : Fragment(),
     GoogleMap.OnMyLocationButtonClickListener,
     GoogleMap.OnMyLocationClickListener,
     OnMapReadyCallback,
-    ActivityCompat.OnRequestPermissionsResultCallback {
+    ActivityCompat.OnRequestPermissionsResultCallback,
+    GoogleMap.OnPoiClickListener {
 
     private lateinit var binding: FragmentMapBinding
     private var permissionDenied = false
@@ -83,9 +77,11 @@ class MapFragment : Fragment(),
 
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
+        map.setOnPoiClickListener(this)
         enableMyLocation()
         getDeviceLocation()
         getLastLocation()
+
     }
 
     /**
@@ -144,6 +140,19 @@ class MapFragment : Fragment(),
                 }
             }
     }
+
+    private fun addMarkersToMap(latitude: Double, longitude: Double) {
+        map.clear()
+
+        val markerLatLng = LatLng(latitude, longitude)
+        map.addMarker(
+            MarkerOptions()
+                .position(markerLatLng)
+//                .title("Melbourne")
+//                .snippet("Population: 4,137,400")
+        )
+    }
+
 
     /**
      * Get the best and most recent location of the device, which may be null in rare
@@ -228,6 +237,28 @@ class MapFragment : Fragment(),
             permissionDenied = true
         }
     }
+
+    override fun onPoiClick(poi: PointOfInterest) {
+        addMarkersToMap(poi.latLng.latitude, poi.latLng.longitude)
+
+        map.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    poi.latLng.latitude,
+                    poi.latLng.longitude
+                ), 15f
+            )
+        )
+
+        binding.searchBar.setText(poi.name)
+
+        Toast.makeText(context, """Clicked: ${poi.name}
+            Place ID:${poi.placeId}
+            Latitude:${poi.latLng.latitude} Longitude:${poi.latLng.longitude}""",
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
 //    /**
 //     * Displays a dialog with error message explaining that the location permission is missing.
 //     */
@@ -245,4 +276,5 @@ class MapFragment : Fragment(),
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
     }
+
 }
