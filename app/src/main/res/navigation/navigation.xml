@@ -48,12 +48,12 @@
         app:popUpToInclusive="true" />
     <fragment
         android:id="@+id/routeFragment"
-        android:name="com.yuyu.barhopping.RouteFragment"
+        android:name="com.yuyu.barhopping.rank.route.RouteRankFragment"
         android:label="fragment_route"
         tools:layout="@layout/fragment_route_rank" />
     <fragment
         android:id="@+id/personFragment"
-        android:name="com.yuyu.barhopping.PersonFragment"
+        android:name="com.yuyu.barhopping.rank.person.PersonRankFragment"
         android:label="fragment_person"
         tools:layout="@layout/fragment_person_rank" />
 </navigation>

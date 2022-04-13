@@ -3,6 +3,9 @@ package com.yuyu.barhopping.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -11,38 +14,63 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.navigation.fragment.findNavController
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
+import com.google.android.libraries.places.api.net.PlacesClient
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 
 class MapFragment : Fragment(),
-    GoogleMap.OnMyLocationButtonClickListener,
-    GoogleMap.OnMyLocationClickListener,
     OnMapReadyCallback,
+    GoogleMap.OnPoiClickListener,
     ActivityCompat.OnRequestPermissionsResultCallback,
-    GoogleMap.OnPoiClickListener {
+    GoogleMap.OnMyLocationClickListener,
+    GoogleMap.OnMyLocationButtonClickListener,
+    PlaceSelectionListener {
+//    GoogleApiClient.ConnectionCallbacks,
+//    GoogleApiClient.OnConnectionFailedListener {
 
     private lateinit var binding: FragmentMapBinding
+
     private var permissionDenied = false
     private lateinit var map: GoogleMap
-
+    private lateinit var autocompleteFragment: AutocompleteSupportFragment
+    private lateinit var lastLocation: Location
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private lateinit var lastLocation: Location
-    private val defaultLocation = LatLng(24.00432669769251, 121.54043510577722)
+
+    // The entry point to the Places API.
+    private lateinit var placesClient: PlacesClient
+    private val defaultLocation = LatLng(24.00432669769251, 121.54043510577722) // Taiwan
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
+        setupPlaceApi()
     }
 
     override fun onCreateView(
@@ -57,6 +85,14 @@ class MapFragment : Fragment(),
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        // Obtain the AutocompleteSupportFragment when user search location.
+        autocompleteFragment =
+            childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                    as AutocompleteSupportFragment
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+        autocompleteFragment.setOnPlaceSelectedListener(this)
+
+        // refresh location
         binding.locationBtn.setOnClickListener {
             map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
@@ -78,10 +114,9 @@ class MapFragment : Fragment(),
         map.setOnMyLocationButtonClickListener(this)
         map.setOnMyLocationClickListener(this)
         map.setOnPoiClickListener(this)
+        getLastLocation()
         enableMyLocation()
         getDeviceLocation()
-        getLastLocation()
-
     }
 
     /**
@@ -153,6 +188,13 @@ class MapFragment : Fragment(),
         )
     }
 
+    private fun setupPlaceApi() {
+        // Initialize the SDK
+        Places.initialize(context, getString(R.string.apiKey))
+
+        // Create a new PlacesClient instance
+        Places.createClient(context)
+    }
 
     /**
      * Get the best and most recent location of the device, which may be null in rare
@@ -167,14 +209,16 @@ class MapFragment : Fragment(),
                     if (task.isSuccessful) {
                         // Set the map's camera position to the current location of the device.
                         lastLocation = task.result
-                        map.animateCamera(
-                            CameraUpdateFactory.newLatLngZoom(
-                                LatLng(
-                                    lastLocation.latitude,
-                                    lastLocation.longitude
-                                ), DEFAULT_ZOOM.toFloat()
+                        if (lastLocation != null) {
+                            map?.moveCamera(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    LatLng(
+                                        lastLocation!!.latitude,
+                                        lastLocation!!.longitude
+                                    ), DEFAULT_ZOOM.toFloat()
+                                )
                             )
-                        )
+                        }
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.")
                         Log.e(TAG, "Exception: %s", task.exception)
@@ -249,22 +293,45 @@ class MapFragment : Fragment(),
                 ), 15f
             )
         )
+        autocompleteFragment.setText(poi.name)
 
-        binding.searchBar.setText(poi.name)
-
-        Toast.makeText(context, """Clicked: ${poi.name}
+        Toast.makeText(
+            context, """Clicked: ${poi.name}
             Place ID:${poi.placeId}
             Latitude:${poi.latLng.latitude} Longitude:${poi.latLng.longitude}""",
             Toast.LENGTH_SHORT
         ).show()
     }
 
-//    /**
-//     * Displays a dialog with error message explaining that the location permission is missing.
-//     */
-//    private fun showMissingPermissionError() {
-//        newInstance(true).show(childFragmentManager, "dialog")
-//    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        map?.let { map ->
+            outState.putParcelable(KEY_CAMERA_POSITION, map.cameraPosition)
+            outState.putParcelable(KEY_LOCATION, lastLocation)
+        }
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onError(status: Status) {
+        Toast.makeText(context, "An error occurred: $status", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onPlaceSelected(place: Place) {
+        Toast.makeText(context, "Place: ${place.name}, ${place.id}, ${place.latLng}", Toast.LENGTH_SHORT).show()
+        map.clear()
+
+        map.addMarker(
+            MarkerOptions()
+                .position(place.latLng))
+
+        map.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(
+                    place.latLng.latitude,
+                    place.latLng.longitude
+                ), 15f
+            )
+        )
+    }
 
     companion object {
         /**
@@ -275,6 +342,10 @@ class MapFragment : Fragment(),
         private val TAG = MapFragment::class.java.simpleName
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
+
+        // Keys for storing activity state.
+        private const val KEY_CAMERA_POSITION = "camera_position"
+        private const val KEY_LOCATION = "location"
     }
 
 }
