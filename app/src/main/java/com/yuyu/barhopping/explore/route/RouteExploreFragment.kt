@@ -1,4 +1,4 @@
-package com.yuyu.barhopping.rank.route
+package com.yuyu.barhopping.explore.route
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,13 +8,16 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.yuyu.barhopping.databinding.FragmentRouteRankBinding
+import com.yuyu.barhopping.R
+import com.yuyu.barhopping.databinding.FragmentRouteExploreBinding
+import com.yuyu.barhopping.databinding.ItemRouteExploreBinding
 
-class RouteRankFragment : Fragment() {
 
-    private lateinit var binding: FragmentRouteRankBinding
-    private lateinit var viewModel: RouteRankViewModel
-    private lateinit var adapter: RouteRankAdapter
+class RouteExploreFragment : Fragment() {
+
+    private lateinit var binding: FragmentRouteExploreBinding
+    private lateinit var viewModel: RouteExploreViewModel
+    private lateinit var adapter: RouteExploreAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,17 +29,17 @@ class RouteRankFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        binding = FragmentRouteRankBinding.inflate(inflater, container, false)
+        binding = FragmentRouteExploreBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel = ViewModelProvider(this).get(RouteRankViewModel::class.java)
-        adapter = RouteRankAdapter()
+        viewModel = ViewModelProvider(this).get(RouteExploreViewModel::class.java)
+        adapter = RouteExploreAdapter()
 
         val recyclerLayout = binding.recyclerLayout
         binding.recyclerLayout.adapter = adapter
         recyclerLayout.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
 
-        viewModel.routeItem.observe(
+        viewModel.routeCommendItem.observe(
             viewLifecycleOwner, Observer {
                 it?.let {
                     adapter.submitList(it)

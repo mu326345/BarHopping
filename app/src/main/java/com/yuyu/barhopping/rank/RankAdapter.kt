@@ -11,7 +11,6 @@ class RankAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
     override fun createFragment(position: Int): Fragment {
         return when(RankTypeFilter.values()[position]) {
             RankTypeFilter.ROUTE -> RouteRankFragment()
-
             else -> PersonRankFragment()
         }
     }

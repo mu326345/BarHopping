@@ -1,7 +1,7 @@
 package com.yuyu.barhopping.data
 
 
-data class Route(
+data class RouteStore(
     val id: String,
     val startPoint: String,
     val endPoint: String,

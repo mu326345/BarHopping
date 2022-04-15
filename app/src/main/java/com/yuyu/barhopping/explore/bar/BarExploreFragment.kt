@@ -1,4 +1,4 @@
-package com.yuyu.barhopping.rank.route
+package com.yuyu.barhopping.explore.bar
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,42 +8,42 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.yuyu.barhopping.databinding.FragmentRouteRankBinding
+import com.yuyu.barhopping.R
+import com.yuyu.barhopping.databinding.FragmentBarExploreBinding
 
-class RouteRankFragment : Fragment() {
-
-    private lateinit var binding: FragmentRouteRankBinding
-    private lateinit var viewModel: RouteRankViewModel
-    private lateinit var adapter: RouteRankAdapter
+class BarExploreFragment : Fragment() {
+    
+    private lateinit var binding: FragmentBarExploreBinding
+    private lateinit var viewModel: BarExploreViewModel
+    private lateinit var adapter: BarExploreAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
-        binding = FragmentRouteRankBinding.inflate(inflater, container, false)
+        
+        binding = FragmentBarExploreBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel = ViewModelProvider(this).get(RouteRankViewModel::class.java)
-        adapter = RouteRankAdapter()
+        viewModel = ViewModelProvider(this).get(BarExploreViewModel::class.java)
+        adapter = BarExploreAdapter()
 
         val recyclerLayout = binding.recyclerLayout
         binding.recyclerLayout.adapter = adapter
         recyclerLayout.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
 
-        viewModel.routeItem.observe(
+        viewModel.barItem.observe(
             viewLifecycleOwner, Observer {
-                it?.let {
-                    adapter.submitList(it)
-                }
+                adapter.submitList(it)
             }
         )
 
         return binding.root
     }
+    
 }

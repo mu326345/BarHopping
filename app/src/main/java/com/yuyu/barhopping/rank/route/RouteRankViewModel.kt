@@ -1,6 +1,5 @@
 package com.yuyu.barhopping.rank.route
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,16 +8,17 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.yuyu.barhopping.data.Route
+import com.yuyu.barhopping.data.RouteStore
 
 class RouteRankViewModel : ViewModel() {
 
     private val db = Firebase.firestore
 
-    private val _routeItem = MutableLiveData<List<Route>>()
-    val routeItem: LiveData<List<Route>>
+    private val _routeItem = MutableLiveData<List<RouteStore>>()
+    val routeItem: LiveData<List<RouteStore>>
         get() = _routeItem
 
-    private val list = mutableListOf<Route>()
+    private val list = mutableListOf<RouteStore>()
 
     init {
         snapRouteData()
@@ -33,7 +33,7 @@ class RouteRankViewModel : ViewModel() {
 
             if (snapshot != null) {
                 for (x in snapshot.documents) {
-                    val routeList = Route(
+                    val routeList = RouteStore(
                         id = x["id"] as String,
                         startPoint = x["startPoint"] as String,
                         endPoint = x["endPoint"] as String,

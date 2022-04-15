@@ -6,8 +6,8 @@
     <data>
 
         <variable
-            name="route"
-            type="com.yuyu.barhopping.data.Route" />
+            name="routeStore"
+            type="com.yuyu.barhopping.data.RouteStore" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -20,8 +20,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/card_constrain"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/location_img"
@@ -38,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@{route.startPoint}"
+                android:text="@{routeStore.startPoint}"
                 app:layout_constraintBottom_toBottomOf="@id/location_img"
                 app:layout_constraintStart_toEndOf="@id/location_img"
                 app:layout_constraintTop_toTopOf="@id/location_img"
@@ -67,7 +66,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:text="@{route.endPoint}"
+                android:text="@{routeStore.endPoint}"
                 app:layout_constraintBottom_toBottomOf="@id/destination_img"
                 app:layout_constraintStart_toEndOf="@id/destination_img"
                 app:layout_constraintTop_toTopOf="@id/destination_img"
