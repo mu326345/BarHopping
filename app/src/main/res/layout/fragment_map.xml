@@ -44,9 +44,17 @@
             android:scaleType="centerInside"
             android:src="@drawable/location"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteX="347dp"
-            tools:layout_editor_absoluteY="672dp" />
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/go_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="GO"
+            app:layout_constraintBottom_toTopOf="@+id/location_btn"
+            app:layout_constraintEnd_toEndOf="parent" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
