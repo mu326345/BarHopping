@@ -6,5 +6,6 @@ data class RouteCommend(
     val userHardDegree: Long,
     val commend: String,
     val image: String,
-    val commendTime: String
+    val commendTime: String,
+    val like: Long
 )

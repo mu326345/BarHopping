@@ -9,5 +9,6 @@ data class Bar(
     val address: String,
     val image: String,
     val commend: String,
-    val phone: String
+    val phone: String,
+    val like: Long
 )

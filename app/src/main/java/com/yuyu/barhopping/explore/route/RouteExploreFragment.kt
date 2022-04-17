@@ -5,19 +5,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ViewSwitcher
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.yuyu.barhopping.R
+import com.yuyu.barhopping.Application
 import com.yuyu.barhopping.databinding.FragmentRouteExploreBinding
-import com.yuyu.barhopping.databinding.ItemRouteExploreBinding
+import com.yuyu.barhopping.factory.ViewModelFactory
+import javax.inject.Inject
 
 
 class RouteExploreFragment : Fragment() {
 
     private lateinit var binding: FragmentRouteExploreBinding
-    private lateinit var viewModel: RouteExploreViewModel
     private lateinit var adapter: RouteExploreAdapter
+    private val viewModel by viewModels<RouteExploreViewModel> {
+        ViewModelFactory((context?.applicationContext as Application).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,12 +37,12 @@ class RouteExploreFragment : Fragment() {
 
         binding = FragmentRouteExploreBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel = ViewModelProvider(this).get(RouteExploreViewModel::class.java)
         adapter = RouteExploreAdapter()
 
         val recyclerLayout = binding.recyclerLayout
         binding.recyclerLayout.adapter = adapter
-        recyclerLayout.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recyclerLayout.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
 
         viewModel.routeCommendItem.observe(
