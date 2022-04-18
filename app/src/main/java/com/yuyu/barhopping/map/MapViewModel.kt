@@ -9,14 +9,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PointOfInterest
-import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.model.Place
-import com.google.gson.Gson
+import com.google.maps.android.SphericalUtil
 import com.yuyu.barhopping.network.DirectionApi
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.lang.NullPointerException
+import kotlin.math.max
 
 class MapViewModel : ViewModel() {
 
@@ -35,6 +33,10 @@ class MapViewModel : ViewModel() {
     private val _paths = MutableLiveData<List<LatLng>>()
     val paths: LiveData<List<LatLng>>
         get() = _paths
+
+    private val _marketResult = MutableLiveData<List<LatLng>>()
+    val marketResult: LiveData<List<LatLng>>
+        get() = _marketResult
 
 
     fun onLocationBtnClick() {
@@ -61,7 +63,7 @@ class MapViewModel : ViewModel() {
         _moveCameraLiveData.value = place.latLng
     }
 
-    fun getDirection() {
+    fun showDirection() {
         viewModelScope.launch {
             try {
                 val directionResult = DirectionApi.retrofitService.getDirectionResult(
@@ -85,7 +87,7 @@ class MapViewModel : ViewModel() {
                 _paths.value = path
 
             } catch (e: NullPointerException) {
-                   Log.e("MapViewModel", "NullPointerException")
+                Log.e("MapViewModel", "NullPointerException")
                 e.printStackTrace()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -95,5 +97,33 @@ class MapViewModel : ViewModel() {
 
     fun onLocationUpdate(location: Location) {
         _lastLocationLiveData.value = location
+    }
+
+    // nearby api find 7-11
+    fun showMarketItems() {
+        viewModelScope.launch {
+            paths.value?.let {
+                try {
+                    val latlng = it[it.size / 2]
+                    val radiusA = SphericalUtil.computeDistanceBetween(it[0], latlng)
+                    val radiusB = SphericalUtil.computeDistanceBetween(it[it.size-1], latlng)
+                    val radius = max(radiusA, radiusB).toInt()
+                    val marketResult = DirectionApi.retrofitService.getNearbyMarket(
+                        "${latlng.latitude},${latlng.longitude}",
+                        radius,
+                        "7-11"
+                        )
+                    Log.v("QAQ", "${marketResult.results.map { it.name }}")
+                    _marketResult.value = marketResult.results.map { LatLng(it.geometry.location.lat, it.geometry.location.lng)}
+
+                } catch (e: NullPointerException) {
+                    Log.e("MapViewModel", "NullPointerException")
+                    e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
+        }
     }
 }

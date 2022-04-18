@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.yuyu.barhopping.BuildConfig
 import com.yuyu.barhopping.data.GoogleMapDTO
+import com.yuyu.barhopping.data.NearbyData
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -40,15 +41,28 @@ private val retrofit = Retrofit.Builder()
 
 
 interface MapApiService {
-    @GET("/maps/api/directions/json?" +
-            "sensor=false&mode=walking" +
-            "&key=")
+    @GET(
+        "/maps/api/directions/json?" +
+                "sensor=false&mode=walking" +
+                "&key="
+    )
     suspend fun getDirectionResult(
         @Query("origin") origin: String,
         @Query("destination") destination: String,
     ): GoogleMapDTO
+
+    @GET(
+        "/maps/api/place/nearbysearch/json?" +
+                "&type=convenience_store" +
+                "&key="
+    )
+    suspend fun getNearbyMarket(
+        @Query("location") location: String,
+        @Query("radius") radius: Int,
+        @Query("keyword") keyword: String
+    ): NearbyData
 }
 
 object DirectionApi {
-    val retrofitService : MapApiService by lazy { retrofit.create(MapApiService::class.java) }
+    val retrofitService: MapApiService by lazy { retrofit.create(MapApiService::class.java) }
 }

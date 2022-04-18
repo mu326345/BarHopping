@@ -4,9 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.icu.lang.UCharacter.getDirection
 import android.location.Location
-import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -19,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -30,17 +29,20 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
+import com.google.android.libraries.places.api.model.TypeFilter
+import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
+import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
-import com.google.gson.Gson
 import com.yuyu.barhopping.R
-import com.yuyu.barhopping.data.GoogleMapDTO
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 class MapFragment : Fragment(),
     OnMapReadyCallback,
@@ -53,6 +55,7 @@ class MapFragment : Fragment(),
     private var map: GoogleMap? = null
     private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var placesClient: PlacesClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +96,7 @@ class MapFragment : Fragment(),
         }
 
         binding.goBtn.setOnClickListener {
-            viewModel.getDirection()
+            viewModel.showDirection()
             startLocationUpdates()
         }
 
@@ -105,6 +108,7 @@ class MapFragment : Fragment(),
 
         viewModel.desMarkerLiveData.observe(
             viewLifecycleOwner, Observer {
+                map?.clear()
                 addMarkersToMap(it)
             }
         )
@@ -117,6 +121,17 @@ class MapFragment : Fragment(),
                 lineOption.color(Color.BLUE)
                 lineOption.geodesic(true)
                 map?.addPolyline(lineOption)
+
+                viewModel.showMarketItems()
+            }
+        )
+
+        // show nearby 7-11 marker
+        viewModel.marketResult.observe(
+            viewLifecycleOwner, Observer {
+                it.forEach {
+                    addMarkersToMap(it)
+                }
             }
         )
 
@@ -248,7 +263,6 @@ class MapFragment : Fragment(),
     }
 
     private fun addMarkersToMap(latLng: LatLng) {
-        map?.clear()
         map?.addMarker(
             MarkerOptions()
                 .position(latLng)
@@ -268,7 +282,7 @@ class MapFragment : Fragment(),
         Places.initialize(context, getString(R.string.apiKey))
 
         // Create a new PlacesClient instance
-        Places.createClient(context)
+        placesClient = Places.createClient(context)
     }
 
 
