@@ -13,10 +13,21 @@
     <string name="person">名人</string>
     <string name="bar">酒吧</string>
 
-    <!-- Rank market -->
-    <string name="search_here">在這裡搜尋</string>
-    // not use right now
-
+    <!-- Map -->
+    <string name="search_here">在這裡搜尋地點</string>
+    <string name="next_step">下一步</string>
+    <string name="previous_step">上一步</string>
+    <string name="start_game">開始遊戲</string>
+    <string name="seven">7-11</string>
+    <string name="family">全家</string>
+    <string name="hi_life">萊爾富</string>
+    <string name="ok_mart">ok</string>
+    <string name="step_1">步驟一：選擇目的地</string>
+    <string name="step_1_content">請點選地標或輸入目的地</string>
+    <string name="step_2">步驟二：規劃路徑</string>
+    <string name="step_2_content">請篩選超商，並點選想經過的超商</string>
+    <string name="step_3">步驟三：邀請好友</string>
+    <string name="step_3_content">掃描QR Code 邀請好友</string>
 
     <!-- Rank market -->
     <string name="count">超商數量：</string>

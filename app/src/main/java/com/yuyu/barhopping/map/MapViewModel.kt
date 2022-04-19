@@ -38,6 +38,9 @@ class MapViewModel : ViewModel() {
     val marketResult: LiveData<List<LatLng>>
         get() = _marketResult
 
+    private val _selectLocationName = MutableLiveData<String>("")
+    val selectLocationName: LiveData<String>
+        get() = _selectLocationName
 
     fun onLocationBtnClick() {
         if (lastLocationLiveData.value != null) {
@@ -56,11 +59,13 @@ class MapViewModel : ViewModel() {
     fun onPoiClick(poi: PointOfInterest) {
         _desMarkerLiveData.value = poi.latLng
         _moveCameraLiveData.value = poi.latLng
+        _selectLocationName.value = poi.name
     }
 
     fun onPlaceSelect(place: Place) {
         _desMarkerLiveData.value = place.latLng
         _moveCameraLiveData.value = place.latLng
+        _selectLocationName.value = place.name
     }
 
     fun showDirection() {
@@ -123,7 +128,6 @@ class MapViewModel : ViewModel() {
                     e.printStackTrace()
                 }
             }
-
         }
     }
 }

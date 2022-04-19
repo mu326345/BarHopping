@@ -2,6 +2,8 @@ package com.yuyu.barhopping.map
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
@@ -17,7 +19,8 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.common.api.ApiException
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.PagerSnapHelper
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,20 +32,17 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken
 import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.model.RectangularBounds
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse
 import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 class MapFragment : Fragment(),
     OnMapReadyCallback,
@@ -50,10 +50,9 @@ class MapFragment : Fragment(),
 
     private lateinit var binding: FragmentMapBinding
     private lateinit var viewModel: MapViewModel
-
+    private lateinit var adapter: MapAdapter
     private var permissionDenied = false
     private var map: GoogleMap? = null
-    private lateinit var autocompleteFragment: AutocompleteSupportFragment
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
 
@@ -72,23 +71,79 @@ class MapFragment : Fragment(),
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
 
+        val recyclerView = binding.stepRecycler
+        recyclerView.layoutManager = object : LinearLayoutManager(context, HORIZONTAL, false) {
+            override fun canScrollHorizontally(): Boolean = false
+        }
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment =
             childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        // Obtain the AutocompleteSupportFragment when user search location.
-        autocompleteFragment =
-            childFragmentManager.findFragmentById(R.id.autocomplete_fragment)
-                    as AutocompleteSupportFragment
-        autocompleteFragment.setPlaceFields(
-            listOf(
-                Place.Field.ID,
-                Place.Field.NAME,
-                Place.Field.LAT_LNG
-            )
+
+        adapter = MapAdapter(
+            viewModel,
+            object : View.OnClickListener {
+            override fun onClick(view: View?) {
+                when (view?.id) {
+                    // step1: 0, step2: 1, Step3: 2
+                    R.id.next_step_btn ->
+                        binding.stepRecycler.layoutManager?.scrollToPosition(1)
+                    R.id.next_step_btn2 ->
+                        binding.stepRecycler.layoutManager?.scrollToPosition(2)
+                    R.id.previous_step_btn2 ->
+                        binding.stepRecycler.layoutManager?.scrollToPosition(0)
+                    R.id.previous_step_btn3 ->
+                        binding.stepRecycler.layoutManager?.scrollToPosition(1)
+                    R.id.start_game_btn ->
+                        Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        },
+            object : View.OnFocusChangeListener {
+                override fun onFocusChange(view: View?, focus: Boolean) {
+                    if(focus) {
+                        context?.let {
+                            when (view?.id) {
+                                R.id.destination_edit -> {
+                                    val intent = Autocomplete.IntentBuilder(
+                                        AutocompleteActivityMode.FULLSCREEN,
+                                        fields
+                                    )
+                                        .build(it)
+                                    startActivityForResult(intent, DESTINATION_REQUEST_CODE)
+                                    view.clearFocus()
+                                }
+                                R.id.step2_destination_edit -> {
+                                    val intent = Autocomplete.IntentBuilder(
+                                        AutocompleteActivityMode.FULLSCREEN,
+                                        fields
+                                    )
+                                        .build(it)
+                                    startActivityForResult(intent, STEP2_DESTINATION_REQUEST_CODE)
+                                    view.clearFocus()
+                                }
+                                R.id.location_edit -> {
+                                    val intent = Autocomplete.IntentBuilder(
+                                        AutocompleteActivityMode.FULLSCREEN,
+                                        fields
+                                    )
+                                        .build(it)
+                                    startActivityForResult(intent, STEP2_LOCATION_REQUEST_CODE)
+                                    view.clearFocus()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         )
-        autocompleteFragment.setOnPlaceSelectedListener(placeSelectionListener)
+        binding.stepRecycler.adapter = adapter
+        adapter.submitList(listOf(StepTypeFilter.STEP1, StepTypeFilter.STEP2, StepTypeFilter.STEP3))
+
+        val snapHelper = PagerSnapHelper()
+        snapHelper.attachToRecyclerView(binding.stepRecycler)
 
         // refresh location
         binding.locationBtn.setOnClickListener {
@@ -102,7 +157,7 @@ class MapFragment : Fragment(),
 
         viewModel.moveCameraLiveData.observe(
             viewLifecycleOwner, Observer {
-                    moveCameraToMarker(it)
+                moveCameraToMarker(it)
             }
         )
 
@@ -134,7 +189,6 @@ class MapFragment : Fragment(),
                 }
             }
         )
-
         return binding.root
     }
 
@@ -185,6 +239,80 @@ class MapFragment : Fragment(),
             // Display the missing permission error dialog when the fragments resume.
             permissionDenied = true
         }
+    }
+
+    // autoComplete intent
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            DESTINATION_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        data?.let {
+                            val place = Autocomplete.getPlaceFromIntent(data)
+                            viewModel.onPlaceSelect(place)
+                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
+                        }
+                    }
+                    AutocompleteActivity.RESULT_ERROR -> {
+                        // TODO: Handle the error.
+                        data?.let {
+                            val status = Autocomplete.getStatusFromIntent(data)
+                            Log.i(TAG, status.statusMessage ?: "")
+                        }
+                    }
+                    Activity.RESULT_CANCELED -> {
+                        // The user canceled the operation.
+                    }
+                }
+                return
+            }
+
+            STEP2_DESTINATION_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        data?.let {
+                            val place = Autocomplete.getPlaceFromIntent(data)
+                            viewModel.onPlaceSelect(place)
+                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
+                        }
+                    }
+                    AutocompleteActivity.RESULT_ERROR -> {
+                        // TODO: Handle the error.
+                        data?.let {
+                            val status = Autocomplete.getStatusFromIntent(data)
+                            Log.i(TAG, status.statusMessage ?: "")
+                        }
+                    }
+                    Activity.RESULT_CANCELED -> {
+                        // The user canceled the operation.
+                    }
+                }
+                return
+            }
+
+            STEP2_LOCATION_REQUEST_CODE -> {
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        data?.let {
+                            val place = Autocomplete.getPlaceFromIntent(data)
+                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
+                        }
+                    }
+                    AutocompleteActivity.RESULT_ERROR -> {
+                        // TODO: Handle the error.
+                        data?.let {
+                            val status = Autocomplete.getStatusFromIntent(data)
+                            Log.i(TAG, status.statusMessage ?: "")
+                        }
+                    }
+                    Activity.RESULT_CANCELED -> {
+                        // The user canceled the operation.
+                    }
+                }
+                return
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     /**
@@ -286,11 +414,9 @@ class MapFragment : Fragment(),
     }
 
 
-
     private val onPoiClickListener = object : GoogleMap.OnPoiClickListener {
         override fun onPoiClick(poi: PointOfInterest) {
             viewModel.onPoiClick(poi)
-            autocompleteFragment.setText(poi.name)
 
             Toast.makeText(
                 context, """Clicked: ${poi.name}
@@ -319,28 +445,10 @@ class MapFragment : Fragment(),
             }
         }
 
-    /**
-     * autoCompelete callback
-     */
-    private val placeSelectionListener = object : PlaceSelectionListener {
-        override fun onError(p0: Status) {
-            Toast.makeText(context, "PlaceSelectionListener error", Toast.LENGTH_SHORT).show()
-        }
-
-        override fun onPlaceSelected(place: Place) {
-            viewModel.onPlaceSelect(place)
-            Toast.makeText(
-                context,
-                "Place: ${place.name}, ${place.id}, ${place.latLng}",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult?) {
             locationResult ?: return
-            if(locationResult.locations.size > 0) {
+            if (locationResult.locations.size > 0) {
                 viewModel.onLocationUpdate(locationResult.locations[0])
             }
         }
@@ -355,5 +463,9 @@ class MapFragment : Fragment(),
         private val TAG = MapFragment::class.java.simpleName
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
+        private const val DESTINATION_REQUEST_CODE = 1
+        private const val STEP2_DESTINATION_REQUEST_CODE = 2
+        private const val STEP2_LOCATION_REQUEST_CODE = 3
+        val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
     }
 }

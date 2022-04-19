@@ -12,7 +12,8 @@
         <entry key="app/src/main/res/layout/fragment_champ.xml" value="0.10729166666666666" />
         <entry key="app/src/main/res/layout/fragment_explore.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_grid_explore.xml" value="0.24479166666666666" />
-        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_guid_step.xml" value="0.17530296698704556" />
+        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.335" />
         <entry key="app/src/main/res/layout/fragment_map_search.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_person_rank.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_post.xml" value="0.21467391304347827" />
@@ -20,6 +21,8 @@
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.21251266464032423" />
         <entry key="app/src/main/res/layout/fragment_route_explore.xml" value="0.14444444444444443" />
         <entry key="app/src/main/res/layout/fragment_route_rank.xml" value="0.4320652173913043" />
+        <entry key="app/src/main/res/layout/fragment_step.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_step_dialog.xml" value="0.3587002992731937" />
         <entry key="app/src/main/res/layout/item_bar_explore.xml" value="0.21251266464032423" />
         <entry key="app/src/main/res/layout/item_layout_grid_1.xml" value="0.375" />
         <entry key="app/src/main/res/layout/item_layout_grid_2.xml" value="0.375" />
@@ -27,6 +30,9 @@
         <entry key="app/src/main/res/layout/item_person_rank.xml" value="0.35452793834296725" />
         <entry key="app/src/main/res/layout/item_route_explore.xml" value="0.20185185185185187" />
         <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/item_step1.xml" value="0.16908431550317315" />
+        <entry key="app/src/main/res/layout/item_step2.xml" value="0.22115384615384615" />
+        <entry key="app/src/main/res/layout/item_step3.xml" value="0.25" />
         <entry key="app/src/main/res/layout/marker_demo.xml" value="0.19376899696048633" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.23802083333333332" />
       </map>

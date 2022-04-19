@@ -30,6 +30,31 @@
         android:name="com.yuyu.barhopping.profile.ProfileFragment"
         android:label="fragment_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/routeFragment"
+        android:name="com.yuyu.barhopping.rank.route.RouteRankFragment"
+        android:label="fragment_route"
+        tools:layout="@layout/fragment_route_rank" />
+    <fragment
+        android:id="@+id/personFragment"
+        android:name="com.yuyu.barhopping.rank.person.PersonRankFragment"
+        android:label="fragment_person"
+        tools:layout="@layout/fragment_person_rank" />
+    <fragment
+        android:id="@+id/routeExploreFragment"
+        android:name="com.yuyu.barhopping.explore.route.RouteExploreFragment"
+        android:label="fragment_route_explore"
+        tools:layout="@layout/fragment_route_explore" />
+    <fragment
+        android:id="@+id/barExploreFragment"
+        android:name="com.yuyu.barhopping.explore.bar.BarExploreFragment"
+        android:label="fragment_bar_explore"
+        tools:layout="@layout/fragment_bar_explore" />
+    <fragment
+        android:id="@+id/gridExploreFragment"
+        android:name="com.yuyu.barhopping.explore.grid.GridExploreFragment"
+        android:label="fragment_grid_explore"
+        tools:layout="@layout/fragment_grid_explore" />
 
     <action android:id="@+id/navigate_to_map_fragment" app:destination="@id/mapFragment"
         app:popUpTo="@id/navigation"
@@ -46,14 +71,4 @@
     <action android:id="@+id/navigate_to_profile_fragment" app:destination="@id/profileFragment"
         app:popUpTo="@id/navigation"
         app:popUpToInclusive="true" />
-    <fragment
-        android:id="@+id/routeFragment"
-        android:name="com.yuyu.barhopping.rank.route.RouteRankFragment"
-        android:label="fragment_route"
-        tools:layout="@layout/fragment_route_rank" />
-    <fragment
-        android:id="@+id/personFragment"
-        android:name="com.yuyu.barhopping.rank.person.PersonRankFragment"
-        android:label="fragment_person"
-        tools:layout="@layout/fragment_person_rank" />
 </navigation>
