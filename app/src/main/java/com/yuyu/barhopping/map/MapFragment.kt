@@ -21,28 +21,25 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
-import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PointOfInterest
-import com.google.android.gms.maps.model.PolylineOptions
+import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
-import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.yuyu.barhopping.R
+import com.yuyu.barhopping.data.MarketName
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
+import java.util.*
+import kotlin.collections.HashMap
 
 class MapFragment : Fragment(),
     OnMapReadyCallback,
@@ -55,6 +52,7 @@ class MapFragment : Fragment(),
     private var map: GoogleMap? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
+    private var markerMap: EnumMap<MarketName, List<Marker?>> = EnumMap(MarketName::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,25 +83,21 @@ class MapFragment : Fragment(),
         adapter = MapAdapter(
             viewModel,
             object : View.OnClickListener {
-            override fun onClick(view: View?) {
-                when (view?.id) {
-                    // step1: 0, step2: 1, Step3: 2
-                    R.id.next_step_btn ->
-                        binding.stepRecycler.layoutManager?.scrollToPosition(1)
-                    R.id.next_step_btn2 ->
-                        binding.stepRecycler.layoutManager?.scrollToPosition(2)
-                    R.id.previous_step_btn2 ->
-                        binding.stepRecycler.layoutManager?.scrollToPosition(0)
-                    R.id.previous_step_btn3 ->
-                        binding.stepRecycler.layoutManager?.scrollToPosition(1)
-                    R.id.start_game_btn ->
-                        Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
+                override fun onClick(view: View?) {
+                    when (view?.id) {
+                        // step1: 0, step2: 1, Step3: 2
+                        R.id.next_step_btn -> viewModel.setStepPage(StepTypeFilter.STEP2)
+                        R.id.next_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP3)
+                        R.id.previous_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP1)
+                        R.id.previous_step_btn3 -> viewModel.setStepPage(StepTypeFilter.STEP2)
+                        R.id.start_game_btn ->
+                            Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
+                    }
                 }
-            }
-        },
+            },
             object : View.OnFocusChangeListener {
                 override fun onFocusChange(view: View?, focus: Boolean) {
-                    if(focus) {
+                    if (focus) {
                         context?.let {
                             when (view?.id) {
                                 R.id.destination_edit -> {
@@ -150,11 +144,6 @@ class MapFragment : Fragment(),
             viewModel.onLocationBtnClick()
         }
 
-        binding.goBtn.setOnClickListener {
-            viewModel.showDirection()
-            startLocationUpdates()
-        }
-
         viewModel.moveCameraLiveData.observe(
             viewLifecycleOwner, Observer {
                 moveCameraToMarker(it)
@@ -164,7 +153,7 @@ class MapFragment : Fragment(),
         viewModel.desMarkerLiveData.observe(
             viewLifecycleOwner, Observer {
                 map?.clear()
-                addMarkersToMap(it)
+                addMarkersToMap(it, viewModel.desMarkerNameLiveData.value)
             }
         )
 
@@ -177,18 +166,74 @@ class MapFragment : Fragment(),
                 lineOption.geodesic(true)
                 map?.addPolyline(lineOption)
 
-                viewModel.showMarketItems()
+//                viewModel.showMarketItems()
             }
         )
 
-        // show nearby 7-11 marker
-        viewModel.marketResult.observe(
+        // show nearby market marker
+        viewModel.addMarkerLiveData.observe(
             viewLifecycleOwner, Observer {
-                it.forEach {
-                    addMarkersToMap(it)
+                val markerList = it.second.map { map?.addMarker(it) }
+                markerMap.put(it.first, markerList)
+            }
+        )
+
+        viewModel.visibleMarker.observe(
+            viewLifecycleOwner, Observer {
+                val marketValueList = markerMap.get(it.first)
+                marketValueList?.forEach { marker ->
+                    marker?.isVisible = it.second
                 }
             }
         )
+
+        // market check box
+        viewModel.sevenChecked.observe(
+            viewLifecycleOwner, Observer {
+                viewModel.setMarketCheck(
+                    MarketName.SEVEN,
+                    it,
+                    markerMap[MarketName.SEVEN] != null
+                )
+            }
+        )
+
+        viewModel.familyChecked.observe(
+            viewLifecycleOwner, Observer {
+                viewModel.setMarketCheck(
+                    MarketName.FAMILY,
+                    it,
+                    markerMap[MarketName.FAMILY] != null
+                )
+            }
+        )
+
+        viewModel.hiLifeChecked.observe(
+            viewLifecycleOwner, Observer {
+                viewModel.setMarketCheck(
+                    MarketName.HILIFE,
+                    it,
+                    markerMap[MarketName.HILIFE] != null
+                )
+            }
+        )
+
+        viewModel.okMartChecked.observe(
+            viewLifecycleOwner, Observer {
+                viewModel.setMarketCheck(
+                    MarketName.OKMART,
+                    it,
+                    markerMap[MarketName.OKMART] != null
+                )
+            }
+        )
+
+        viewModel.stepPage.observe(
+            viewLifecycleOwner, Observer {
+                binding.stepRecycler.layoutManager?.scrollToPosition(it)
+            }
+        )
+
         return binding.root
     }
 
@@ -390,10 +435,11 @@ class MapFragment : Fragment(),
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    private fun addMarkersToMap(latLng: LatLng) {
+    private fun addMarkersToMap(latLng: LatLng, title: String?) {
         map?.addMarker(
             MarkerOptions()
                 .position(latLng)
+                .title(title)
         )
     }
 

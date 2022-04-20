@@ -7,6 +7,9 @@
         <variable
             name="step2"
             type="String" />
+        <variable
+            name="viewModel"
+            type="com.yuyu.barhopping.map.MapViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -72,6 +75,7 @@
                     app:layout_constraintEnd_toEndOf="@id/step2_content_tv"
                     app:layout_constraintStart_toEndOf="@id/location_icon"
                     app:layout_constraintTop_toBottomOf="@id/step2_content_tv"
+                    android:text="@string/your_location"
                     tools:text="your location" />
 
                 <ImageView
@@ -99,6 +103,7 @@
                     app:layout_constraintEnd_toEndOf="@id/location_edit"
                     app:layout_constraintStart_toStartOf="@id/location_edit"
                     app:layout_constraintTop_toBottomOf="@id/location_edit"
+                    android:text="@={viewModel.selectLocationName}"
                     tools:text="destination" />
 
                 <CheckBox
@@ -107,6 +112,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/seven"
+                    android:checked="@={viewModel.sevenChecked}"
                     app:layout_constraintEnd_toStartOf="@+id/family_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -118,6 +124,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/family"
+                    android:checked="@={viewModel.familyChecked}"
                     app:layout_constraintEnd_toStartOf="@+id/hi_life_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/seven_box"
@@ -128,6 +135,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/hi_life"
+                    android:checked="@={viewModel.hiLifeChecked}"
                     app:layout_constraintEnd_toStartOf="@+id/ok_mart_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/family_box"
@@ -138,6 +146,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="@string/ok_mart"
+                    android:checked="@={viewModel.okMartChecked}"
                     app:layout_constraintEnd_toEndOf="@+id/step2_destination_edit"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/hi_life_box"

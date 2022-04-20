@@ -1,6 +1,5 @@
 package com.yuyu.barhopping.map
 
-import android.graphics.Color
 import android.location.Location
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -8,9 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.libraries.places.api.model.Place
 import com.google.maps.android.SphericalUtil
+import com.yuyu.barhopping.data.MarketName
 import com.yuyu.barhopping.network.DirectionApi
 import kotlinx.coroutines.launch
 import java.lang.NullPointerException
@@ -30,17 +32,33 @@ class MapViewModel : ViewModel() {
     val desMarkerLiveData: LiveData<LatLng>
         get() = _desMarkerLiveData
 
+    private val _desMarkerNameLiveData = MutableLiveData<String>()
+    val desMarkerNameLiveData: LiveData<String>
+        get() = _desMarkerNameLiveData
+
     private val _paths = MutableLiveData<List<LatLng>>()
     val paths: LiveData<List<LatLng>>
         get() = _paths
 
-    private val _marketResult = MutableLiveData<List<LatLng>>()
-    val marketResult: LiveData<List<LatLng>>
-        get() = _marketResult
+    private val _addMarkerLiveData = MutableLiveData<Pair<MarketName, List<MarkerOptions>>>()
+    val addMarkerLiveData: LiveData<Pair<MarketName, List<MarkerOptions>>>
+        get() = _addMarkerLiveData
 
-    private val _selectLocationName = MutableLiveData<String>("")
-    val selectLocationName: LiveData<String>
-        get() = _selectLocationName
+    val selectLocationName = MutableLiveData<String>()
+
+    val sevenChecked = MutableLiveData<Boolean>()
+    val familyChecked = MutableLiveData<Boolean>()
+    val hiLifeChecked = MutableLiveData<Boolean>()
+    val okMartChecked = MutableLiveData<Boolean>()
+
+    private val _visibleMarker = MutableLiveData<Pair<MarketName, Boolean>>()
+    val visibleMarker: LiveData<Pair<MarketName, Boolean>>
+        get() = _visibleMarker
+
+    private val _stepPage = MutableLiveData<Int>(StepTypeFilter.STEP1.index)
+    val stepPage: LiveData<Int>
+        get() = _stepPage
+
 
     fun onLocationBtnClick() {
         if (lastLocationLiveData.value != null) {
@@ -57,17 +75,32 @@ class MapViewModel : ViewModel() {
     }
 
     fun onPoiClick(poi: PointOfInterest) {
-        _desMarkerLiveData.value = poi.latLng
-        _moveCameraLiveData.value = poi.latLng
-        _selectLocationName.value = poi.name
+        when(stepPage.value) {
+            StepTypeFilter.STEP1.index -> {
+                _desMarkerLiveData.value = poi.latLng
+                _moveCameraLiveData.value = poi.latLng
+                selectLocationName.value = poi.name
+            }
+            StepTypeFilter.STEP2.index -> {
+                _stepPage.value = StepTypeFilter.STEP1.index
+                _desMarkerLiveData.value = poi.latLng
+                _moveCameraLiveData.value = poi.latLng
+                selectLocationName.value = poi.name
+            }
+            StepTypeFilter.STEP3.index -> {
+
+            }
+        }
     }
 
     fun onPlaceSelect(place: Place) {
         _desMarkerLiveData.value = place.latLng
+        _desMarkerNameLiveData.value = place.name
         _moveCameraLiveData.value = place.latLng
-        _selectLocationName.value = place.name
+        selectLocationName.value = place.name
     }
 
+    // show direction and draw route
     fun showDirection() {
         viewModelScope.launch {
             try {
@@ -104,22 +137,40 @@ class MapViewModel : ViewModel() {
         _lastLocationLiveData.value = location
     }
 
-    // nearby api find 7-11
-    fun showMarketItems() {
+    fun setMarketCheck(market: MarketName, checked: Boolean, hasData: Boolean) {
+        if (checked) {
+            if (hasData) {
+                _visibleMarker.value = Pair(market, true)
+            } else {
+                showMarketItems(market)
+            }
+        } else {
+            if (hasData) {
+                _visibleMarker.value = Pair(market, false)
+            }
+        }
+    }
+
+    // nearby api find market
+    fun showMarketItems(market: MarketName) {
         viewModelScope.launch {
             paths.value?.let {
                 try {
                     val latlng = it[it.size / 2]
                     val radiusA = SphericalUtil.computeDistanceBetween(it[0], latlng)
-                    val radiusB = SphericalUtil.computeDistanceBetween(it[it.size-1], latlng)
+                    val radiusB = SphericalUtil.computeDistanceBetween(it[it.size - 1], latlng)
                     val radius = max(radiusA, radiusB).toInt()
                     val marketResult = DirectionApi.retrofitService.getNearbyMarket(
                         "${latlng.latitude},${latlng.longitude}",
                         radius,
-                        "7-11"
-                        )
-                    Log.v("QAQ", "${marketResult.results.map { it.name }}")
-                    _marketResult.value = marketResult.results.map { LatLng(it.geometry.location.lat, it.geometry.location.lng)}
+                        market.value //"7-11, 全家"
+                    )
+
+                    _addMarkerLiveData.value = Pair(market, marketResult.results.map {
+                        MarkerOptions()
+                            .position(LatLng(it.geometry.location.lat, it.geometry.location.lng))
+                            .title(it.name)
+                    })
 
                 } catch (e: NullPointerException) {
                     Log.e("MapViewModel", "NullPointerException")
@@ -128,6 +179,17 @@ class MapViewModel : ViewModel() {
                     e.printStackTrace()
                 }
             }
+        }
+    }
+
+    fun setStepPage(step: StepTypeFilter) {
+        _stepPage.value = step.index
+        when(step) {
+            StepTypeFilter.STEP1 -> null
+            StepTypeFilter.STEP2 -> {
+                showDirection()
+            }
+            StepTypeFilter.STEP3 -> null
         }
     }
 }
