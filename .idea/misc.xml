@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/drawable/ic_champ_24.xml" value="0.1565" />
         <entry key="app/src/main/res/drawable/ic_map_24.xml" value="0.1565" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/bottom_sheet_map_detail.xml" value="0.18" />
         <entry key="app/src/main/res/layout/fragment_bar_explore.xml" value="0.14444444444444443" />
         <entry key="app/src/main/res/layout/fragment_champ.xml" value="0.10729166666666666" />
         <entry key="app/src/main/res/layout/fragment_explore.xml" value="0.1" />
@@ -17,7 +18,7 @@
         <entry key="app/src/main/res/layout/fragment_map_search.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_person_rank.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_post.xml" value="0.21467391304347827" />
-        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.21467391304347827" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.165" />
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.21251266464032423" />
         <entry key="app/src/main/res/layout/fragment_route_explore.xml" value="0.14444444444444443" />
         <entry key="app/src/main/res/layout/fragment_route_rank.xml" value="0.4320652173913043" />

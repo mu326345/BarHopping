@@ -1,13 +1,246 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".profile.ProfileFragment">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/profile" />
 
-</FrameLayout>
+    <ImageView
+        android:id="@+id/user_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="User name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/user_icon" />
+
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="User AKA title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_tv" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/dashboard_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_tv">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/route_market_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/route_market"
+                app:layout_constraintEnd_toStartOf="@+id/bar_share_tv"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/bar_share_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/bar_share"
+                app:layout_constraintEnd_toStartOf="@+id/follow_tv"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/route_market_tv"
+                app:layout_constraintTop_toTopOf="@id/route_market_tv" />
+
+            <TextView
+                android:id="@+id/follow_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/follow"
+                app:layout_constraintEnd_toStartOf="@+id/followed_tv"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/bar_share_tv"
+                app:layout_constraintTop_toTopOf="@id/bar_share_tv" />
+
+            <TextView
+                android:id="@+id/followed_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/followed"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/follow_tv"
+                app:layout_constraintTop_toTopOf="@id/follow_tv" />
+
+            <TextView
+                android:id="@+id/route_market_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="center"
+                android:text="5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bar_share_num"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/route_market_tv" />
+
+            <TextView
+                android:id="@+id/bar_share_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="8"
+                app:layout_constraintBottom_toBottomOf="@+id/route_market_num"
+                app:layout_constraintEnd_toStartOf="@id/follow_num"
+                app:layout_constraintStart_toEndOf="@+id/route_market_num"
+                app:layout_constraintTop_toTopOf="@+id/route_market_num" />
+
+            <TextView
+                android:id="@+id/follow_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="10"
+                app:layout_constraintBottom_toBottomOf="@id/bar_share_num"
+                app:layout_constraintEnd_toStartOf="@id/followed_num"
+                app:layout_constraintStart_toEndOf="@id/bar_share_num"
+                app:layout_constraintTop_toTopOf="@id/bar_share_num" />
+
+            <TextView
+                android:id="@+id/followed_num"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="100"
+                app:layout_constraintBottom_toBottomOf="@id/follow_num"
+                app:layout_constraintEnd_toEndOf="@id/followed_tv"
+                app:layout_constraintStart_toEndOf="@id/follow_num"
+                app:layout_constraintTop_toTopOf="@id/follow_num" />
+
+            <ImageView
+                android:id="@+id/line1"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/bar_share_tv"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/line2"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:background="@color/black"
+                app:layout_constraintBottom_toBottomOf="@id/line1"
+                app:layout_constraintStart_toEndOf="@id/bar_share_tv"
+                app:layout_constraintTop_toTopOf="@id/line1" />
+
+            <ImageView
+                android:id="@+id/line3"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:background="@color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/line2"
+                app:layout_constraintStart_toEndOf="@id/follow_tv"
+                app:layout_constraintTop_toTopOf="@id/line2" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/detail_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dashboard_card">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/my_post_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:gravity="fill_vertical"
+                android:text="@string/my_post"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/my_follow_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="fill_vertical"
+                android:text="@string/my_follow"
+                app:layout_constraintEnd_toEndOf="@id/my_post_tv"
+                app:layout_constraintStart_toStartOf="@id/my_post_tv"
+                app:layout_constraintTop_toBottomOf="@id/my_post_tv" />
+
+            <Button
+                android:id="@+id/my_collection_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="fill_vertical"
+                android:text="@string/my_collection"
+                app:layout_constraintEnd_toEndOf="@id/my_follow_tv"
+                app:layout_constraintStart_toStartOf="@id/my_follow_tv"
+                app:layout_constraintTop_toBottomOf="@id/my_follow_tv" />
+
+            <Button
+                android:id="@+id/logout_tv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:gravity="fill_vertical"
+                android:text="@string/logout"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/my_collection_tv"
+                app:layout_constraintStart_toStartOf="@id/my_collection_tv"
+                app:layout_constraintTop_toBottomOf="@id/my_collection_tv" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
