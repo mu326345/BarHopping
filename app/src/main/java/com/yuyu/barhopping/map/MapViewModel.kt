@@ -24,6 +24,10 @@ class MapViewModel : ViewModel() {
     val moveCameraLiveData: LiveData<LatLng>
         get() = _moveCameraLiveData
 
+    var originToDesList = mutableListOf<LatLng>()
+    val markerList = mutableListOf<LatLng>()
+    val pathList = mutableListOf<LatLng>()
+
     private val _lastLocationLiveData = MutableLiveData<Location>()
     val lastLocationLiveData: LiveData<Location>
         get() = _lastLocationLiveData
@@ -72,20 +76,23 @@ class MapViewModel : ViewModel() {
     fun onLastLocationUpdated(location: Location) {
         _lastLocationLiveData.value = location
         _moveCameraLiveData.value = LatLng(location.latitude, location.longitude)
+        originToDesList.add(0, LatLng(location.latitude, location.longitude))
     }
 
     fun onPoiClick(poi: PointOfInterest) {
-        when(stepPage.value) {
+        when (stepPage.value) {
             StepTypeFilter.STEP1.index -> {
                 _desMarkerLiveData.value = poi.latLng
                 _moveCameraLiveData.value = poi.latLng
                 selectLocationName.value = poi.name
+                originToDesList.add(1, poi.latLng)
             }
             StepTypeFilter.STEP2.index -> {
                 _stepPage.value = StepTypeFilter.STEP1.index
                 _desMarkerLiveData.value = poi.latLng
                 _moveCameraLiveData.value = poi.latLng
                 selectLocationName.value = poi.name
+                originToDesList.add(1, poi.latLng)
             }
             StepTypeFilter.STEP3.index -> {
 
@@ -98,37 +105,42 @@ class MapViewModel : ViewModel() {
         _desMarkerNameLiveData.value = place.name
         _moveCameraLiveData.value = place.latLng
         selectLocationName.value = place.name
+        originToDesList.add(1, place.latLng)
     }
 
     // show direction and draw route
-    fun showDirection() {
+    fun showDirection(list: List<LatLng>) {
         viewModelScope.launch {
-            try {
-                val directionResult = DirectionApi.retrofitService.getDirectionResult(
-                    "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}",
-                    "${desMarkerLiveData.value!!.latitude},${desMarkerLiveData.value!!.longitude}"
-                )
+            list.forEachIndexed { index, latLng ->
+                try {
+                    val directionResult = DirectionApi.retrofitService.getDirectionResult(
+                        "${list!![index].latitude},${list!![index].longitude}",
+                        "${list!![index+1].latitude},${list!![index+1].longitude}"
+//                        "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}",
+//                        "${desMarkerLiveData.value!!.latitude},${desMarkerLiveData.value!!.longitude}"
+                    )
 
-                val path = mutableListOf<LatLng>()
-                for (i in 0 until (directionResult.routes[0].legs[0].steps.size - 1)) {
-                    val startLatLng = LatLng(
-                        directionResult.routes[0].legs[0].steps[i].start_location.lat.toDouble(),
-                        directionResult.routes[0].legs[0].steps[i].start_location.lng.toDouble()
-                    )
-                    path.add(startLatLng)
-                    val endLatLng = LatLng(
-                        directionResult.routes[0].legs[0].steps[i].end_location.lat.toDouble(),
-                        directionResult.routes[0].legs[0].steps[i].end_location.lng.toDouble()
-                    )
-                    path.add(endLatLng)
+                    val path = mutableListOf<LatLng>()
+                    for (i in 0 until (directionResult.routes[0].legs[0].steps.size - 1)) {
+                        val startLatLng = LatLng(
+                            directionResult.routes[0].legs[0].steps[i].start_location.lat.toDouble(),
+                            directionResult.routes[0].legs[0].steps[i].start_location.lng.toDouble()
+                        )
+                        path.add(startLatLng)
+                        val endLatLng = LatLng(
+                            directionResult.routes[0].legs[0].steps[i].end_location.lat.toDouble(),
+                            directionResult.routes[0].legs[0].steps[i].end_location.lng.toDouble()
+                        )
+                        path.add(endLatLng)
+                    }
+                    _paths.value = path
+
+                } catch (e: NullPointerException) {
+                    Log.e("MapViewModel", "NullPointerException")
+                    e.printStackTrace()
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-                _paths.value = path
-
-            } catch (e: NullPointerException) {
-                Log.e("MapViewModel", "NullPointerException")
-                e.printStackTrace()
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
@@ -187,9 +199,43 @@ class MapViewModel : ViewModel() {
         when(step) {
             StepTypeFilter.STEP1 -> null
             StepTypeFilter.STEP2 -> {
-                showDirection()
+                showDirection(originToDesList)
             }
-            StepTypeFilter.STEP3 -> null
+            StepTypeFilter.STEP3 -> {
+                showDirection(pathList)
+            }
         }
+    }
+
+    fun addPathList(markerList: List<LatLng>) {
+        var index = 0
+        pathList.add(
+            index,
+            LatLng(lastLocationLiveData.value!!.latitude, lastLocationLiveData.value!!.longitude)
+        )
+        markerList.forEach {
+            pathList.add(index++, it)
+        }
+        pathList.add(
+            index++,
+            LatLng(desMarkerLiveData.value!!.latitude, desMarkerLiveData.value!!.longitude)
+        )
+    }
+
+    fun onMarkerClick(marker: Marker) {
+        var exist = false
+        for (x in markerList) {
+            if (LatLng(marker.position.latitude, marker.position.longitude).equals(x)) {
+                exist = true
+            }
+        }
+        if(exist) {
+            markerList.remove(LatLng(marker.position.latitude, marker.position.longitude))
+            marker.alpha = 0.5f
+        } else {
+            markerList.add(LatLng(marker.position.latitude, marker.position.longitude))
+            marker.alpha = 0.8f
+        }
+        addPathList(markerList)
     }
 }

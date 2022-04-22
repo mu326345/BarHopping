@@ -39,7 +39,6 @@ import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import java.util.*
-import kotlin.collections.HashMap
 
 class MapFragment : Fragment(),
     OnMapReadyCallback,
@@ -165,8 +164,6 @@ class MapFragment : Fragment(),
                 lineOption.color(Color.BLUE)
                 lineOption.geodesic(true)
                 map?.addPolyline(lineOption)
-
-//                viewModel.showMarketItems()
             }
         )
 
@@ -249,6 +246,7 @@ class MapFragment : Fragment(),
         googleMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         googleMap.setOnMyLocationClickListener(onMyLocationClickListener)
         googleMap.setOnPoiClickListener(onPoiClickListener)
+        googleMap.setOnMarkerClickListener(setOnMarkerClickListener)
         getLastLocation()
         enableMyLocation()
     }
@@ -498,6 +496,28 @@ class MapFragment : Fragment(),
                 viewModel.onLocationUpdate(locationResult.locations[0])
             }
         }
+    }
+
+    private val setOnMarkerClickListener = object : GoogleMap.OnMarkerClickListener {
+        override fun onMarkerClick(marker: Marker): Boolean {
+            viewModel.onMarkerClick(marker)
+
+            // Retrieve the data from the marker.
+            val clickCount = marker.tag as? Int
+
+            // Check if a click count was set, then display the click count.
+            clickCount?.let {
+                val newClickCount = it + 1
+                marker.tag = newClickCount
+                Toast.makeText(
+                    context,
+                    "${marker.title} has been clicked $newClickCount times.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            return false
+        }
+
     }
 
     companion object {
