@@ -33,9 +33,12 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.MarketName
 import com.yuyu.barhopping.databinding.FragmentMapBinding
+import com.yuyu.barhopping.map.sheet.BottomSheetAdapter
+import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import java.util.*
@@ -46,12 +49,17 @@ class MapFragment : Fragment(),
 
     private lateinit var binding: FragmentMapBinding
     private lateinit var viewModel: MapViewModel
+    private lateinit var sheetViewModel: BottomSheetViewModel
+
     private lateinit var adapter: MapAdapter
+    private lateinit var sheetAdapter: BottomSheetAdapter
     private var permissionDenied = false
     private var map: GoogleMap? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
     private var markerMap: EnumMap<MarketName, List<Marker?>> = EnumMap(MarketName::class.java)
+    private var polyline: Polyline? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +75,10 @@ class MapFragment : Fragment(),
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
+        sheetViewModel = ViewModelProvider(this).get(BottomSheetViewModel::class.java)
 
-        val recyclerView = binding.stepRecycler
-        recyclerView.layoutManager = object : LinearLayoutManager(context, HORIZONTAL, false) {
+        val stepRecyclerView = binding.stepRecycler
+        stepRecyclerView.layoutManager = object : LinearLayoutManager(context, HORIZONTAL, false) {
             override fun canScrollHorizontally(): Boolean = false
         }
 
@@ -78,6 +87,13 @@ class MapFragment : Fragment(),
             childFragmentManager.findFragmentById(R.id.map_fragment) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        sheetAdapter = BottomSheetAdapter()
+        val detailSheet = binding.detailSheet
+        val sheetRecycler = detailSheet.routeDetailRecycler
+        sheetRecycler.adapter = sheetAdapter
+        sheetRecycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        binding.detailSheet.root.visibility = View.GONE
 
         adapter = MapAdapter(
             viewModel,
@@ -89,8 +105,13 @@ class MapFragment : Fragment(),
                         R.id.next_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP3)
                         R.id.previous_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP1)
                         R.id.previous_step_btn3 -> viewModel.setStepPage(StepTypeFilter.STEP2)
-                        R.id.start_game_btn ->
+                        R.id.start_game_btn -> {
+                            viewModel.setStepPage(StepTypeFilter.STEP1)
+                            binding.detailSheet.root.visibility = View.VISIBLE
+                            stepRecyclerView.visibility = View.GONE
+                            (activity as MainActivity).hideBottomNav()
                             Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             },
@@ -143,6 +164,13 @@ class MapFragment : Fragment(),
             viewModel.onLocationBtnClick()
         }
 
+        binding.gameOverBtn.setOnClickListener {
+            map?.clear()
+            stepRecyclerView.visibility = View.VISIBLE
+            binding.detailSheet.root.visibility = View.GONE
+            (activity as MainActivity).showBottomNav()
+        }
+
         viewModel.moveCameraLiveData.observe(
             viewLifecycleOwner, Observer {
                 moveCameraToMarker(it)
@@ -158,12 +186,13 @@ class MapFragment : Fragment(),
 
         viewModel.paths.observe(
             viewLifecycleOwner, Observer {
+                polyline?.remove()
                 val lineOption = PolylineOptions()
                 lineOption.addAll(it)
                 lineOption.width(10f)
                 lineOption.color(Color.BLUE)
                 lineOption.geodesic(true)
-                map?.addPolyline(lineOption)
+                polyline = map?.addPolyline(lineOption)!!
             }
         )
 
@@ -230,6 +259,14 @@ class MapFragment : Fragment(),
                 binding.stepRecycler.layoutManager?.scrollToPosition(it)
             }
         )
+
+        sheetViewModel.nameList.observe(viewLifecycleOwner) {
+            sheetViewModel.findPointName()
+        }
+
+        sheetViewModel.marketName.observe(viewLifecycleOwner) {
+            sheetAdapter.submitList(it)
+        }
 
         return binding.root
     }

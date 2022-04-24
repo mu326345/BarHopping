@@ -49,6 +49,7 @@ interface MapApiService {
     suspend fun getDirectionResult(
         @Query("origin") origin: String,
         @Query("destination") destination: String,
+        @Query("waypoints") waypoints: String=""
     ): GoogleMapDTO
 
     @GET(

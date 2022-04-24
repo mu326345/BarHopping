@@ -30,6 +30,8 @@
     <string name="step_2_tips">再次點擊取消</string>
     <string name="step_3">步驟三：邀請好友</string>
     <string name="step_3_content">掃描QR Code 邀請好友</string>
+    <string name="schedule">目前進度：</string>
+    <string name="total">總共超商：</string>
 
     <!-- Rank market -->
     <string name="count">超商數量：</string>
