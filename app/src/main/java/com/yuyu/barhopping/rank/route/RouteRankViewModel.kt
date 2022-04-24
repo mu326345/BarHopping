@@ -27,7 +27,7 @@ class RouteRankViewModel : ViewModel() {
     private fun snapRouteData() {
         db.collection("Route").addSnapshotListener { snapshot, e ->
             if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
+                Log.w("RouteRankViewModel", "Listen failed.", e)
                 return@addSnapshotListener
             }
 
@@ -36,11 +36,16 @@ class RouteRankViewModel : ViewModel() {
                     val routeList = RouteStore(
                         id = x["id"] as String,
                         startPoint = x["startPoint"] as String,
+                        startLat = x["startLat"] as String,
+                        startLon = x["startLon"] as String,
                         endPoint = x["endPoint"] as String,
-                        points = x["points"] as String,
-                        comments = x["comments"] as String,
+                        endLat = x["endLat"] as String,
+                        endLon = x["endLon"] as String,
+                        marketCount = x["marketCount"] as Long,
+                        length = x["length"] as Long,
                         hardDegree = x["hardDegree"] as Long,
-                        length = x["length"] as Long
+                        comments = x["comments"] as String,
+                        points = x["points"] as ArrayList<String>
                     )
                     list.add(routeList)
                 }

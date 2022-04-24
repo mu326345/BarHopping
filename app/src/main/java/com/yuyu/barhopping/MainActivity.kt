@@ -3,6 +3,7 @@ package com.yuyu.barhopping
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -94,5 +95,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    fun hideBottomNav() {
+        binding.bottomNavView.visibility = View.GONE
+    }
+
+    fun showBottomNav() {
+        binding.bottomNavView.visibility = View.VISIBLE
     }
 }
