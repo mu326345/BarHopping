@@ -1,3 +1,61 @@
 <resources>
     <string name="app_name">BarHopping</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="apiKey"></string>
+
+    <!-- General -->
+    <string name="map">地圖</string>
+    <string name="rank">排行</string>
+    <string name="post">貼文</string>
+    <string name="explore">探索</string>
+    <string name="profile">個人</string>
+    <string name="route">路線</string>
+    <string name="person">名人</string>
+    <string name="bar">酒吧</string>
+
+    <!-- Map -->
+    <string name="search_here">在這裡搜尋地點</string>
+    <string name="next_step">下一步</string>
+    <string name="previous_step">上一步</string>
+    <string name="start_game">開始遊戲</string>
+    <string name="your_location">你的位置</string>
+    <string name="seven">7-11</string>
+    <string name="family">全家</string>
+    <string name="hi_life">萊爾富</string>
+    <string name="ok_mart">ok</string>
+    <string name="step_1">步驟一：選擇目的地</string>
+    <string name="step_1_content">請點選地標或輸入目的地</string>
+    <string name="step_2">步驟二：規劃路徑</string>
+    <string name="step_2_content">請篩選超商，並點選想經過的超商</string>
+    <string name="step_2_tips">再次點擊取消</string>
+    <string name="step_3">步驟三：邀請好友</string>
+    <string name="step_3_content">掃描QR Code 邀請好友</string>
+    <string name="schedule">目前進度：</string>
+    <string name="total">總共超商：</string>
+
+    <!-- Rank market -->
+    <string name="count">超商數量：</string>
+    <string name="length">路程長度：</string>
+    <string name="degree">難易程度：</string>
+
+    <!-- profile -->
+    <string name="length_total">路程總計：</string>
+    <string name="market_total">超商總計：</string>
+    <string name="bar_total">酒吧總計：</string>
+    <string name="follow">追蹤</string>
+    <string name="followed">被追蹤</string>
+    <string name="logout">登出</string>
+    <string name="my_post">我的發文</string>
+    <string name="my_follow">我的追蹤</string>
+    <string name="my_collection">我的收藏</string>
+
+    <!-- Request permission -->
+    <string name="route_market">路跑超商</string>
+    <string name="bar_share">酒吧分享</string>
+
+    <!-- Request permission -->
+    <string name="location_permission_denied">位置權限拒絕</string>
+    <string name="permission_required_toast">權限要求通知</string>
+    <string name="permission_rationale_location">我們需要您的位置來開始遊戲</string>
+
 </resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bottom Navigation -->
+    <dimen name="height_bottom_nav_view_main">56dp</dimen>
+    <dimen name="size_bottom_nav_icon">36dp</dimen>
+</resources>
