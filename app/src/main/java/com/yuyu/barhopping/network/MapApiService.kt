@@ -44,7 +44,7 @@ interface MapApiService {
     @GET(
         "/maps/api/directions/json?" +
                 "sensor=false&mode=walking" +
-                "&key="
+                "&key=${BuildConfig.MAPS_API_KEY}"
     )
     suspend fun getDirectionResult(
         @Query("origin") origin: String,
@@ -55,7 +55,7 @@ interface MapApiService {
     @GET(
         "/maps/api/place/nearbysearch/json?" +
                 "&type=convenience_store" +
-                "&key="
+                "&key=${BuildConfig.MAPS_API_KEY}"
     )
     suspend fun getNearbyMarket(
         @Query("location") location: String,

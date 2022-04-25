@@ -33,6 +33,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.yuyu.barhopping.BuildConfig
 import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.MarketName
@@ -488,7 +489,7 @@ class MapFragment : Fragment(),
 
     private fun setupPlaceApi() {
         // Initialize the SDK
-        Places.initialize(context, getString(R.string.apiKey))
+        Places.initialize(context, BuildConfig.MAPS_API_KEY)
 
         // Create a new PlacesClient instance
         placesClient = Places.createClient(context)
