@@ -1,0 +1,8 @@
+# pack-refs with: peeled fully-peeled sorted 
+3ef6aaf7f0cc701838656ab88c3223ccfeae1b82 refs/heads/basic_page
+06b765513d18eb38c48c387f69d7034d514210b8 refs/heads/develop
+c5f0cb01f9b4e63ec4a93801b833e20d31b7d078 refs/heads/explore
+06b765513d18eb38c48c387f69d7034d514210b8 refs/heads/map_gps
+b97da817a9f8b46382247f3fd5229c4589abf7cc refs/heads/map_sdk
+25a2c5e37d61fc0ce8f94283125c5674a5e767d8 refs/heads/master
+6066d29985654caf47547465425bc09583ffc78c refs/heads/profile

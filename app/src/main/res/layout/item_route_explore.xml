@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="routeCommend"
+            type="com.yuyu.barhopping.data.RouteCommend" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardElevation="8dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_constrain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/user_img"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_launcher_foreground" />
+
+            <TextView
+                android:id="@+id/user_name_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@id/user_img"
+                app:layout_constraintStart_toEndOf="@id/user_img"
+                app:layout_constraintTop_toTopOf="@id/user_img"
+                tools:text="我是大王"
+                android:text="@{routeCommend.senderId}"/>
+
+            <ImageButton
+                android:id="@+id/follow_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:background="#00000000"
+                app:layout_constraintBottom_toBottomOf="@id/user_img"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/user_img"
+                app:srcCompat="@drawable/ic_add_24" />
+
+            <ImageView
+                android:id="@+id/content_img"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="@id/follow_btn"
+                app:layout_constraintStart_toStartOf="@id/user_img"
+                app:layout_constraintTop_toBottomOf="@id/user_img"
+                app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+            <ImageButton
+                android:id="@+id/like_btn"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_baseline_favorite_24"
+                app:layout_constraintStart_toStartOf="@id/content_img"
+                app:layout_constraintTop_toBottomOf="@id/content_img" />
+
+            <ImageButton
+                android:id="@+id/comment_btn"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_baseline_chat_bubble_24"
+                app:layout_constraintStart_toEndOf="@id/like_btn"
+                app:layout_constraintTop_toTopOf="@id/like_btn" />
+
+            <TextView
+                android:id="@+id/location_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/like_btn"
+                app:layout_constraintTop_toBottomOf="@id/like_btn"
+                tools:text="this is location" />
+
+            <TextView
+                android:id="@+id/content_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/location_tv"
+                app:layout_constraintTop_toBottomOf="@id/location_tv"
+                tools:text="this it good"
+                android:text="@{routeCommend.commend}"/>
+
+            <TextView
+                android:id="@+id/time_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/content_tv"
+                app:layout_constraintTop_toBottomOf="@id/content_tv"
+                tools:text="2020/2/2" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

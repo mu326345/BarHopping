@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="bar"
+            type="com.yuyu.barhopping.data.Bar" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardElevation="8dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/card_constrain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/user_img"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_launcher_foreground" />
+
+            <TextView
+                android:id="@+id/user_name_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@id/user_img"
+                app:layout_constraintStart_toEndOf="@id/user_img"
+                app:layout_constraintTop_toTopOf="@id/user_img"
+                tools:text="我是大王"
+                android:text="@{bar.id}"/>
+
+            <ImageButton
+                android:id="@+id/follow_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:background="#00000000"
+                app:layout_constraintBottom_toBottomOf="@id/user_img"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/user_img"
+                app:srcCompat="@drawable/ic_add_24" />
+
+            <ImageView
+                android:id="@+id/content_img"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toEndOf="@id/follow_btn"
+                app:layout_constraintStart_toStartOf="@id/user_img"
+                app:layout_constraintTop_toBottomOf="@id/user_img"
+                app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+            <ImageButton
+                android:id="@+id/like_btn"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginTop="8dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_baseline_favorite_24"
+                app:layout_constraintStart_toStartOf="@id/content_img"
+                app:layout_constraintTop_toBottomOf="@id/content_img" />
+
+            <ImageButton
+                android:id="@+id/comment_btn"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:background="#00000000"
+                android:src="@drawable/ic_baseline_chat_bubble_24"
+                app:layout_constraintStart_toEndOf="@id/like_btn"
+                app:layout_constraintTop_toTopOf="@id/like_btn" />
+
+            <TextView
+                android:id="@+id/location_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/like_btn"
+                app:layout_constraintTop_toBottomOf="@id/like_btn"
+                tools:text="this is location"
+                android:text="@{bar.name}"/>
+
+            <ImageView
+                android:id="@+id/phone_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/location_tv"
+                app:layout_constraintTop_toBottomOf="@id/location_tv"
+                app:srcCompat="@drawable/ic_baseline_call_24" />
+
+            <TextView
+                android:id="@+id/number_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@id/phone_img"
+                app:layout_constraintStart_toEndOf="@id/phone_img"
+                app:layout_constraintTop_toTopOf="@id/phone_img"
+                tools:text="66666666"
+                android:text="@{bar.phone}"/>
+
+            <ImageView
+                android:id="@+id/address_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_baseline_location_on_24"
+                app:layout_constraintStart_toStartOf="@id/phone_img"
+                app:layout_constraintTop_toBottomOf="@id/phone_img" />
+
+            <TextView
+                android:id="@+id/address_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="@id/address_img"
+                app:layout_constraintStart_toEndOf="@id/address_img"
+                app:layout_constraintTop_toTopOf="@id/address_img"
+                tools:text="this is address"
+                android:text="@{bar.address}"/>
+
+            <TextView
+                android:id="@+id/content_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/address_img"
+                app:layout_constraintTop_toBottomOf="@id/address_img"
+                tools:text="this is content"
+                android:text="@{bar.commend}"/>
+
+            <TextView
+                android:id="@+id/time_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/content_tv"
+                app:layout_constraintTop_toBottomOf="@id/content_tv"
+                tools:text="2022/02/02" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>
