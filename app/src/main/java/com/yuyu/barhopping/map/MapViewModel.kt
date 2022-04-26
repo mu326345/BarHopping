@@ -11,15 +11,20 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PointOfInterest
 import com.google.android.libraries.places.api.model.Place
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.maps.android.SphericalUtil
 import com.yuyu.barhopping.data.GoogleMapDTO
 import com.yuyu.barhopping.data.MarketName
+import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.network.DirectionApi
 import kotlinx.coroutines.launch
 import java.lang.NullPointerException
 import kotlin.math.max
 
 class MapViewModel : ViewModel() {
+
+    private val db = Firebase.firestore
 
     private val _moveCameraLiveData = MutableLiveData<LatLng>()
     val moveCameraLiveData: LiveData<LatLng>
@@ -63,6 +68,23 @@ class MapViewModel : ViewModel() {
     val stepPage: LiveData<Int>
         get() = _stepPage
 
+    // handle user on game or not
+    private val _onRoute = MutableLiveData<Boolean>()
+    val onRoute: LiveData<Boolean>
+        get() = _onRoute
+
+    private val _userOnRouteId = MutableLiveData<String>()
+    val userOnRouteId: LiveData<String>
+        get() = _userOnRouteId
+
+
+
+    var userId = "yuyu11111"
+
+    init {
+        userId = "yuyu11111"
+        checkUserOnRoute()
+    }
 
     fun onLocationBtnClick() {
         if (lastLocationLiveData.value != null) {
@@ -111,10 +133,11 @@ class MapViewModel : ViewModel() {
     // show direction and draw route
     fun showDirection(list: List<LatLng>) {
         viewModelScope.launch {
-            val ori = "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}"
+            val ori =
+                "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}"
             val des = "${desMarkerLiveData.value!!.latitude},${desMarkerLiveData.value!!.longitude}"
 
-            var waypoints:String = ""
+            var waypoints: String = ""
             val tempList = mutableListOf<String>()
             for (x in list) {
                 tempList.add("${x.latitude},${x.longitude}")
@@ -166,7 +189,7 @@ class MapViewModel : ViewModel() {
 
     fun countDistance(directionResult: GoogleMapDTO) {
         var distance = 0
-        for(x in 0 until (directionResult.routes[0].legs.size)) {
+        for (x in 0 until (directionResult.routes[0].legs.size)) {
             distance += directionResult.routes[0].legs[x].distance.value
         }
 
@@ -248,5 +271,32 @@ class MapViewModel : ViewModel() {
             markerList.add(LatLng(marker.position.latitude, marker.position.longitude))
             marker.alpha = 0.3f
         }
+    }
+
+    fun onRouting() {
+        _onRoute.value = true
+    }
+
+    fun notOnRouting() {
+        _onRoute.value = false
+    }
+
+    fun checkUserOnRoute() {
+        db.collection("User")
+            .whereEqualTo("id", userId)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (x in documents) {
+                    Log.d(TAG, "${x.data["name"]} => ${x.data}")
+                    _userOnRouteId.value = x.data["onRoute"] as String
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
+    }
+
+    companion object {
+        val TAG = "MapViewModel"
     }
 }

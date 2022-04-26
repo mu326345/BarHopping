@@ -108,9 +108,7 @@ class MapFragment : Fragment(),
                         R.id.previous_step_btn3 -> viewModel.setStepPage(StepTypeFilter.STEP2)
                         R.id.start_game_btn -> {
                             viewModel.setStepPage(StepTypeFilter.STEP1)
-                            binding.detailSheet.root.visibility = View.VISIBLE
-                            stepRecyclerView.visibility = View.GONE
-                            (activity as MainActivity).hideBottomNav()
+                            viewModel.onRouting()
                             Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -166,10 +164,7 @@ class MapFragment : Fragment(),
         }
 
         binding.gameOverBtn.setOnClickListener {
-            map?.clear()
-            stepRecyclerView.visibility = View.VISIBLE
-            binding.detailSheet.root.visibility = View.GONE
-            (activity as MainActivity).showBottomNav()
+            viewModel.notOnRouting()
         }
 
         viewModel.moveCameraLiveData.observe(
@@ -261,10 +256,58 @@ class MapFragment : Fragment(),
             }
         )
 
-        sheetViewModel.nameList.observe(viewLifecycleOwner) {
+        // make sure user have onRoute or not
+        viewModel.userOnRouteId.observe(
+            viewLifecycleOwner, Observer {
+                it?.let {
+                    viewModel.onRouting()
+                    sheetViewModel.getUserRouteImages(it)
+                }
+            }
+        )
+
+        // get user uploaded images to confirm their progress of route
+        sheetViewModel.imagesLiveData.observe(
+            viewLifecycleOwner, Observer {
+                it?.let {
+                    sheetViewModel.checkUserFinished()
+                }
+            }
+        )
+
+        sheetViewModel.finishedGame.observe(viewLifecycleOwner) {
+            viewModel.notOnRouting()
+            sheetViewModel.finishedGameToNull()
+            //TODO upload userId complete to firebase
+        }
+
+        /**
+         * control game state and their behavior and UI
+         */
+        viewModel.onRoute.observe(
+            viewLifecycleOwner, Observer {
+                when(it) {
+                    true -> {
+                        binding.detailSheet.root.visibility = View.VISIBLE
+                        stepRecyclerView.visibility = View.GONE
+                        (activity as MainActivity).hideBottomNav()
+                    }
+                    false -> {
+                        map?.clear()
+                        stepRecyclerView.visibility = View.VISIBLE
+                        binding.detailSheet.root.visibility = View.GONE
+                        (activity as MainActivity).showBottomNav()
+                    }
+                }
+            }
+        )
+
+        // transformations.map pointsId list from routeData
+        sheetViewModel.pointsList.observe(viewLifecycleOwner) {
             sheetViewModel.findPointName()
         }
 
+        // use pointId to query pointName LiveData
         sheetViewModel.marketName.observe(viewLifecycleOwner) {
             sheetAdapter.submitList(it)
         }
