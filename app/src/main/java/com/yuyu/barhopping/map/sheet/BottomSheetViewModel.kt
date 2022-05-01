@@ -1,31 +1,33 @@
 package com.yuyu.barhopping.map.sheet
 
+import android.graphics.Bitmap
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import androidx.lifecycle.*
+import com.google.android.gms.maps.model.LatLng
+import com.yuyu.barhopping.data.Point
 import com.yuyu.barhopping.data.PointImages
 import com.yuyu.barhopping.data.RouteStore
-import com.yuyu.barhopping.map.MapViewModel
+import com.yuyu.barhopping.repository.FirebaseRepository
+import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 
-class BottomSheetViewModel : ViewModel() {
-
-    private val db = Firebase.firestore
+class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     private val _routeDataList = MutableLiveData<RouteStore>()
     val routeDataList: LiveData<RouteStore>
         get() = _routeDataList
 
-    private val _marketName = MutableLiveData<List<String>>()
-    val marketName: LiveData<List<String>>
-        get() = _marketName
+
+    private val _marketDetailData = MutableLiveData<List<Point>>()
+    val marketDetailData: LiveData<List<Point>>
+        get() = _marketDetailData
 
     // user search for point market name
     val pointsList = Transformations.map(routeDataList) {
         it.points
+    }
+
+    val marketName = Transformations.map(marketDetailData) {
+        it.map { it.name }
     }
 
     private val _imagesLiveData = MutableLiveData<List<PointImages>>()
@@ -36,95 +38,55 @@ class BottomSheetViewModel : ViewModel() {
     val finishedGame: LiveData<Boolean>
         get() = _finishedGame
 
+    val imageUrlAndLatLngLiveData: MediatorLiveData<Pair<List<PointImages>?, List<Point>?>>
+     = MediatorLiveData()
 
-    var idStr = "vaFVZgqwkmW367bVB32A"
     var userId = "yuyu11111"
 
-    init {
-        idStr = "vaFVZgqwkmW367bVB32A"
-        getRouteData()
+    /**
+     * path routeId then get detail
+     * and transformation get market point id list
+     */
+    fun getRouteDetail(routeId: String) {
+        repository.getRouteDetail(object : FirebaseDataSource.RouteCallBack {
+            override fun onResult(list: RouteStore) {
+                _routeDataList.value = list
+            }
+        }, routeId)
     }
 
-    fun getRouteData() {
-        db.collection("Route")
-            .whereEqualTo("id", idStr)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    Log.d(TAG, "${document.id} => ${document.data}")
-
-                    val routeList = RouteStore(
-                        id = document["id"] as String,
-                        startPoint = document["startPoint"] as String,
-                        startLat = document["startLat"] as String,
-                        startLon = document["startLon"] as String,
-                        endPoint = document["endPoint"] as String,
-                        endLat = document["endLat"] as String,
-                        endLon = document["endLon"] as String,
-                        marketCount = document["marketCount"] as Long,
-                        length = document["length"] as Long,
-                        hardDegree = document["hardDegree"] as Long,
-                        comments = document["comments"] as String,
-                        points = document["points"] as ArrayList<String>
-                    )
-                    _routeDataList.value = routeList
-                }
+    /**
+     * snap route-images all that for check user finish this route or not
+     */
+    fun snapUserRouteImages(routeId: String) {
+        repository.getUserRouteImages(object : FirebaseDataSource.UserRouteImagesCallBack {
+            override fun onResult(imageList: List<PointImages>) {
+                _imagesLiveData.value = imageList
+                checkUserFinished()
             }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents: ", exception)
-            }
+        }, routeId)
     }
 
-    fun findPointName() {
-        val list = mutableListOf<String>()
-        pointsList.value?.let {
-            db.collection("Point")
-                .whereIn("marketId", it)
-                .get()
-                .addOnSuccessListener { documents ->
-                    for (document in documents) {
-                        Log.d(TAG, "${document.id} => ${document.data}")
-                        val name = document["name"]
-                        list.add(name.toString())
-                    }
-                    _marketName.value = list
-                }
-                .addOnFailureListener { exception ->
-                    Log.w(TAG, "Error getting documents: ", exception)
-                }
+    /**
+     * use mediatorLiveData put two LiveData together
+     */
+    fun addUrlAndLatLngToPair() {
+        imageUrlAndLatLngLiveData.addSource(_marketDetailData) {
+            imageUrlAndLatLngLiveData.value = Pair(_imagesLiveData.value, it)
+        }
+        imageUrlAndLatLngLiveData.addSource(_imagesLiveData) {
+            imageUrlAndLatLngLiveData.value = Pair(it, _marketDetailData.value)
         }
     }
 
-    fun getUserRouteImages(routeId: String) {
-        val imagesList = mutableListOf<PointImages>()
-        db.collection("Route")
-            .document(routeId)
-            .collection("image")
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    Log.w(MapViewModel.TAG, "Listen failed.", e)
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    for (x in snapshot.documents) {
-                        val imageList = PointImages(
-                            id = x["id"] as String,
-                            pointId = x["pointId"] as String,
-                            url = x["url"] as String,
-                            userId = x["userId"] as String
-                        )
-                        imagesList.add(imageList)
-                    }
-                    _imagesLiveData.value = imagesList
-                    Log.d(MapViewModel.TAG, "data: ${snapshot.documents}")
-                } else {
-                    Log.d(MapViewModel.TAG, "data: null")
-                }
+    fun getPointDetailList(points: List<String>) {
+        repository.getPointDetailList(object : FirebaseDataSource.PointCallBack {
+            override fun onResult(list: List<Point>) {
+                _marketDetailData.value = list
             }
+        }, points)
     }
 
-    // in all images find user then check
     fun checkUserFinished() {
         var count = 0
         imagesLiveData.value?.forEach {

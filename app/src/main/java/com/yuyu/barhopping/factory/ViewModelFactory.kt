@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.yuyu.barhopping.explore.bar.BarExploreViewModel
 import com.yuyu.barhopping.explore.route.RouteExploreViewModel
+import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
 
 class ViewModelFactory(val repository: FirebaseRepository) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel?> create(modelClass: Class<T>) =
+    override fun <T : ViewModel> create(modelClass: Class<T>): T =
         with(modelClass) {
             when {
                 isAssignableFrom(RouteExploreViewModel::class.java) ->
@@ -16,6 +17,10 @@ class ViewModelFactory(val repository: FirebaseRepository) : ViewModelProvider.F
 
                 isAssignableFrom(BarExploreViewModel::class.java) ->
                     BarExploreViewModel(repository)
+
+                isAssignableFrom(BottomSheetViewModel::class.java) ->
+                    BottomSheetViewModel(repository)
+
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }
