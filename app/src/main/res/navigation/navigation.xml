@@ -9,7 +9,11 @@
         android:id="@+id/mapFragment"
         android:name="com.yuyu.barhopping.map.MapFragment"
         android:label="fragment_map"
-        tools:layout="@layout/fragment_map" />
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/action_mapFragment_to_successDialogFragment"
+            app:destination="@id/successDialogFragment" />
+    </fragment>
     <fragment
         android:id="@+id/champFragment"
         android:name="com.yuyu.barhopping.rank.RankFragment"
@@ -55,6 +59,11 @@
         android:name="com.yuyu.barhopping.explore.grid.GridExploreFragment"
         android:label="fragment_grid_explore"
         tools:layout="@layout/fragment_grid_explore" />
+    <dialog
+        android:id="@+id/successDialogFragment"
+        android:name="com.yuyu.barhopping.map.finished.SuccessDialogFragment"
+        android:label="success_dialog_fragment"
+        tools:layout="@layout/success_dialog_fragment" />
 
     <action android:id="@+id/navigate_to_map_fragment" app:destination="@id/mapFragment"
         app:popUpTo="@id/navigation"

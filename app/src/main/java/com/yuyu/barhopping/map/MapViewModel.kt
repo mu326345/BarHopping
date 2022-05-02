@@ -1,30 +1,25 @@
 package com.yuyu.barhopping.map
 
+import android.graphics.Bitmap
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.gms.maps.model.PointOfInterest
+import androidx.lifecycle.*
+import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.model.Place
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.maps.android.SphericalUtil
 import com.yuyu.barhopping.data.GoogleMapDTO
 import com.yuyu.barhopping.data.MarketName
-import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.network.DirectionApi
 import kotlinx.coroutines.launch
-import java.lang.NullPointerException
 import kotlin.math.max
 
 class MapViewModel : ViewModel() {
 
     private val db = Firebase.firestore
+
+    lateinit var userDocId: String
 
     private val _moveCameraLiveData = MutableLiveData<LatLng>()
     val moveCameraLiveData: LiveData<LatLng>
@@ -192,19 +187,18 @@ class MapViewModel : ViewModel() {
         for (x in 0 until (directionResult.routes[0].legs.size)) {
             distance += directionResult.routes[0].legs[x].distance.value
         }
-
     }
 
     fun onLocationUpdate(location: Location) {
         _lastLocationLiveData.value = location
     }
 
-    fun setMarketCheck(market: MarketName, checked: Boolean, hasData: Boolean) {
+    fun setMarketCheck(market: MarketName, checked: Boolean, hasData: Boolean, bitmap: Bitmap) {
         if (checked) {
             if (hasData) {
                 _visibleMarker.value = Pair(market, true)
             } else {
-                showMarketItems(market)
+                showMarketItems(market, bitmap)
             }
         } else {
             if (hasData) {
@@ -214,7 +208,7 @@ class MapViewModel : ViewModel() {
     }
 
     // nearby api find market
-    fun showMarketItems(market: MarketName) {
+    fun showMarketItems(market: MarketName, bitmap: Bitmap) {
         viewModelScope.launch {
             paths.value?.let {
                 try {
@@ -232,6 +226,7 @@ class MapViewModel : ViewModel() {
                         MarkerOptions()
                             .position(LatLng(it.geometry.location.lat, it.geometry.location.lng))
                             .title(it.name)
+                            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                     })
 
                 } catch (e: NullPointerException) {
@@ -279,6 +274,12 @@ class MapViewModel : ViewModel() {
 
     fun notOnRouting() {
         _onRoute.value = false
+
+        userDocId?.let {
+            db.collection("User")
+                .document(it)
+                .update("onRoute",null)
+        }
     }
 
     fun checkUserOnRoute() {
@@ -288,7 +289,8 @@ class MapViewModel : ViewModel() {
             .addOnSuccessListener { documents ->
                 for (x in documents) {
                     Log.d(TAG, "${x.data["name"]} => ${x.data}")
-                    _userOnRouteId.value = x.data["onRoute"] as String
+                    userDocId = x.id
+                    _userOnRouteId.value = x.data["onRoute"] as String?
                 }
             }
             .addOnFailureListener { exception ->

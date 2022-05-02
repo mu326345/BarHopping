@@ -3,6 +3,7 @@ package com.yuyu.barhopping.map
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
@@ -20,7 +21,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.bumptech.glide.Glide
@@ -58,7 +61,7 @@ class MapFragment : Fragment(),
     ActivityCompat.OnRequestPermissionsResultCallback {
 
     private lateinit var binding: FragmentMapBinding
-    private lateinit var viewModel: MapViewModel
+    private val viewModel: MapViewModel by viewModels()
     private val sheetViewModel by viewModels<BottomSheetViewModel> {
         ViewModelFactory((context?.applicationContext as Application).repository)
     }
@@ -87,8 +90,6 @@ class MapFragment : Fragment(),
 
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel = ViewModelProvider(this).get(MapViewModel::class.java)
-
         val stepRecyclerView = binding.stepRecycler
         stepRecyclerView.layoutManager = object : LinearLayoutManager(context, HORIZONTAL, false) {
             override fun canScrollHorizontally(): Boolean = false
@@ -122,6 +123,7 @@ class MapFragment : Fragment(),
                         R.id.start_game_btn -> {
                             viewModel.setStepPage(StepTypeFilter.STEP1)
                             viewModel.onRouting()
+                            // TODO: store onRoute to firebase
                             Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -227,44 +229,87 @@ class MapFragment : Fragment(),
         // market check box
         viewModel.sevenChecked.observe(
             viewLifecycleOwner, Observer {
-                viewModel.setMarketCheck(
-                    MarketName.SEVEN,
-                    it,
-                    markerMap[MarketName.SEVEN] != null
-                )
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val futureTarget = Glide.with(requireContext())
+                        .asBitmap()
+                        .load(R.drawable.seven_eleven_logo)
+                        .submit(80, 80)
+                    val bitmap = futureTarget.get()
+
+                    withContext(Dispatchers.Main) {
+                        viewModel.setMarketCheck(
+                            MarketName.SEVEN,
+                            it,
+                            markerMap[MarketName.SEVEN] != null,
+                            bitmap
+                        )
+                    }
+                }
             }
         )
 
         viewModel.familyChecked.observe(
             viewLifecycleOwner, Observer {
-                viewModel.setMarketCheck(
-                    MarketName.FAMILY,
-                    it,
-                    markerMap[MarketName.FAMILY] != null
-                )
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val futureTarget = Glide.with(requireContext())
+                        .asBitmap()
+                        .load(R.drawable.family_logo)
+                        .submit(80, 80)
+                    val bitmap = futureTarget.get()
+
+                    withContext(Dispatchers.Main) {
+                        viewModel.setMarketCheck(
+                            MarketName.FAMILY,
+                            it,
+                            markerMap[MarketName.FAMILY] != null,
+                            bitmap
+                        )
+                    }
+                }
             }
         )
 
         viewModel.hiLifeChecked.observe(
             viewLifecycleOwner, Observer {
-                viewModel.setMarketCheck(
-                    MarketName.HILIFE,
-                    it,
-                    markerMap[MarketName.HILIFE] != null
-                )
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val futureTarget = Glide.with(requireContext())
+                        .asBitmap()
+                        .load(R.drawable.hi_life_logo)
+                        .submit(80, 80)
+                    val bitmap = futureTarget.get()
+
+                    withContext(Dispatchers.Main) {
+                        viewModel.setMarketCheck(
+                            MarketName.HILIFE,
+                            it,
+                            markerMap[MarketName.HILIFE] != null,
+                            bitmap
+                        )
+                    }
+                }
             }
         )
 
         viewModel.okMartChecked.observe(
             viewLifecycleOwner, Observer {
-                viewModel.setMarketCheck(
-                    MarketName.OKMART,
-                    it,
-                    markerMap[MarketName.OKMART] != null
-                )
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val futureTarget = Glide.with(requireContext())
+                        .asBitmap()
+                        .load(R.drawable.ok_logo)
+                        .submit(80, 80)
+                    val bitmap = futureTarget.get()
+
+                    withContext(Dispatchers.Main) {
+                        viewModel.setMarketCheck(
+                            MarketName.OKMART,
+                            it,
+                            markerMap[MarketName.OKMART] != null,
+                            bitmap
+                        )
+                    }
+                }
             }
         )
-
 
         viewModel.stepPage.observe(
             viewLifecycleOwner, Observer {
@@ -305,28 +350,33 @@ class MapFragment : Fragment(),
         )
 
         sheetViewModel.finishedGame.observe(viewLifecycleOwner) {
-            viewModel.notOnRouting()
-            sheetViewModel.finishedGameToNull()
-            //TODO upload userId complete to firebase
+            it?.let {
+                map?.clear()
+                viewModel.notOnRouting()
+                findNavController().navigate(MapFragmentDirections.actionMapFragmentToSuccessDialogFragment())
+                //TODO upload userId complete to firebase
+            }
         }
 
-        sheetViewModel.imageUrlAndLatLngLiveData.observe(
-            viewLifecycleOwner, Observer {
-                it.first?.let { first ->
-                    it.second?.let { second ->
-                        first.forEach { first ->
-                            second.forEach { second ->
-                                if(first.pointId == second.marketId) {
-                                    val url = first.url
-                                    val latLng = LatLng(second.latitude, second.longitude)
-                                    glideLoadImageAddMarker(url, latLng)
-                                }
+        sheetViewModel.imageUrlAndLatLngLiveData.observe(viewLifecycleOwner) {
+            it.first?.let { first ->
+                it.second?.let { second ->
+                    first.forEach { first ->
+                        second.forEach { second ->
+                            if (first.pointId == second.marketId) {
+                                val url = first.url
+                                val latLng = LatLng(second.latitude, second.longitude)
+                                glideLoadImageAddMarker(url, latLng)
                             }
                         }
                     }
                 }
             }
-        )
+        }
+
+        sheetViewModel.checkUserFinishedLiveData.observe(viewLifecycleOwner) {
+            sheetViewModel.checkUserFinished()
+        }
 
         // transformations.map pointsId list from routeData
         sheetViewModel.pointsList.observe(viewLifecycleOwner) {
@@ -344,6 +394,7 @@ class MapFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         sheetViewModel.addUrlAndLatLngToPair()
+        sheetViewModel.addCheckUserFinishedMediator()
     }
 
     override fun onDestroy() {
@@ -409,7 +460,6 @@ class MapFragment : Fragment(),
                         }
                     }
                     AutocompleteActivity.RESULT_ERROR -> {
-                        // TODO: Handle the error.
                         data?.let {
                             val status = Autocomplete.getStatusFromIntent(data)
                             Log.i(TAG, status.statusMessage ?: "")
@@ -432,7 +482,6 @@ class MapFragment : Fragment(),
                         }
                     }
                     AutocompleteActivity.RESULT_ERROR -> {
-                        // TODO: Handle the error.
                         data?.let {
                             val status = Autocomplete.getStatusFromIntent(data)
                             Log.i(TAG, status.statusMessage ?: "")
@@ -454,7 +503,6 @@ class MapFragment : Fragment(),
                         }
                     }
                     AutocompleteActivity.RESULT_ERROR -> {
-                        // TODO: Handle the error.
                         data?.let {
                             val status = Autocomplete.getStatusFromIntent(data)
                             Log.i(TAG, status.statusMessage ?: "")

@@ -39,6 +39,7 @@
         <entry key="app/src/main/res/layout/item_step2.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_step3.xml" value="0.25" />
         <entry key="app/src/main/res/layout/marker_demo.xml" value="0.19376899696048633" />
+        <entry key="app/src/main/res/layout/success_dialog_fragment.xml" value="0.335" />
         <entry key="app/src/main/res/menu/bottom_nav_menu.xml" value="0.23802083333333332" />
       </map>
     </option>

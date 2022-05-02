@@ -41,6 +41,9 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
     val imageUrlAndLatLngLiveData: MediatorLiveData<Pair<List<PointImages>?, List<Point>?>>
      = MediatorLiveData()
 
+    val checkUserFinishedLiveData: MediatorLiveData<Pair<List<PointImages>?, List<String>?>>
+            = MediatorLiveData()
+
     var userId = "yuyu11111"
 
     /**
@@ -62,7 +65,6 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
         repository.getUserRouteImages(object : FirebaseDataSource.UserRouteImagesCallBack {
             override fun onResult(imageList: List<PointImages>) {
                 _imagesLiveData.value = imageList
-                checkUserFinished()
             }
         }, routeId)
     }
@@ -76,6 +78,15 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
         }
         imageUrlAndLatLngLiveData.addSource(_imagesLiveData) {
             imageUrlAndLatLngLiveData.value = Pair(it, _marketDetailData.value)
+        }
+    }
+
+    fun addCheckUserFinishedMediator () {
+        checkUserFinishedLiveData.addSource(pointsList) {
+            checkUserFinishedLiveData.value = Pair(_imagesLiveData.value, it)
+        }
+        checkUserFinishedLiveData.addSource(_imagesLiveData) {
+            checkUserFinishedLiveData.value = Pair(it, pointsList.value)
         }
     }
 
@@ -95,10 +106,10 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
         }
 
-        pointsList.value?.size.let {
-            if (count == it) {
-                Log.v("QAQ", it.toString())
+        pointsList.value?.let {
+            if (count == it.size) {
                 _finishedGame.value = true
+                finishedGameToNull()
             }
         }
     }
