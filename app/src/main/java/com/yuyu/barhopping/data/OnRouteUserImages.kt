@@ -1,6 +1,6 @@
 package com.yuyu.barhopping.data
 
-data class PointImages(
+data class OnRouteUserImages(
     val id: String,
     val pointId: String,
     val url: String,

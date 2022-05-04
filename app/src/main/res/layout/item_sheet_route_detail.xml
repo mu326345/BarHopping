@@ -5,8 +5,8 @@
     <data>
 
         <variable
-            name="marketName"
-            type="String" />
+            name="item"
+            type="com.yuyu.barhopping.data.SheetItem.MarketNameAndState" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,6 +14,7 @@
         android:layout_height="wrap_content">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/item_card_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -28,7 +29,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content">
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/market_icon_card"
@@ -36,9 +37,7 @@
                     android:layout_height="30dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
                     app:cardCornerRadius="90dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -56,24 +55,30 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:text="@{marketName.toString()}"
+                    android:text="@{item.name}"
                     app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
                     app:layout_constraintStart_toEndOf="@id/market_icon_card"
                     app:layout_constraintTop_toTopOf="@id/market_icon_card" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/user_icon_recycler"
+                <HorizontalScrollView
                     android:layout_width="0dp"
-                    android:layout_height="30dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="@id/market_icon_card"
-                    app:layout_constraintTop_toBottomOf="@id/market_icon_card" />
+                    app:layout_constraintStart_toStartOf="@id/market_tv"
+                    app:layout_constraintTop_toBottomOf="@id/market_icon_card">
+
+                    <LinearLayout
+                        android:id="@+id/imgList"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                    </LinearLayout>
+
+                </HorizontalScrollView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

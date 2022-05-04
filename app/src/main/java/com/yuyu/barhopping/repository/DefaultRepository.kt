@@ -23,4 +23,12 @@ class DefaultRepository(private val dataSource: FirebaseRepository): FirebaseRep
     override fun getUserRouteImages(callBack: FirebaseDataSource.UserRouteImagesCallBack, routeId: String) {
         return dataSource.getUserRouteImages(callBack, routeId)
     }
+
+    override fun getOnRouteUserLocation(callBack: FirebaseDataSource.UserRouteLocationCallBack, routeId: String) {
+        return dataSource.getOnRouteUserLocation(callBack, routeId)
+    }
+
+    override fun getUserDetail(callBack: FirebaseDataSource.UserCallBack, userId: String) {
+        return dataSource.getUserDetail(callBack, userId)
+    }
 }

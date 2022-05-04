@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
-            android:text="AAA 7-11"
+            android:text="@{viewModel.nextName}"
             app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
             app:layout_constraintStart_toEndOf="@id/market_icon_card"
             app:layout_constraintTop_toTopOf="@id/market_icon_card" />
@@ -64,10 +64,11 @@
         <TextView
             android:id="@+id/schedule_num"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="8"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(viewModel.imageCount)}"
             app:layout_constraintStart_toEndOf="@id/schedule_tv"
-            app:layout_constraintTop_toTopOf="@id/schedule_tv" />
+            app:layout_constraintTop_toTopOf="@id/schedule_tv"
+            app:layout_constraintBottom_toBottomOf="@id/schedule_tv"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline"
@@ -88,7 +89,7 @@
             android:id="@+id/total_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="2"
+            android:text="@{String.valueOf(viewModel.totalMarket)}"
             app:layout_constraintStart_toEndOf="@id/total_tv"
             app:layout_constraintTop_toTopOf="@id/total_tv" />
 

@@ -37,6 +37,10 @@
     <string name="leave_commend">請留下你的評分及評論！</string>
     <string name="your_commend">請在這輸入評論！</string>
     <string name="submit">提交</string>
+    <string name="already_market">已到達便利商店！</string>
+    <string name="take_photo_content">拍張照片來顯示完成任務吧！</string>
+    <string name="give_up">放棄遊戲</string>
+    <string name="take_photo">前往拍照</string>
 
     <!-- Rank market -->
     <string name="count">超商數量：</string>
