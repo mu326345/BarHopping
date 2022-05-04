@@ -1,6 +1,5 @@
 package com.yuyu.barhopping.repository
 
-import com.yuyu.barhopping.data.Point
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 
 interface FirebaseRepository {
@@ -14,4 +13,8 @@ interface FirebaseRepository {
     fun getPointDetailList(callBack: FirebaseDataSource.PointCallBack, points: List<String>)
 
     fun getUserRouteImages(callBack: FirebaseDataSource.UserRouteImagesCallBack, routeId: String)
+
+    fun getOnRouteUserLocation(callBack: FirebaseDataSource.UserRouteLocationCallBack, routeId: String)
+
+    fun getUserDetail(callBack: FirebaseDataSource.UserCallBack, userId: String)
 }

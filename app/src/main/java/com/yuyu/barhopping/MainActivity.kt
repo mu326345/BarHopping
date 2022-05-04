@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.yuyu.barhopping.databinding.ActivityMainBinding
@@ -90,8 +91,13 @@ class MainActivity : AppCompatActivity() {
         when(requestCode) {
             1 -> {
                 val newArr  = permissions.map{ it }
-                val fragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as MapFragment
-                fragment.onRequestPermissionsResult(requestCode, newArr.toTypedArray(), grantResults)
+                val navHostFragment = binding.myNavHostFragment.getFragment<NavHostFragment>()
+                val list = navHostFragment.childFragmentManager.fragments
+                for (f in list) {
+                    if (f is MapFragment) {
+                        f.onRequestPermissionsResult(requestCode, newArr.toTypedArray(), grantResults)
+                    }
+                }
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

@@ -19,7 +19,7 @@ data class Route(
     val overview_polyline: OverviewPolyline,
     val summary: String,
     val warnings: List<String>,
-    val waypoint_order: List<Any>
+    val waypoint_order: List<Int>
 )
 
 data class Bounds(
