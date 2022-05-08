@@ -123,14 +123,9 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
      * snap route-images all that for check user finish this route or not
      */
     fun snapOnRouteUserImages(routeId: String) {
-        Log.v("QAQ", "routeId = $routeId")
         repository.getUserRouteImages(object : FirebaseDataSource.UserRouteImagesCallBack {
             override fun onResult(imageList: List<OnRouteUserImages>) {
                 _imagesLiveData.value = imageList
-                Log.v("QAQ", "size = ${imageList.size}")
-                imageList.forEach {
-                    Log.v("QAQ", it.pointId)
-                }
             }
         }, routeId)
     }
@@ -206,8 +201,6 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
 
         _imageCount.value = count
 
-        Log.v("QAQ1", "images Size = ${imagesLiveData.value?.size}")
-        Log.v("QAQ1", "count = ${count}")
         marketNameAndStateFromDb.value?.let {
             for(state in 0..count.minus(1)) {
                 it[state].done = true

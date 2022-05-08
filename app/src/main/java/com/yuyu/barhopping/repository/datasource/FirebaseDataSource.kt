@@ -139,7 +139,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
             .collection("images")
             .addSnapshotListener { snapshot, e ->
                 val imagesList = mutableListOf<OnRouteUserImages>()
-                
+
                 if (e != null) {
                     Log.w(MapViewModel.TAG, "Listen failed.", e)
                     return@addSnapshotListener
