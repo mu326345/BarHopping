@@ -1,13 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".post.PostFragment">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/post" />
+        android:id="@+id/post_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#F5F5F5"
+        android:gravity="center"
+        android:text="選擇照片"
+        android:textSize="30sp"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <EditText
+        android:id="@+id/commend_edit"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:gravity="left"
+        android:hint="加上解說..."
+        app:layout_constraintEnd_toEndOf="@id/post_image"
+        app:layout_constraintStart_toStartOf="@id/post_image"
+        app:layout_constraintTop_toBottomOf="@id/post_image" />
+
+    <TextView
+        android:id="@+id/add_location_tv"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        android:text="新增地點"
+        app:layout_constraintEnd_toEndOf="@id/commend_edit"
+        app:layout_constraintStart_toStartOf="@id/commend_edit"
+        app:layout_constraintTop_toBottomOf="@id/commend_edit" />
+
+    <Button
+        android:id="@+id/share_btn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#B5B5B5"
+        android:text="分享"
+        app:layout_constraintEnd_toEndOf="@id/add_location_tv"
+        app:layout_constraintStart_toStartOf="@id/add_location_tv"
+        app:layout_constraintTop_toBottomOf="@id/add_location_tv" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

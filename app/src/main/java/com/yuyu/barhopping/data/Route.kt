@@ -11,7 +11,7 @@ data class RouteStore(
     val endLon: String,
     val marketCount: Long,
     val length: Long?,
-    val hardDegree: Long?,
+    val hardDegree: Int? = 0,
     val comments: String?,
     val points: List<String>?,
     val paths: List<String>

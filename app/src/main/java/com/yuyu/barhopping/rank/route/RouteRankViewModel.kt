@@ -41,8 +41,8 @@ class RouteRankViewModel : ViewModel() {
                         endLon = x["endLon"] as String,
                         marketCount = x["marketCount"] as Long,
                         length = x["length"] as Long,
-                        hardDegree = x["hardDegree"] as Long,
-                        comments = x["comments"] as String,
+                        hardDegree = x["hardDegree"] as Int?,
+                        comments = x["comments"] as String?,
                         points = x["points"] as List<String>,
                         paths = x["paths"] as List<String>
                     )

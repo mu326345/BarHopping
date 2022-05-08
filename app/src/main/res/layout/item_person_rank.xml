@@ -28,31 +28,38 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
+                android:text="@{user.title}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/card_constrain"
-                tools:text="超級肝硬化"
-                android:text="@{user.title}"/>
+                tools:text="超級肝硬化" />
 
-            <ImageView
-                android:id="@+id/user_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/user_img_card"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:scaleType="centerCrop"
+                app:cardCornerRadius="10dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title_tv"
-                app:srcCompat="@drawable/ic_launcher_foreground" />
+                app:layout_constraintTop_toBottomOf="@id/title_tv">
+
+                <ImageView
+                    android:id="@+id/user_img"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{user.icon}" />
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/user_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                app:layout_constraintStart_toEndOf="@id/user_img"
-                app:layout_constraintTop_toTopOf="@id/user_img"
-                tools:text="yuyu"
-                android:text="@{user.name}"/>
+                android:text="@{user.name}"
+                app:layout_constraintStart_toEndOf="@id/user_img_card"
+                app:layout_constraintTop_toTopOf="@id/user_img_card"
+                tools:text="yuyu" />
 
             <TextView
                 android:id="@+id/length_tv"
@@ -68,6 +75,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="2km"
                 app:layout_constraintStart_toEndOf="@id/length_tv"
                 app:layout_constraintTop_toTopOf="@id/length_tv"
                 tools:text="2KM" />
@@ -88,7 +96,8 @@
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/market_tv"
                 app:layout_constraintTop_toTopOf="@id/market_tv"
-                tools:text="6家" />
+                tools:text="6家"
+                android:text="4家"/>
 
             <TextView
                 android:id="@+id/bar_tv"
@@ -108,7 +117,8 @@
                 android:layout_marginStart="8dp"
                 app:layout_constraintStart_toEndOf="@id/bar_tv"
                 app:layout_constraintTop_toTopOf="@id/bar_tv"
-                tools:text="8家" />
+                tools:text="8家"
+                android:text="8家"/>
 
             <Button
                 android:id="@+id/follow_btn"

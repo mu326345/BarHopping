@@ -32,9 +32,9 @@
         <entry key="app/src/main/res/layout/item_layout_grid_1.xml" value="0.375" />
         <entry key="app/src/main/res/layout/item_layout_grid_2.xml" value="0.375" />
         <entry key="app/src/main/res/layout/item_layout_grid_3.xml" value="0.25" />
-        <entry key="app/src/main/res/layout/item_person_rank.xml" value="0.35452793834296725" />
-        <entry key="app/src/main/res/layout/item_route_explore.xml" value="0.20185185185185187" />
-        <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/item_person_rank.xml" value="0.2907608695652174" />
+        <entry key="app/src/main/res/layout/item_route_explore.xml" value="0.30835734870317005" />
+        <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.44539614561027835" />
         <entry key="app/src/main/res/layout/item_sheet_route_detail.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_sheet_route_friend_item.xml" value="0.1" />
         <entry key="app/src/main/res/layout/item_sheet_route_friends.xml" value="0.1" />
