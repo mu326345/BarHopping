@@ -35,10 +35,11 @@
             <TextView
                 android:id="@+id/location_tv"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
                 android:text="@{routeStore.startPoint}"
-                app:layout_constraintBottom_toBottomOf="@id/location_img"
+                app:layout_constraintBottom_toTopOf="@id/destination_tv"
                 app:layout_constraintStart_toEndOf="@id/location_img"
                 app:layout_constraintTop_toTopOf="@id/location_img"
                 tools:text="A點" />
@@ -56,7 +57,9 @@
                 android:id="@+id/destination_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 android:src="@drawable/ic_baseline_location_on_24"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/location_img"
                 app:layout_constraintStart_toStartOf="@id/location_img"
                 app:layout_constraintTop_toBottomOf="@id/more_vert_img" />
@@ -64,12 +67,13 @@
             <TextView
                 android:id="@+id/destination_tv"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
                 android:text="@{routeStore.endPoint}"
                 app:layout_constraintBottom_toBottomOf="@id/destination_img"
                 app:layout_constraintStart_toEndOf="@id/destination_img"
-                app:layout_constraintTop_toTopOf="@id/destination_img"
+                app:layout_constraintTop_toBottomOf="@id/location_tv"
                 tools:text="B點" />
 
             <androidx.constraintlayout.widget.Guideline
@@ -84,8 +88,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/count"
+                app:layout_constraintBottom_toTopOf="@id/route_length_tv"
                 app:layout_constraintStart_toStartOf="@id/guideline"
-                app:layout_constraintTop_toTopOf="@id/location_img" />
+                app:layout_constraintTop_toTopOf="@+id/location_tv" />
 
             <TextView
                 android:id="@+id/number_tv"
@@ -94,16 +99,16 @@
                 app:layout_constraintBottom_toBottomOf="@id/market_number_tv"
                 app:layout_constraintStart_toEndOf="@id/market_number_tv"
                 app:layout_constraintTop_toTopOf="@id/market_number_tv"
-                tools:text="10" />
+                tools:text="@{String.valueOf(routeStore.marketCount)}" />
 
             <TextView
                 android:id="@+id/route_length_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/length"
-                app:layout_constraintBottom_toBottomOf="@id/destination_img"
-                app:layout_constraintStart_toStartOf="@id/guideline"
-                app:layout_constraintTop_toTopOf="@id/destination_img" />
+                app:layout_constraintBottom_toTopOf="@+id/degree_tv"
+                app:layout_constraintStart_toStartOf="@id/market_number_tv"
+                app:layout_constraintTop_toBottomOf="@+id/market_number_tv" />
 
             <TextView
                 android:id="@+id/length_tv"
@@ -112,7 +117,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/route_length_tv"
                 app:layout_constraintStart_toEndOf="@id/route_length_tv"
                 app:layout_constraintTop_toTopOf="@id/route_length_tv"
-                tools:text="2KM" />
+                tools:text="@{String.valueOf(routeStore.length)}" />
 
             <ImageView
                 android:id="@+id/star_img"
@@ -127,12 +132,10 @@
                 android:id="@+id/degree_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
                 android:text="@string/degree"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/destination_img"
-                app:layout_constraintTop_toBottomOf="@id/destination_img" />
+                app:layout_constraintBottom_toBottomOf="@+id/destination_tv"
+                app:layout_constraintStart_toStartOf="@id/route_length_tv"
+                app:layout_constraintTop_toBottomOf="@id/route_length_tv" />
 
             <TextView
                 android:id="@+id/degree_number_tv"

@@ -87,6 +87,11 @@ class MapFragment : Fragment(),
         super.onCreate(savedInstanceState)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupPlaceApi()
+
+        sheetViewModel.addImageAndLatLngToPair()
+        sheetViewModel.addCheckUserFinishedMediator()
+        sheetViewModel.addCountAndStateMediatoe()
+        sheetViewModel.waitProgressLiveData()
     }
 
     override fun onCreateView(
@@ -627,10 +632,10 @@ class MapFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sheetViewModel.addImageAndLatLngToPair()
-        sheetViewModel.addCheckUserFinishedMediator()
-        sheetViewModel.addCountAndStateMediatoe()
-        sheetViewModel.waitProgressLiveData()
+//        sheetViewModel.addImageAndLatLngToPair()
+//        sheetViewModel.addCheckUserFinishedMediator()
+//        sheetViewModel.addCountAndStateMediatoe()
+//        sheetViewModel.waitProgressLiveData()
     }
 
     override fun onDestroy() {

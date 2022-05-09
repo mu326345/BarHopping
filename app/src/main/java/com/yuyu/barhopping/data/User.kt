@@ -7,5 +7,5 @@ data class User(
     val icon: String, //URL img
     val routeCollection: String, // List<Route id>
     val userCollection: String, // List<User id>
-    val onRoute: String
+    val onRoute: String?
 )
