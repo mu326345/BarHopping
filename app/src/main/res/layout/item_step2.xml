@@ -4,9 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="step2"
             type="String" />
+
         <variable
             name="viewModel"
             type="com.yuyu.barhopping.map.MapViewModel" />
@@ -23,8 +25,11 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            app:cardElevation="8dp"
+            android:layout_marginBottom="8dp"
             android:visibility="visible"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -65,8 +70,8 @@
                     android:layout_marginTop="8dp"
                     android:gravity="left"
                     android:text="@string/step_2_tips"
-                    app:layout_constraintStart_toStartOf="@id/step2_content_tv"
                     app:layout_constraintEnd_toEndOf="@id/step2_content_tv"
+                    app:layout_constraintStart_toStartOf="@id/step2_content_tv"
                     app:layout_constraintTop_toBottomOf="@id/step2_content_tv" />
 
                 <ImageView
@@ -83,10 +88,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    android:text="@string/your_location"
                     app:layout_constraintEnd_toEndOf="@id/step2_content_tv"
                     app:layout_constraintStart_toEndOf="@id/location_icon"
                     app:layout_constraintTop_toBottomOf="@id/step2_tips"
-                    android:text="@string/your_location"
                     tools:text="your location" />
 
                 <ImageView
@@ -111,10 +116,10 @@
                     android:id="@+id/step2_destination_edit"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:text="@={viewModel.selectLocationName}"
                     app:layout_constraintEnd_toEndOf="@id/location_edit"
                     app:layout_constraintStart_toStartOf="@id/location_edit"
                     app:layout_constraintTop_toBottomOf="@id/location_edit"
-                    android:text="@={viewModel.selectLocationName}"
                     tools:text="destination" />
 
                 <CheckBox
@@ -122,8 +127,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="@string/seven"
                     android:checked="@={viewModel.sevenChecked}"
+                    android:text="@string/seven"
                     app:layout_constraintEnd_toStartOf="@+id/family_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -134,8 +139,8 @@
                     android:id="@+id/family_box"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/family"
                     android:checked="@={viewModel.familyChecked}"
+                    android:text="@string/family"
                     app:layout_constraintEnd_toStartOf="@+id/hi_life_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/seven_box"
@@ -145,8 +150,8 @@
                     android:id="@+id/hi_life_box"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/hi_life"
                     android:checked="@={viewModel.hiLifeChecked}"
+                    android:text="@string/hi_life"
                     app:layout_constraintEnd_toStartOf="@+id/ok_mart_box"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/family_box"
@@ -156,8 +161,8 @@
                     android:id="@+id/ok_mart_box"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/ok_mart"
                     android:checked="@={viewModel.okMartChecked}"
+                    android:text="@string/ok_mart"
                     app:layout_constraintEnd_toEndOf="@+id/step2_destination_edit"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@+id/hi_life_box"
