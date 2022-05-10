@@ -14,7 +14,7 @@ interface FirebaseRepository {
 
     fun getUserRouteImages(callBack: FirebaseDataSource.UserRouteImagesCallBack, routeId: String)
 
-    fun getOnRouteUserLocation(callBack: FirebaseDataSource.UserRouteLocationCallBack, routeId: String)
+    fun snapOnRoutePartner(callBack: FirebaseDataSource.UserRoutePartnerCallBack, routeId: String)
 
     fun getUserDetail(callBack: FirebaseDataSource.UserCallBack, userId: String)
 }

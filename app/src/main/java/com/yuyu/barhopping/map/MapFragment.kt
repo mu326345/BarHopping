@@ -46,7 +46,6 @@ import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.FriendsProgress
 import com.yuyu.barhopping.data.MarketName
 import com.yuyu.barhopping.data.SheetItem
-import com.yuyu.barhopping.databinding.BottomSheetRouteDetailBinding
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
 import com.yuyu.barhopping.map.sheet.BottomSheetAdapter
@@ -65,7 +64,9 @@ class MapFragment : Fragment(),
 
     private lateinit var binding: FragmentMapBinding
     private var isGameStart = false
-    private val viewModel: MapViewModel by viewModels()
+    private val viewModel by viewModels<MapViewModel> {
+        ViewModelFactory((context?.applicationContext as Application).repository)
+    }
     private val sheetViewModel by viewModels<BottomSheetViewModel> {
         ViewModelFactory((context?.applicationContext as Application).repository)
     }
@@ -342,6 +343,7 @@ class MapFragment : Fragment(),
             viewLifecycleOwner, Observer {
                 when (it) {
                     true -> {
+                        viewModel.getUserData()
                         isGameStart = true
                         binding.detailSheet.root.visibility = View.VISIBLE
                         stepRecyclerView.visibility = View.GONE
@@ -351,6 +353,7 @@ class MapFragment : Fragment(),
                         isGameStart = false
                         map?.clear()
                         stepRecyclerView.visibility = View.VISIBLE
+                        binding.cameraCard.visibility = View.GONE
                         binding.detailSheet.root.visibility = View.GONE
                         (activity as MainActivity).showBottomNav()
                     }
@@ -364,7 +367,7 @@ class MapFragment : Fragment(),
                 it?.let {
                     userOnRouteId = it
                     viewModel.onRouting()
-                    viewModel.addUserLocationToOnRoute()
+                    viewModel.addPartnerToOnRoute() //第一次增加partner檔案
                     sheetViewModel.getRouteDetail(it)
                     sheetViewModel.snapOnRouteUserImages(it)
                     sheetViewModel.snapOnRouteUserLocation(it)
@@ -374,7 +377,7 @@ class MapFragment : Fragment(),
 
         viewModel.lastLocationLiveData.observe(
             viewLifecycleOwner, Observer {
-                viewModel.updateUserLocationToOnRoute()
+                viewModel.updatePartnerLocation()
 
                 it?.let {
                     if (isGameStart) {
@@ -391,7 +394,8 @@ class MapFragment : Fragment(),
                             }
 
                             if (distance <= 20) {
-                                binding.cameraBtn.setOnClickListener {
+                                binding.cameraCard.visibility = View.VISIBLE
+                                binding.cameraCard.setOnClickListener {
                                     startCamera()
                                 }
 
@@ -406,6 +410,8 @@ class MapFragment : Fragment(),
 //                                        cameraIntent()
 //                                        dialog.dismiss()
 //                                    }.show()
+                            } else {
+                                binding.cameraCard.visibility = View.INVISIBLE
                             }
 
                     }
@@ -597,13 +603,10 @@ class MapFragment : Fragment(),
                         mainList.add(marketNameAndState)
                     }
                     sheetAdapter.submitList(mainList)
+                    sheetAdapter.notifyDataSetChanged()
                 }
             }
         }
-
-//        sheetViewModel.marketNameAndState.observe(viewLifecycleOwner) {
-//            sheetAdapter.submitList(it)
-//        }
 
         sheetViewModel.routeDataList.observe(viewLifecycleOwner) {
             it?.let{

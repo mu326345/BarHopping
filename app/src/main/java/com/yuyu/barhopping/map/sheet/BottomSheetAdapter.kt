@@ -3,6 +3,7 @@ package com.yuyu.barhopping.map.sheet
 import android.content.Context
 import android.graphics.Color.parseColor
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -24,6 +25,7 @@ class BottomSheetAdapter :
             }
 
             item.friends?.forEach {
+                binding.imageScroll.visibility = View.VISIBLE
                 val itemBinding = ItemSheetRouteFriendItemBinding.inflate(LayoutInflater.from(context))
                 Glide.with(context).load(it.friendsIcon).into(itemBinding.friendsIcon)
                 binding.imgList.addView(itemBinding.root)

@@ -50,8 +50,8 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
     val imagesLiveData: LiveData<List<OnRouteUserImages>>
         get() = _imagesLiveData
 
-    private val _usersLocationLiveData = MutableLiveData<List<OnRouteUserLocation>>()
-    val usersLocationLiveData: LiveData<List<OnRouteUserLocation>>
+    private val _usersLocationLiveData = MutableLiveData<List<OnRouteUserPartners>>()
+    val usersLocationLiveData: LiveData<List<OnRouteUserPartners>>
         get() = _usersLocationLiveData
 
     private val _finishedGame = MutableLiveData<Boolean>()
@@ -125,15 +125,17 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
     fun snapOnRouteUserImages(routeId: String) {
         repository.getUserRouteImages(object : FirebaseDataSource.UserRouteImagesCallBack {
             override fun onResult(imageList: List<OnRouteUserImages>) {
-                _imagesLiveData.value = imageList
+                if (_imagesLiveData.value == null || imageList.size > imagesLiveData.value!!.size) {
+                    _imagesLiveData.value = imageList
+                }
             }
         }, routeId)
     }
 
     fun snapOnRouteUserLocation(routeId: String) {
-        repository.getOnRouteUserLocation(object : FirebaseDataSource.UserRouteLocationCallBack {
-            override fun onResult(usersLocationList: List<OnRouteUserLocation>) {
-                val locationList = mutableListOf<OnRouteUserLocation>()
+        repository.snapOnRoutePartner(object : FirebaseDataSource.UserRoutePartnerCallBack {
+            override fun onResult(usersLocationList: List<OnRouteUserPartners>) {
+                val locationList = mutableListOf<OnRouteUserPartners>()
                 usersLocationList.forEach {
                     if(it.userId != userId) {
                         locationList.add(it)
@@ -240,12 +242,12 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun getNextPoint(): Pair<LatLng, String>? {
         val count = imageCount.value ?: 0
-//        var nextLatLng: LatLng? = null
+
         var nextMarket: Pair<LatLng, String>? = null
 
         marketDetailData.value?.let {
             if (count < it.size ) {
-//                nextLatLng = LatLng(it[count].latitude, it[count].longitude)
+
                 nextMarket = Pair(
                     LatLng(it[count].latitude, it[count].longitude),
                 it[count].marketId)

@@ -4,8 +4,9 @@ import android.content.ContentValues
 import android.content.Context
 import android.util.Log
 import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
@@ -43,8 +44,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
         fun onResult(imageList: List<OnRouteUserImages>)
     }
 
-    interface UserRouteLocationCallBack {
-        fun onResult(usersLocationList: List<OnRouteUserLocation>)
+    interface UserRoutePartnerCallBack {
+        fun onResult(usersPartnerList: List<OnRouteUserPartners>)
     }
 
     override fun getUserDetail(callBack: UserCallBack, userId: String) {
@@ -71,16 +72,18 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
         getUserRouteImageData(callBack, routeId)
     }
 
-    override fun getOnRouteUserLocation(callBack: UserRouteLocationCallBack, routeId: String) {
-        getOnRouteUserLocationData(callBack, routeId)
+    override fun snapOnRoutePartner(callBack: UserRoutePartnerCallBack, routeId: String) {
+        snapOnRoutePartnersData(callBack, routeId)
     }
 
+    // docid == googleid
     private fun getUserData(callBack: UserCallBack, userId: String) {
-        val userList = mutableListOf<User>()
         db.collection("User")
-            .whereEqualTo("id", userId)
+            .whereEqualTo(FieldPath.documentId(), userId)
             .get()
             .addOnSuccessListener { documents ->
+                val userList = mutableListOf<User>()
+
                 for (document in documents) {
                     Log.d(BottomSheetViewModel.TAG, "${document.id} => ${document.data}")
 
@@ -91,7 +94,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                         icon = document["icon"] as String,
                         routeCollection = document["routeCollection"] as String,
                         userCollection = document["userCollection"] as String,
-                        onRoute = document["onRoute"] as String
+                        onRoute = document["onRoute"] as String?
                     )
                     userList.add(user)
                 }
@@ -148,7 +151,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 if (snapshot != null) {
                     for (x in snapshot.documents) {
                         val imageList = OnRouteUserImages(
-                            id = x["id"] as String,
+                            id = x["id"] as String?:"",
                             pointId = x["pointId"] as String,
                             url = x["url"] as String,
                             userId = x["userId"] as String
@@ -164,12 +167,13 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
             }
     }
 
-    private fun getOnRouteUserLocationData(callBack: UserRouteLocationCallBack, routeId: String) {
-        val userLocationList = mutableListOf<OnRouteUserLocation>()
+    private fun snapOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
         db.collection("Routes")
             .document(routeId)
-            .collection("locations")
+            .collection("partners")
             .addSnapshotListener { snapshot, e ->
+                val userPartnerList = mutableListOf<OnRouteUserPartners>()
+
                 if (e != null) {
                     Log.w(MapViewModel.TAG, "Listen failed.", e)
                     return@addSnapshotListener
@@ -178,15 +182,18 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 if (snapshot != null) {
                     for (x in snapshot.documents) {
 //                        val userLocations = x.toObject(OnRouteUserLocation::class.java)
-                        val userLocations = OnRouteUserLocation(
+                        val partnerData = OnRouteUserPartners(
                             id = x["id"] as String,
                             userId = x["userId"] as String,
                             lat = x["lat"] as String,
-                            lng = x["lng"] as String
+                            lng = x["lng"] as String,
+                            name = x["name"] as String,
+                            imageUrl = x["imageUrl"] as String,
+                            finished = x["finished"] as Boolean
                         )
-                        userLocationList.add(userLocations)
+                        userPartnerList.add(partnerData)
                     }
-                    callBack.onResult(userLocationList)
+                    callBack.onResult(userPartnerList)
 
                     Log.d(MapViewModel.TAG, "data: ${snapshot.documents}")
                 } else {
@@ -196,11 +203,12 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getPointListData(callBack: PointCallBack, points: List<String>) {
-        val unOrderList = mutableListOf<PointData>()
         db.collection("Points")
             .whereIn("marketId", points)
             .get()
             .addOnSuccessListener { documents ->
+                val unOrderList = mutableListOf<PointData>()
+
                 for (document in documents) {
                     Log.d(BottomSheetViewModel.TAG, "${document.id} => ${document.data}")
 

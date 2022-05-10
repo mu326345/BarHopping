@@ -14,13 +14,14 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
 import com.yuyu.barhopping.data.*
-import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.network.DirectionApi
+import com.yuyu.barhopping.repository.FirebaseRepository
+import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
-class MapViewModel : ViewModel() {
+class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     private val db = Firebase.firestore
 
@@ -30,7 +31,7 @@ class MapViewModel : ViewModel() {
 
     private var storeRouteDocId: String? = null
 
-    private var userOnRouteLocationId: String? = null
+    private var userOnRoutePartnerId: String? = null
 
     private val _moveCameraLiveData = MutableLiveData<LatLng>()
     val moveCameraLiveData: LiveData<LatLng>
@@ -86,7 +87,7 @@ class MapViewModel : ViewModel() {
         get() = _stepPage
 
     // handle user on game or not
-    private val _onRoute = MutableLiveData<Boolean>()
+    private val _onRoute = MutableLiveData<Boolean>(false)
     val onRoute: LiveData<Boolean>
         get() = _onRoute
 
@@ -94,12 +95,16 @@ class MapViewModel : ViewModel() {
     val userOnRouteId: LiveData<String>
         get() = _userOnRouteId
 
+    private val _userDetailLiveData = MutableLiveData<User>()
+    val userDetailLiveData: LiveData<User>
+        get() = _userDetailLiveData
+
 
     var userId = "yuyu11111"
 
     init {
         userId = "yuyu11111"
-        checkUserOnRoute()
+        getUserData()
     }
 
     fun onLocationBtnClick() {
@@ -151,7 +156,7 @@ class MapViewModel : ViewModel() {
     }
 
     // show direction and draw route
-    fun showDirection() { //(list: List<LatLng>)
+    fun showDirection() {
         viewModelScope.launch {
             val ori =
                 "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}"
@@ -197,24 +202,29 @@ class MapViewModel : ViewModel() {
                         }
                     }
 
-                    val orderList = directionResult.routes[0].waypoint_order
-
-                    if (orderList.size > 0) {
-                        val nonOrderlist = directionResult.geocoded_waypoints.map {
+                    // api 自動排序 value = Int
+                    val apiOrderList = directionResult.routes[0].waypoint_order
+                    // 還沒排序marketId
+                    if (apiOrderList.size > 0) {
+                        val nonOrderlist = directionResult.geocoded_waypoints.filterIndexed { index ,it ->
+                            index >= 1 && index < directionResult.geocoded_waypoints.size-1
+                        }.map {
                             it.place_id.toString()
                         }
-                        val orderPlaceIdList = mutableListOf<String>()
 
-                        for (x in 0..orderList.size - 1) {
-                            val pos = orderList.indexOf(x)
-                            orderPlaceIdList.add(nonOrderlist[pos])
+                        // 排序後的list
+                        val orderPlaceIdList = mutableListOf<String>()
+                        for(x in 0 until apiOrderList.size) {
+                            apiOrderList.forEach {
+                                if(x == it) {
+                                    orderPlaceIdList.add(nonOrderlist[x])
+                                }
+                            }
                         }
 
                         // point place Id list
                         routePlaceIdList.clear()
                         routePlaceIdList.addAll(orderPlaceIdList)
-                        routePlaceIdList.removeAt(0)
-                        routePlaceIdList.removeAt(routePlaceIdList.size - 1)
                     }
 
                     _paths.value = path
@@ -317,7 +327,7 @@ class MapViewModel : ViewModel() {
         val marketData = PointData(
             marker.position.latitude,
             marker.position.longitude,
-            marker.tag.toString(),
+            marker.tag.toString(),// MarketId
             marker.title,
             marker.title?.getMarketType()
         )
@@ -337,11 +347,15 @@ class MapViewModel : ViewModel() {
         }
     }
 
-
     fun onRouting() {
-        _onRoute.value = true
+        if (_onRoute.value == false) {
+            _onRoute.value = true
+        }
     }
 
+    /**
+     * 清空user onRoute的紀錄
+     */
     fun notOnRouting() {
         _onRoute.value = false
 
@@ -352,29 +366,30 @@ class MapViewModel : ViewModel() {
         }
     }
 
-    private fun checkUserOnRoute() {
-        db.collection("User")
-            .whereEqualTo("id", userId)
-            .get()
-            .addOnSuccessListener { documents ->
-                for (x in documents) {
-                    Log.d(TAG, "${x.data["name"]} => ${x.data}")
-                    userDocId = x.id
-                    _userOnRouteId.value = x.data["onRoute"] as String?
+    /**
+     *  init this fun
+     *  存取user 資料，確認是否有onRoute路線
+     *  如果開始遊戲時，會再call this fun again then
+     */
+    fun getUserData() {
+        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
+            override fun onRoute(user: List<User>) {
+                user.forEach {
+                    _userDetailLiveData.value = it
+                    userDocId = it.id //userDocId == userGoogleId
+                    _userOnRouteId.value = it.onRoute?: null
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "get failed with ", exception)
-            }
+        }, userId)
     }
 
     fun storeOnRoute() {
-        storeRouteDocId?.let {
-            var newDocRef = db.collection("Routes").document()
+//        storeRouteDocId?.let {
+        var newDocRef = db.collection("Routes").document()
 
-            routePlaceIdList
-            val pathsSize = paths.value!!.size -1
-            val routePlaceIdListSize = routePlaceIdList.size.toLong()
+        routePlaceIdList?.let {
+            val pathsSize = paths.value!!.size - 1
+//            val routePlaceIdListSize = it.size
             val onRoute = RouteStore(
                 id = newDocRef.id,
                 startPoint = "起點",
@@ -383,20 +398,21 @@ class MapViewModel : ViewModel() {
                 endPoint = desMarkerNameLiveData.value!!,
                 endLat = "${paths.value?.get(pathsSize)?.latitude}",
                 endLon = "${paths.value?.get(pathsSize)?.longitude}",
-                marketCount = routePlaceIdListSize,
+                marketCount = it.size.toLong(),
                 length = distance,
                 hardDegree = null,
                 comments = null,
-                points = routePlaceIdList,
+                points = it,
                 paths = pathsLatLngListStr
             )
-            storeRouteDocId = newDocRef.id
             newDocRef.set(onRoute)
-            uploadOuRouteIdToUser(storeRouteDocId!!)
-
-            storePointDetail()
-            updateSheetData()
+            storeRouteDocId = newDocRef.id
+            uploadOuRouteIdToUser(newDocRef.id)
         }
+
+        storePointDetail()
+        updateSheetData()
+//        }
     }
 
     private fun storePointDetail() {
@@ -404,17 +420,18 @@ class MapViewModel : ViewModel() {
             it.marketId
         }
 
-        var existPointIdList = mutableListOf<String>()
         db.collection("Points")
-            .whereIn(FieldPath.documentId(), selectPointIds)
+            .whereIn(FieldPath.documentId(), selectPointIds) // 1.找出相同pointDocId list
             .get()
             .addOnSuccessListener { documents ->
+                var existPointIdList = mutableListOf<String>()
+
                 documents.map { it.id }.forEach {
-                    existPointIdList.add(it)
+                    existPointIdList.add(it) // 2.儲存已經存在的DocId list
                 }
 
                 val diffrentIdDatas = selectMarketData.filterNot { select ->
-                    existPointIdList.contains(select.marketId)
+                    existPointIdList.contains(select.marketId) //3. 找出不一樣的DocId
                 }
 
                 diffrentIdDatas.forEach {
@@ -428,43 +445,47 @@ class MapViewModel : ViewModel() {
     }
 
     /**
-     * add user location first time
+     * 第一次，在onRoute 新增partner 文件
      */
-    fun addUserLocationToOnRoute() {
+    fun addPartnerToOnRoute() {
         storeRouteDocId?.let {
-            val locationRef = db.collection("Routes")
+            val partnerRef = db.collection("Routes")
                 .document(it)
-                .collection("locations")
+                .collection("Partners")
                 .document()
 
-            val locationData = OnRouteUserLocation(
-                id = locationRef.id,
-                userId = userId,
-                lat = lastLocationLiveData.value?.latitude.toString(),
-                lng = lastLocationLiveData.value?.longitude.toString()
-            )
-            userOnRouteLocationId = locationRef.id
-            locationRef.set(locationData)
+            userDetailLiveData.value?.let {
+                val partnerData = OnRouteUserPartners(
+                    id = partnerRef.id,
+                    userId = userId,
+                    lat = lastLocationLiveData.value?.latitude.toString(),
+                    lng = lastLocationLiveData.value?.longitude.toString(),
+                    name = it.name,
+                    imageUrl = it.icon,
+                    finished = false
+                )
+                userOnRoutePartnerId = partnerRef.id
+                partnerRef.set(partnerData)
+            }
+
         }
     }
 
     /**
      * update user location
      */
-    fun updateUserLocationToOnRoute() {
-        if(storeRouteDocId != null && userOnRouteLocationId != null) {
-            val locationData = OnRouteUserLocation(
-                id = userOnRouteLocationId!!,
-                userId = userId,
-                lat = lastLocationLiveData.value?.latitude.toString(),
-                lng = lastLocationLiveData.value?.longitude.toString()
-            )
-
-            db.collection("Routes")
-                .document(storeRouteDocId!!)
-                .collection("locations")
-                .document(userOnRouteLocationId!!)
-                .set(locationData)
+    fun updatePartnerLocation() {
+        storeRouteDocId?.let { routeDocId ->
+            userOnRoutePartnerId?.let { partnerDocId ->
+                db.collection("Routes")
+                    .document(routeDocId)
+                    .collection("Partners")
+                    .document(partnerDocId)
+                    .update(
+                        "lat", lastLocationLiveData.value?.latitude.toString(),
+                        "lng", lastLocationLiveData.value?.longitude.toString()
+                    )
+            }
         }
     }
 

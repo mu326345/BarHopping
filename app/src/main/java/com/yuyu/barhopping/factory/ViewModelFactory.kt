@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.yuyu.barhopping.explore.bar.BarExploreViewModel
 import com.yuyu.barhopping.explore.route.RouteExploreViewModel
+import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
 
@@ -17,6 +18,9 @@ class ViewModelFactory(val repository: FirebaseRepository) : ViewModelProvider.F
 
                 isAssignableFrom(BarExploreViewModel::class.java) ->
                     BarExploreViewModel(repository)
+
+                isAssignableFrom(MapViewModel::class.java) ->
+                    MapViewModel(repository)
 
                 isAssignableFrom(BottomSheetViewModel::class.java) ->
                     BottomSheetViewModel(repository)
