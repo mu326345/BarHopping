@@ -195,6 +195,7 @@ class MapFragment : Fragment(),
 
         binding.gameOverBtn.setOnClickListener {
             viewModel.notOnRouting()
+            // game over直接離開
         }
 
 
@@ -375,6 +376,10 @@ class MapFragment : Fragment(),
             }
         )
 
+        binding.cameraBtn.setOnClickListener {
+            startCamera()
+        }
+
         viewModel.lastLocationLiveData.observe(
             viewLifecycleOwner, Observer {
                 viewModel.updatePartnerLocation()
@@ -385,35 +390,15 @@ class MapFragment : Fragment(),
                         val nextLatLng = nextPoint?.first
                         nextPointId = nextPoint?.second
                         val locationLatLng = LatLng(it.latitude, it.longitude)
-                        var distance = 0
 
-                            if (nextLatLng != null) {
-                                distance = SphericalUtil.computeDistanceBetween(
-                                    locationLatLng, nextLatLng
-                                ).toInt()
-                            }
-
-                            if (distance <= 20) {
+                        nextLatLng?.let { next ->
+                            if (viewModel.canTakePhoto(locationLatLng, next)) {
                                 binding.cameraCard.visibility = View.VISIBLE
-                                binding.cameraCard.setOnClickListener {
-                                    startCamera()
-                                }
 
-//                                AlertDialog.Builder(requireContext())
-//                                    .setTitle(getString(R.string.already_market))
-//                                    .setMessage(getString(R.string.take_photo_content))
-//                                    .setCancelable(false)
-//                                    .setNeutralButton(getString(R.string.give_up)) { dialog, which ->
-//                                        // TODO: game over page
-//                                    }
-//                                    .setPositiveButton(getString(R.string.take_photo)) { dialog, which ->
-//                                        cameraIntent()
-//                                        dialog.dismiss()
-//                                    }.show()
                             } else {
-                                binding.cameraCard.visibility = View.INVISIBLE
+                                binding.cameraCard.visibility = View.GONE
                             }
-
+                        }
                     }
                 }
             }
@@ -516,6 +501,7 @@ class MapFragment : Fragment(),
                     findNavController().navigate(MapFragmentDirections.actionMapFragmentToSuccessDialogFragment())
                 }
                 //TODO upload userId complete to firebase
+                // BVM checkUserFinished() 如果好友還沒結束，先不要清理map跟clear db
             }
         }
 

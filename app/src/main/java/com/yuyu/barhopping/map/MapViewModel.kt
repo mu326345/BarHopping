@@ -359,6 +359,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     fun notOnRouting() {
         _onRoute.value = false
 
+        // 清空user onRoute Id
         userDocId?.let {
             db.collection("User")
                 .document(userDocId!!)
@@ -557,5 +558,16 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     companion object {
         val TAG = "MapViewModel"
+    }
+
+
+    fun canTakePhoto(currentLatLng: LatLng, nextLatLng: LatLng
+    ): Boolean {
+        val distance = SphericalUtil.computeDistanceBetween(
+            currentLatLng, nextLatLng
+        ).toInt()
+
+        return distance <= 20
+//        return true
     }
 }

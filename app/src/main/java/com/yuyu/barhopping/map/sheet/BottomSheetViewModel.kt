@@ -229,6 +229,7 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
         _friendsDataList.value = list
     }
 
+    //TODO: 確認user是否完成onRoute，true -> partner update 自己已完成
     fun checkUserFinished() {
         val count = imageCount.value
         _totalMarket.value = pointsIdList.value?.size
@@ -238,6 +239,10 @@ class BottomSheetViewModel(val repository: FirebaseRepository) : ViewModel() {
                 finishedGameToNull()
             }
         }
+    }
+
+    fun updatePartnerFinish() {
+
     }
 
     fun getNextPoint(): Pair<LatLng, String>? {
