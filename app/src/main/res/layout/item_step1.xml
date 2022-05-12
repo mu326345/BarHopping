@@ -78,7 +78,7 @@
                     android:layout_marginTop="8dp"
                     android:hint="@string/search_here"
                     android:isScrollContainer="false"
-                    android:text="@={viewModel.selectLocationName}"
+                    android:text="@={viewModel.selectedLocationName}"
                     app:layout_constraintEnd_toEndOf="@id/step1_content_tv"
                     app:layout_constraintStart_toEndOf="@id/search_icon"
                     app:layout_constraintTop_toBottomOf="@id/step1_content_tv" />

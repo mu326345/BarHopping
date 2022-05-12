@@ -1,6 +1,6 @@
 package com.yuyu.barhopping.data
 
-data class OnRouteUserPartners(
+data class Partner(
     val id: String,
     val userId: String,
     val lat: String,

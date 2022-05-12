@@ -59,7 +59,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="left"
                     android:text="@string/step_2_content"
-                    app:layout_constraintEnd_toEndOf="@id/step2_title_tv"
+                    app:layout_constraintEnd_toStartOf="@id/step2_tips"
                     app:layout_constraintStart_toStartOf="@id/step2_title_tv"
                     app:layout_constraintTop_toBottomOf="@id/step2_title_tv" />
 
@@ -67,12 +67,10 @@
                     android:id="@+id/step2_tips"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:gravity="left"
                     android:text="@string/step_2_tips"
-                    app:layout_constraintEnd_toEndOf="@id/step2_content_tv"
-                    app:layout_constraintStart_toStartOf="@id/step2_content_tv"
-                    app:layout_constraintTop_toBottomOf="@id/step2_content_tv" />
+                    app:layout_constraintEnd_toEndOf="@+id/step2_title_tv"
+                    app:layout_constraintTop_toTopOf="@id/step2_content_tv" />
 
                 <ImageView
                     android:id="@+id/location_icon"
@@ -89,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/your_location"
-                    app:layout_constraintEnd_toEndOf="@id/step2_content_tv"
+                    app:layout_constraintEnd_toEndOf="@+id/step2_tips"
                     app:layout_constraintStart_toEndOf="@id/location_icon"
                     app:layout_constraintTop_toBottomOf="@id/step2_tips"
                     tools:text="your location" />
@@ -116,7 +114,7 @@
                     android:id="@+id/step2_destination_edit"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@={viewModel.selectLocationName}"
+                    android:text="@={viewModel.selectedLocationName}"
                     app:layout_constraintEnd_toEndOf="@id/location_edit"
                     app:layout_constraintStart_toStartOf="@id/location_edit"
                     app:layout_constraintTop_toBottomOf="@id/location_edit"

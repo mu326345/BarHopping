@@ -4,13 +4,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.util.Log
 import com.google.firebase.FirebaseApp
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
-import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
 
 class FirebaseDataSource(context: Context) : FirebaseRepository {
@@ -21,7 +19,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     interface UserCallBack {
-        fun onRoute(user: List<User>)
+        fun onResult(user: User)
     }
 
     interface BarCallBack {
@@ -45,7 +43,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     interface UserRoutePartnerCallBack {
-        fun onResult(usersPartnerList: List<OnRouteUserPartners>)
+        fun onResult(usersPartnerList: List<Partner>)
     }
 
     override fun getUserDetail(callBack: UserCallBack, userId: String) {
@@ -81,27 +79,24 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
         db.collection("User")
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
-            .addOnSuccessListener { documents ->
-                val userList = mutableListOf<User>()
+            .addOnSuccessListener { querySnapshot ->
 
-                for (document in documents) {
-                    Log.d(BottomSheetViewModel.TAG, "${document.id} => ${document.data}")
+                if (querySnapshot.documents.size > 0) {
 
                     val user = User(
-                        id = document["id"] as String,
-                        name = document["name"] as String,
-                        title = document["title"] as String,
-                        icon = document["icon"] as String,
-                        routeCollection = document["routeCollection"] as String,
-                        userCollection = document["userCollection"] as String,
-                        onRoute = document["onRoute"] as String?
+                        id = querySnapshot.documents[0]["id"] as String,
+                        name = querySnapshot.documents[0]["name"] as String,
+                        title = querySnapshot.documents[0]["title"] as String,
+                        icon = querySnapshot.documents[0]["icon"] as String,
+                        routeCollection = querySnapshot.documents[0]["routeCollection"] as String,
+                        userCollection = querySnapshot.documents[0]["userCollection"] as String,
+                        onRoute = querySnapshot.documents[0]["onRoute"] as String?
                     )
-                    userList.add(user)
+                    callBack.onResult(user)
                 }
-                callBack.onRoute(userList)
             }
             .addOnFailureListener { exception ->
-                Log.w(BottomSheetViewModel.TAG, "Error getting documents: ", exception)
+                Log.w("yy", "Error getting documents: ", exception)
             }
     }
 
@@ -111,7 +106,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
-                    Log.d(BottomSheetViewModel.TAG, "${document.id} => ${document.data}")
+                    Log.d("yy", "${document.id} => ${document.data}")
 
                     val routeList = RouteStore(
                         id = document["id"] as String,
@@ -132,14 +127,14 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 }
             }
             .addOnFailureListener { exception ->
-                Log.w(BottomSheetViewModel.TAG, "Error getting documents: ", exception)
+                Log.w("yy", "Error getting documents: ", exception)
             }
     }
 
     private fun getUserRouteImageData(callBack: UserRouteImagesCallBack, routeId: String) {
         db.collection("Routes")
             .document(routeId)
-            .collection("images")
+            .collection("Images")
             .addSnapshotListener { snapshot, e ->
                 val imagesList = mutableListOf<OnRouteUserImages>()
 
@@ -170,9 +165,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     private fun snapOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
         db.collection("Routes")
             .document(routeId)
-            .collection("partners")
+            .collection("Partners")
             .addSnapshotListener { snapshot, e ->
-                val userPartnerList = mutableListOf<OnRouteUserPartners>()
+                val userPartnerList = mutableListOf<Partner>()
 
                 if (e != null) {
                     Log.w(MapViewModel.TAG, "Listen failed.", e)
@@ -182,7 +177,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 if (snapshot != null) {
                     for (x in snapshot.documents) {
 //                        val userLocations = x.toObject(OnRouteUserLocation::class.java)
-                        val partnerData = OnRouteUserPartners(
+                        val partnerData = Partner(
                             id = x["id"] as String,
                             userId = x["userId"] as String,
                             lat = x["lat"] as String,
@@ -210,7 +205,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 val unOrderList = mutableListOf<PointData>()
 
                 for (document in documents) {
-                    Log.d(BottomSheetViewModel.TAG, "${document.id} => ${document.data}")
+                    Log.d("yy", "${document.id} => ${document.data}")
 
                     val pointList = PointData(
                         latitude = document["latitude"].toString().toDouble(),
@@ -233,7 +228,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 callBack.onResult(orderPointList)
             }
             .addOnFailureListener { exception ->
-                Log.w(BottomSheetViewModel.TAG, "Error getting documents: ", exception)
+                Log.w("yy", "Error getting documents: ", exception)
             }
     }
 

@@ -1,18 +1,17 @@
 package com.yuyu.barhopping.map
 
 import android.content.ContentValues
-import android.graphics.Bitmap
 import android.location.Location
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.*
-import com.google.android.libraries.places.api.model.Place
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
+import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.network.DirectionApi
 import com.yuyu.barhopping.repository.FirebaseRepository
@@ -27,157 +26,207 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     private val storage = Firebase.storage
 
-    private var userDocId: String? = null
+    private val _moveCamera = MutableLiveData<LatLng>()
+    val moveCamera: LiveData<LatLng>
+        get() = _moveCamera
 
-    private var storeRouteDocId: String? = null
+    val selectedLocationName = MutableLiveData<String>()
 
-    private var userOnRoutePartnerId: String? = null
+    private val _marketMarkers = MutableLiveData<List<MarketMarkerDataItem>>()
+    val marketMarkers: LiveData<List<MarketMarkerDataItem>>
+        get() = _marketMarkers
 
-    private val _moveCameraLiveData = MutableLiveData<LatLng>()
-    val moveCameraLiveData: LiveData<LatLng>
-        get() = _moveCameraLiveData
+    val sevenChecked = MutableLiveData(false)
+    val familyChecked = MutableLiveData(false)
+    val hiLifeChecked = MutableLiveData(false)
+    val okMartChecked = MutableLiveData(false)
 
-    var originToDesList = mutableListOf<LatLng>()
+    // newest
 
-    val selectMarketData = mutableListOf<PointData>()
-
-    private val _lastLocationLiveData = MutableLiveData<Location>()
-    val lastLocationLiveData: LiveData<Location>
-        get() = _lastLocationLiveData
-
-    private val _desMarkerLiveData = MutableLiveData<LatLng>()
-    val desMarkerLiveData: LiveData<LatLng>
-        get() = _desMarkerLiveData
-
-    private val _desMarkerNameLiveData = MutableLiveData<String>()
-    val desMarkerNameLiveData: LiveData<String>
-        get() = _desMarkerNameLiveData
-
-    val selectLocationName = MutableLiveData<String>()
-
-    private val _paths = MutableLiveData<List<LatLng>>()
-    val paths: LiveData<List<LatLng>>
-        get() = _paths
-
-    var pathsLatLngListStr = mutableListOf<String>()
-
-    var distance: Long? = null
-
-    private val _addMarkerLiveData = MutableLiveData<AddMarkerData>()
-    val addMarkerLiveData: LiveData<AddMarkerData>
-        get() = _addMarkerLiveData
-
-    private val _userSelectMarketName = MutableLiveData<List<String?>>()
-    val userSelectMarketName: LiveData<List<String?>>
-        get() = _userSelectMarketName
-
-    var routePlaceIdList = mutableListOf<String>()
-
-    val sevenChecked = MutableLiveData<Boolean>()
-    val familyChecked = MutableLiveData<Boolean>()
-    val hiLifeChecked = MutableLiveData<Boolean>()
-    val okMartChecked = MutableLiveData<Boolean>()
-
-    private val _visibleMarker = MutableLiveData<Pair<MarketName, Boolean>>()
-    val visibleMarker: LiveData<Pair<MarketName, Boolean>>
-        get() = _visibleMarker
-
-    private val _stepPage = MutableLiveData<Int>(StepTypeFilter.STEP1.index)
-    val stepPage: LiveData<Int>
-        get() = _stepPage
-
-    // handle user on game or not
-    private val _onRoute = MutableLiveData<Boolean>(false)
+    private val _onRoute = MutableLiveData<Boolean>()
     val onRoute: LiveData<Boolean>
         get() = _onRoute
 
-    private val _userOnRouteId = MutableLiveData<String>()
-    val userOnRouteId: LiveData<String>
-        get() = _userOnRouteId
+    // steps
+    private val _currentStep = MutableLiveData<StepTypeFilter>()
+    val currentStep: LiveData<StepTypeFilter>
+        get() = _currentStep
 
-    private val _userDetailLiveData = MutableLiveData<User>()
-    val userDetailLiveData: LiveData<User>
-        get() = _userDetailLiveData
+    private val _step2Paths = MutableLiveData<List<LatLng>>()
+    val step2Paths: LiveData<List<LatLng>>
+        get() = _step2Paths
 
+    val currentMarketMarkers = mutableMapOf<MarketName, MutableList<Marker>>()
 
-    var userId = "yuyu11111"
+    var readyToRoute: ReadyToRoute? = null
+
+    // on route
+    private val _partners = MutableLiveData<List<Partner>>()
+    val partners: LiveData<List<Partner>>
+        get() = _partners
+
+    private val _images = MutableLiveData<List<OnRouteUserImages>>()
+    val images: LiveData<List<OnRouteUserImages>>
+        get() = _images
+
+    private val _sheetItems = MutableLiveData<List<SheetItem>>()
+    val sheetItems: LiveData<List<SheetItem>>
+        get() = _sheetItems
+
+    var currentRoute: RouteStore? = null
+    var currentPointDatas: List<PointData>? = null
+    var currentUsers: List<User>? = null
+
+    val totalProgress = Transformations.map(sheetItems) {
+        it.size
+    }
+
+    val currentProgress = Transformations.map(images) { images ->
+        images.filter { it.userId == UserManager.user?.id }.size
+    }
+
+    val nextProgressName = Transformations.map(currentProgress) {
+        if (it != null && it < currentPointDatas?.size ?: 0) {
+            currentPointDatas?.get(it)?.name
+        } else {
+            "--"
+        }
+    }
+
+    var currentLocation: LatLng? = null
+
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String>
+        get() = _error
+
+    private val _displayCompleted = MutableLiveData<Boolean>()
+    val displayCompleted: LiveData<Boolean>
+        get() = _displayCompleted
+
+    private val _partnersFinished = MutableLiveData(false)
+    val partnersFinished: LiveData<Boolean>
+        get() = _partnersFinished
 
     init {
-        userId = "yuyu11111"
-        getUserData()
+        getUserDetail("yuyu11111")
+    }
+
+    /**
+     *  init this fun
+     *  存取user 資料，確認是否有onRoute路線
+     *  如果開始遊戲時，會再call this fun again then
+     */
+    fun getUserDetail(userId: String) {
+        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
+            override fun onResult(user: User) {
+                UserManager.user = user
+                checkState()
+            }
+        }, userId)
+    }
+
+    fun checkState() {
+        UserManager.user?.let {
+            _onRoute.value = it.onRoute != null
+        }
+    }
+
+    fun setReadyToRoute() {
+        readyToRoute = ReadyToRoute()
+        setReadyToRouteStep(StepTypeFilter.STEP1)
+    }
+
+    fun resetReadyToRoute() {
+        Log.e("yy", "resetReadyToRoute()")
+        readyToRoute = null
+        _currentStep.value = null
+        selectedLocationName.value = null
+        _marketMarkers.value = null
+        _step2Paths.value = null
+        currentMarketMarkers.clear()
+    }
+
+
+    fun setReadyToRouteStep(nextStep: StepTypeFilter) {
+        when (nextStep) {
+            StepTypeFilter.STEP1 -> {
+                Log.d("yy", "setReadyToRouteStep STEP1")
+                _currentStep.value = nextStep
+            }
+            StepTypeFilter.STEP2 -> {
+                Log.d("yy", "setReadyToRouteStep STEP2")
+                if (readyToRoute?.destinationName != null) {
+                    currentLocation?.let {
+                        Log.d("yy", "setReadyToRouteStep STEP2 in")
+                        setStartPoint("start", it)
+                        _currentStep.value = nextStep
+                    }
+                } else {
+                    _error.value = "destination is empty"
+                }
+            }
+            StepTypeFilter.STEP3 -> {
+                Log.d("yy", "setReadyToRouteStep STEP3")
+                if (readyToRoute?.points?.size ?: 0 > 0) {
+                    _currentStep.value = nextStep
+                } else {
+                    _error.value = "please click marker to select"
+                }
+            }
+        }
+    }
+
+    fun setStartPoint(name: String, point: LatLng) {
+        readyToRoute?.startPoint = point
+        readyToRoute?.startName = name
+    }
+
+    fun setDestinationPoint(name: String, point: LatLng) {
+        readyToRoute?.destinationPoint = point
+        readyToRoute?.destinationName = name
+        selectedLocationName.value = name
     }
 
     fun onLocationBtnClick() {
-        if (lastLocationLiveData.value != null) {
-            _moveCameraLiveData.value = LatLng(
-                lastLocationLiveData.value!!.latitude,
-                lastLocationLiveData.value!!.longitude
-            )
-        }
+        _moveCamera.value = currentLocation
+    }
+
+    fun onLocationUpdated(location: Location) {
+        currentLocation = LatLng(location.latitude, location.longitude)
     }
 
     fun onLastLocationUpdated(location: Location) {
-        _lastLocationLiveData.value = location
-        _moveCameraLiveData.value = LatLng(location.latitude, location.longitude)
-        originToDesList.add(0, LatLng(location.latitude, location.longitude))
-    }
-
-    fun onPoiClick(poi: PointOfInterest) {
-        when (stepPage.value) {
-            StepTypeFilter.STEP1.index -> {
-                _desMarkerLiveData.value = poi.latLng
-                _moveCameraLiveData.value = poi.latLng
-                selectLocationName.value = poi.name
-                _desMarkerNameLiveData.value = poi.name
-                originToDesList.add(1, poi.latLng)
-            }
-            StepTypeFilter.STEP2.index -> {
-                _stepPage.value = StepTypeFilter.STEP1.index
-                _desMarkerLiveData.value = poi.latLng
-                _moveCameraLiveData.value = poi.latLng
-                selectLocationName.value = poi.name
-                _desMarkerNameLiveData.value = poi.name
-                originToDesList.add(1, poi.latLng)
-            }
-            StepTypeFilter.STEP3.index -> {
-
-            }
-        }
-    }
-
-    fun onPlaceSelect(place: Place) {
-        _desMarkerLiveData.value = place.latLng
-        _desMarkerNameLiveData.value = place.name
-        _moveCameraLiveData.value = place.latLng
-        selectLocationName.value = place.name
-        place.latLng?.let {
-            originToDesList.add(1, it)
-        }
+        onLocationUpdated(location)
+        updatePartnerLocation(location)
+        _moveCamera.value = LatLng(location.latitude, location.longitude)
     }
 
     // show direction and draw route
     fun showDirection() {
         viewModelScope.launch {
-            val ori =
-                "${lastLocationLiveData.value!!.latitude},${lastLocationLiveData.value!!.longitude}"
-            val des = "${desMarkerLiveData.value!!.latitude},${desMarkerLiveData.value!!.longitude}"
 
-            var waypoints: String = ""
-            val selectMarketId = selectMarketData.map {
+            val startPoint = readyToRoute?.startPoint ?: LatLng(0.0, 0.0)
+            val destinationPoint = readyToRoute?.destinationPoint ?: LatLng(0.0, 0.0)
+            val origin = "${startPoint.latitude},${startPoint.longitude}"
+            val destination = "${destinationPoint.latitude},${destinationPoint.longitude}"
+
+
+            var waypoints = ""
+            val selectMarketIds = readyToRoute?.points?.map {
                 it.marketId
             }
-            val tempList = selectMarketId.map { "place_id:$it" }
+            val tempList = selectMarketIds?.map { "place_id:$it" }
 
-            waypoints = "optimize:true|"+tempList.joinToString(separator = "|")
+            waypoints = "optimize:true|" + tempList?.joinToString(separator = "|")
 
             try {
                 val directionResult = DirectionApi.retrofitService.getDirectionResult(
-                    ori,
-                    des,
+                    origin,
+                    destination,
                     waypoints
                 )
 
-                distance = countDistance(directionResult).toLong()
+                readyToRoute?.distance = countDistance(directionResult).toLong()
 
                 if (directionResult.routes.size <= 0) {
                     Log.w("MapViewModel", "No routes")
@@ -206,36 +255,31 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                     val apiOrderList = directionResult.routes[0].waypoint_order
                     // 還沒排序marketId
                     if (apiOrderList.size > 0) {
-                        val nonOrderlist = directionResult.geocoded_waypoints.filterIndexed { index ,it ->
-                            index >= 1 && index < directionResult.geocoded_waypoints.size-1
-                        }.map {
-                            it.place_id.toString()
-                        }
+                        val nonOrderlist =
+                            directionResult.geocoded_waypoints.filterIndexed { index, it ->
+                                index >= 1 && index < directionResult.geocoded_waypoints.size - 1
+                            }.map {
+                                it.place_id.toString()
+                            }
 
                         // 排序後的list
                         val orderPlaceIdList = mutableListOf<String>()
-                        for(x in 0 until apiOrderList.size) {
+                        for (x in 0 until apiOrderList.size) {
                             apiOrderList.forEach {
-                                if(x == it) {
+                                if (x == it) {
                                     orderPlaceIdList.add(nonOrderlist[x])
                                 }
                             }
                         }
 
                         // point place Id list
-                        routePlaceIdList.clear()
-                        routePlaceIdList.addAll(orderPlaceIdList)
+                        readyToRoute?.sortedPlaceIds?.clear()
+                        readyToRoute?.sortedPlaceIds?.addAll(orderPlaceIdList)
                     }
 
-                    _paths.value = path
-
-                    // poly line list
-                    val pathsLatLngList = mutableListOf<String>()
-                    pathsLatLngListStr.clear()
-                    paths.value?.forEach {
-                        pathsLatLngList.add("${it.latitude},${it.longitude}")
-                    }
-                    pathsLatLngListStr.addAll(pathsLatLngList)
+                    _step2Paths.value = path
+                    setRoutePath(path)
+                    getAllMarketResult(path)
                 }
 
             } catch (e: NullPointerException) {
@@ -255,75 +299,72 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         return distance
     }
 
-    fun onLocationUpdate(location: Location) {
-        _lastLocationLiveData.value = location
-    }
-
-    fun setMarketCheck(market: MarketName, checked: Boolean, hasData: Boolean, bitmap: Bitmap) {
-        if (checked) {
-            if (hasData) {
-                _visibleMarker.value = Pair(market, true)
-            } else {
-                showMarketItems(market, bitmap)
-            }
-        } else {
-            if (hasData) {
-                _visibleMarker.value = Pair(market, false)
-            }
-        }
-    }
-
-    // nearby api find market
-    fun showMarketItems(marketName: MarketName, bitmap: Bitmap) {
+    fun getAllMarketResult(paths: List<LatLng>) {
         viewModelScope.launch {
-            paths.value?.let {
-                try {
-                    val latlng = it[it.size / 2]
-                    val radiusA = SphericalUtil.computeDistanceBetween(it[0], latlng)
-                    val radiusB = SphericalUtil.computeDistanceBetween(it[it.size - 1], latlng)
-                    val radius = max(radiusA, radiusB).toInt()
-                    val marketResult = DirectionApi.retrofitService.getNearbyMarket(
-                        "${latlng.latitude},${latlng.longitude}",
-                        radius,
-                        marketName.value //"7-11, 全家" keyword
-                    )
+            try {
 
-                    _addMarkerLiveData.value = AddMarkerData(
-                        marketName,
-                        marketResult.results.map {
-                            it.place_id
-                        },
-                        marketResult.results.map {
+                val middlePoint = paths[paths.size / 2]
+                val radiusA = SphericalUtil.computeDistanceBetween(paths[0], middlePoint)
+                val radiusB =
+                    SphericalUtil.computeDistanceBetween(paths[paths.size - 1], middlePoint)
+                val radius = max(radiusA, radiusB).toInt()
+
+
+                val items = mutableListOf<MarketMarkerDataItem>()
+
+                for (market in MarketName.values()) {
+                    val result = DirectionApi.retrofitService.getNearbyMarket(
+                        "${middlePoint.latitude},${middlePoint.longitude}",
+                        radius,
+                        market.value //"7-11, 全家" keyword
+                    )
+//                    currentMarketsList[market] = result.results
+                    Log.w("yy", "result=${result.results}")
+                    for (marketResult in result.results) {
+
+                        val item = MarketMarkerDataItem(
+                            market,
+                            marketResult.place_id,
                             MarkerOptions()
-                            .position(LatLng(it.geometry.location.lat, it.geometry.location.lng))
-                            .title(it.name)
-                            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                    })
-                } catch (e: NullPointerException) {
-                    Log.e("MapViewModel", "NullPointerException")
-                    e.printStackTrace()
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                                .position(
+                                    LatLng(
+                                        marketResult.geometry.location.lat,
+                                        marketResult.geometry.location.lng
+                                    )
+                                )
+                                .title(marketResult.name)
+//                                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                                .alpha(0.6f)
+                                .visible(false)
+                        )
+                        items.add(item)
+                    }
                 }
+
+                Log.i("yy", "items=${items}")
+                _marketMarkers.value = items
+
+            } catch (e: NullPointerException) {
+                Log.e("MapViewModel", "${e.message}")
+                e.printStackTrace()
+            } catch (e: Exception) {
+                Log.e("MapViewModel", "${e.message}")
+                e.printStackTrace()
             }
         }
     }
 
-    fun setStepPage(step: StepTypeFilter) {
-        _stepPage.value = step.index
-        when (step) {
-            StepTypeFilter.STEP1 -> null
-            StepTypeFilter.STEP2 -> {
-                showDirection()
-            }
-            StepTypeFilter.STEP3 -> {
-                showDirection()
+    fun setMarkersVisibility(marketName: MarketName, isVisible: Boolean) {
+        val markers = currentMarketMarkers[marketName] // marketMarkerList
+        markers?.let {
+            for (marker in markers) {
+                marker.isVisible = isVisible
             }
         }
     }
 
     fun onMarkerClick(marker: Marker) {
-        var exist = false
+        var isExist = false
         val marketData = PointData(
             marker.position.latitude,
             marker.position.longitude,
@@ -332,112 +373,59 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             marker.title?.getMarketType()
         )
 
-        for (x in selectMarketData) {
-            if (LatLng(marker.position.latitude, marker.position.longitude).equals(x)) {
-                exist = true
-            }
-        }
+        // 先判斷是否存在
 
-        if (exist) {
-            selectMarketData.remove(marketData)
-            marker.alpha = 1f
+        isExist = readyToRoute?.points?.find {
+            it.marketId == marker.tag
+        } != null
+
+
+        // 存在 -> 移除，不存在 -> 加入
+        if (isExist) {
+            marker.alpha = 0.6f
+            readyToRoute?.points?.remove(marketData)
         } else {
-            selectMarketData.add(marketData)
-            marker.alpha = 0.3f
+            marker.alpha = 1f
+            readyToRoute?.points?.add(marketData)
         }
     }
 
-    fun onRouting() {
-        if (_onRoute.value == false) {
-            _onRoute.value = true
-        }
-    }
-
-    /**
-     * 清空user onRoute的紀錄
-     */
-    fun notOnRouting() {
-        _onRoute.value = false
-
-        // 清空user onRoute Id
-        userDocId?.let {
-            db.collection("User")
-                .document(userDocId!!)
-                .update("onRoute", null)
-        }
-    }
-
-    /**
-     *  init this fun
-     *  存取user 資料，確認是否有onRoute路線
-     *  如果開始遊戲時，會再call this fun again then
-     */
-    fun getUserData() {
-        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
-            override fun onRoute(user: List<User>) {
-                user.forEach {
-                    _userDetailLiveData.value = it
-                    userDocId = it.id //userDocId == userGoogleId
-                    _userOnRouteId.value = it.onRoute?: null
-                }
-            }
-        }, userId)
-    }
-
-    fun storeOnRoute() {
-//        storeRouteDocId?.let {
-        var newDocRef = db.collection("Routes").document()
-
-        routePlaceIdList?.let {
-            val pathsSize = paths.value!!.size - 1
-//            val routePlaceIdListSize = it.size
-            val onRoute = RouteStore(
-                id = newDocRef.id,
-                startPoint = "起點",
-                startLat = "${paths.value?.get(0)?.latitude}",
-                startLon = "${paths.value?.get(0)?.longitude}",
-                endPoint = desMarkerNameLiveData.value!!,
-                endLat = "${paths.value?.get(pathsSize)?.latitude}",
-                endLon = "${paths.value?.get(pathsSize)?.longitude}",
-                marketCount = it.size.toLong(),
-                length = distance,
-                hardDegree = null,
-                comments = null,
-                points = it,
-                paths = pathsLatLngListStr
-            )
-            newDocRef.set(onRoute)
-            storeRouteDocId = newDocRef.id
-            uploadOuRouteIdToUser(newDocRef.id)
-        }
-
-        storePointDetail()
-        updateSheetData()
-//        }
-    }
-
-    private fun storePointDetail() {
-        val selectPointIds = selectMarketData.map {
+    fun checkAndUploadPoints(points: List<PointData>) {
+        Log.i("yy", "points=$points")
+        val ids = points.map {
             it.marketId
         }
 
         db.collection("Points")
-            .whereIn(FieldPath.documentId(), selectPointIds) // 1.找出相同pointDocId list
+            .whereIn(FieldPath.documentId(), ids) // 1.找出相同pointDocId list
             .get()
             .addOnSuccessListener { documents ->
                 var existPointIdList = mutableListOf<String>()
 
                 documents.map { it.id }.forEach {
-                    existPointIdList.add(it) // 2.儲存已經存在的DocId list
+                    existPointIdList.add(it) // 2.已經存在的DocId list
                 }
 
-                val diffrentIdDatas = selectMarketData.filterNot { select ->
+                val diffrentIdDatas = points.filterNot { select ->
                     existPointIdList.contains(select.marketId) //3. 找出不一樣的DocId
                 }
 
+
+                var count = diffrentIdDatas.size
+                fun checkCount() {
+                    if (count == 0) {
+                        uploadNewRoute()
+                    }
+                }
+
+                checkCount()
+
                 diffrentIdDatas.forEach {
                     db.collection("Points").document(it.marketId)
-                        .set(it)
+                        .set(it).addOnCompleteListener {
+                            count--
+                            checkCount()
+                        }
                 }
             }
             .addOnFailureListener { exception ->
@@ -448,73 +436,97 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     /**
      * 第一次，在onRoute 新增partner 文件
      */
-    fun addPartnerToOnRoute() {
-        storeRouteDocId?.let {
-            val partnerRef = db.collection("Routes")
-                .document(it)
+    fun joinToRoute(routeId: String) {
+        UserManager.user?.let {
+            val document = db.collection("Routes")
+                .document(routeId)
                 .collection("Partners")
-                .document()
+                .document(it.id)
 
-            userDetailLiveData.value?.let {
-                val partnerData = OnRouteUserPartners(
-                    id = partnerRef.id,
-                    userId = userId,
-                    lat = lastLocationLiveData.value?.latitude.toString(),
-                    lng = lastLocationLiveData.value?.longitude.toString(),
-                    name = it.name,
-                    imageUrl = it.icon,
-                    finished = false
-                )
-                userOnRoutePartnerId = partnerRef.id
-                partnerRef.set(partnerData)
-            }
-
+            val partner = Partner(
+                id = it.id,
+                userId = it.id,
+                lat = currentLocation?.latitude.toString(),
+                lng = currentLocation?.longitude.toString(),
+                name = it.name,
+                imageUrl = it.icon,
+                finished = false
+            )
+            document.set(partner)
         }
     }
 
     /**
      * update user location
      */
-    fun updatePartnerLocation() {
-        storeRouteDocId?.let { routeDocId ->
-            userOnRoutePartnerId?.let { partnerDocId ->
-                db.collection("Routes")
-                    .document(routeDocId)
-                    .collection("Partners")
-                    .document(partnerDocId)
-                    .update(
-                        "lat", lastLocationLiveData.value?.latitude.toString(),
-                        "lng", lastLocationLiveData.value?.longitude.toString()
-                    )
-            }
-        }
+    fun updatePartnerLocation(location: Location) {
+//        newRouteId?.let {
+//            db.collection("Routes")
+//                .document(it.route)
+//                .collection("Partners")
+//                .document(it.partner)
+//                .update(
+//                    "lat", location.latitude.toString(),
+//                    "lng", location.longitude.toString()
+//                )
+//        }
+
     }
 
-    private fun updateSheetData() {
-        val nameList = mutableListOf<String?>()
-        routePlaceIdList.forEach {
-            selectMarketData.forEach { p ->
-                if (it == p.marketId) {
-                    nameList.add(p.name)
-                }
-            }
-        }
-        _userSelectMarketName.value = nameList
-    }
+    private fun uploadUserCurrentRouteId(routeId: String) {
 
-    private fun uploadOuRouteIdToUser(onRoute: String) {
-        userDocId?.let {
+        UserManager.user?.id?.let {
             db.collection("User")
-                .document(userDocId!!)
-                .update("onRoute", onRoute)
-                .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully updated!") }
-                .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Error updating document", e) }
+                .document(it)
+                .update("onRoute", routeId)
+                .addOnSuccessListener {
+                    Log.d(
+                        ContentValues.TAG,
+                        "DocumentSnapshot successfully updated!"
+                    )
+
+                    UserManager.user?.onRoute = routeId
+                    _onRoute.value = true
+
+                }
+                .addOnFailureListener { e ->
+                    Log.w(
+                        ContentValues.TAG,
+                        "Error updating document",
+                        e
+                    )
+                }
         }
     }
 
-    fun uploadImageUriToStorage(onRouteId: String, uri: Uri, pointId: String) {
-        var storageRef = storage.reference
-        val imagesRef = storageRef.child("images/${uri.lastPathSegment}")
+    fun clearUserCurrentRouteId() {
+
+        UserManager.user?.id?.let {
+            db.collection("User")
+                .document(it)
+                .update("onRoute", null)
+                .addOnSuccessListener {
+                    Log.d(
+                        ContentValues.TAG,
+                        "DocumentSnapshot successfully updated!"
+                    )
+
+                    UserManager.user?.onRoute = null
+                    _onRoute.value = false
+
+                }
+                .addOnFailureListener { e ->
+                    Log.w(
+                        ContentValues.TAG,
+                        "Error updating document",
+                        e
+                    )
+                }
+        }
+    }
+
+    fun uploadImageToStorage(uri: Uri) {
+        val imagesRef = storage.reference.child("images/${uri.lastPathSegment}")
         val uploadTask = imagesRef.putFile(uri)
 
         uploadTask.addOnFailureListener {
@@ -532,7 +544,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                 if (task.isSuccessful) {
                     val downloadUri = task.result
 
-                    uploadImageUriToDB(onRouteId, downloadUri, pointId)
+                    addImage(downloadUri)
                 } else {
                     // Handle failures
                 }
@@ -540,20 +552,27 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         }
     }
 
-    fun uploadImageUriToDB(onRouteId: String, uri: Uri, pointId: String) {
+    fun addImage(uri: Uri) {
         val imageRef = db.collection("Routes")
-            .document(onRouteId)
-            .collection("images")
+            .document(currentRoute?.id ?: "")
+            .collection("Images")
             .document()
 
-        val image = OnRouteUserImages(
-            id = imageRef.id,
-            pointId = pointId,
-            url = uri.toString(),
-            userId = userId
-        )
+        currentRoute?.points?.let { points ->
+            sheetItems.value?.let { sheetItems ->
 
-        imageRef.set(image)
+                val count = sheetItems.filter { it.done }.size
+
+                val image = OnRouteUserImages(
+                    id = imageRef.id,
+                    pointId = points[count],
+                    url = uri.toString(),
+                    userId = UserManager.user?.id ?: ""
+                )
+
+                imageRef.set(image)
+            }
+        }
     }
 
     companion object {
@@ -561,7 +580,8 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
 
-    fun canTakePhoto(currentLatLng: LatLng, nextLatLng: LatLng
+    fun canTakePhoto(
+        currentLatLng: LatLng, nextLatLng: LatLng
     ): Boolean {
         val distance = SphericalUtil.computeDistanceBetween(
             currentLatLng, nextLatLng
@@ -570,4 +590,241 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         return distance <= 20
 //        return true
     }
+
+    // 1.3.0 flow gogo
+
+    /**
+     * path routeId then get detail
+     * and transformation get market point id list
+     */
+    fun getRouteDetail(routeId: String) {
+        repository.getRouteDetail(object : FirebaseDataSource.RouteCallBack {
+            override fun onResult(route: RouteStore) {
+                currentRoute = route
+                route.points?.let {
+                    getPointDetailList(it)
+                }
+            }
+        }, routeId)
+    }
+
+    fun getPathLatlngs(paths: List<String>): List<LatLng> {
+        val pathLatlngs = mutableListOf<LatLng>()
+
+        paths.forEach {
+            val latLngToDouble = it.split(",")
+            val lat = latLngToDouble[0].toDouble()
+            val lng = latLngToDouble[1].toDouble()
+            pathLatlngs.add(LatLng(lat, lng))
+        }
+        return pathLatlngs
+    }
+
+    fun getPointDetailList(pointIds: List<String>) {
+        repository.getPointDetailList(object : FirebaseDataSource.PointCallBack {
+            override fun onResult(pointDatas: List<PointData>) {
+                currentPointDatas = pointDatas
+
+                currentRoute?.id?.let {
+                    getUsers(it)
+                }
+            }
+        }, pointIds)
+    }
+
+    fun getUsers(routeId: String) {
+        // one time
+        val users = listOf(
+            User(
+                id = "bb11111",
+                name = "BB",
+                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
+            ),
+            User(
+                id = "waynechen323",
+                name = "Wayne",
+                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
+            ),
+            User(
+                id = "yuyu11111",
+                name = "Yuyu",
+                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
+            )
+        ) // mock
+        currentUsers = users
+
+        currentRoute?.id?.let {
+            fetchLiveImages(it)
+            fetchLivePartners(it)
+        }
+    }
+
+    fun fetchLivePartners(routeId: String) {
+        repository.snapOnRoutePartner(object : FirebaseDataSource.UserRoutePartnerCallBack {
+            override fun onResult(partners: List<Partner>) {
+                _partners.value = partners.filter { it.userId != UserManager.user?.id }
+
+                // 全部partner都結束
+                val isAllFinished = partners.filter { it.finished }.size == partners.size
+                Log.d("yy", "isAllFinished = $isAllFinished")
+                if (isAllFinished) {
+                    _partnersFinished.value = true
+                    deleteUserRoute(partners) // 清空user routeId
+                    UserManager.user?.onRoute = null
+                    _onRoute.value = false
+                }
+
+            }
+        }, routeId)
+    }
+
+    /**
+     * snap route-images all that for check user finish this route or not
+     */
+    fun fetchLiveImages(routeId: String) {
+        repository.getUserRouteImages(object : FirebaseDataSource.UserRouteImagesCallBack {
+            override fun onResult(images: List<OnRouteUserImages>) {
+                _images.value = images
+            }
+        }, routeId)
+    }
+
+    fun checkProgress(images: List<OnRouteUserImages>) {
+
+        val positionMyself = images.filter { it.userId == UserManager.user?.id }.size - 1
+
+        val items = mutableListOf<SheetItem>()
+        currentPointDatas?.let { points ->
+            for ((index, point) in points.withIndex()) {
+                val sheetItem = SheetItem(
+                    name = point.name,
+                    done = positionMyself >= index
+                )
+                items.add(sheetItem)
+            }
+        }
+
+        currentUsers?.let { users ->
+
+            for (user in users) {
+                val imageCount = images.filter { it.userId == user.id }.size
+                val position = imageCount - 1
+                if (position >= 0) {
+                    items[position].users.add(user)
+                }
+            }
+            _sheetItems.value = items
+        }
+
+        // check user finished?
+        currentPointDatas?.let { points ->
+            if (points.size - 1 == positionMyself) {
+                _displayCompleted.value = true
+
+                UserManager.user?.let {
+                    uploadPartnerFinished(it.onRoute ?: "", it.id)
+                }
+            }
+        }
+    }
+
+    fun uploadPartnerFinished(routeId: String, partnerId: String) {
+        db.collection("Routes")
+            .document(routeId)
+            .collection("Partners")
+            .document(partnerId)
+            .update("finished", true)
+            .addOnCompleteListener {
+                if (it.isSuccessful) {
+
+                } else {
+                    _error.value = "upload route fail ^.<"
+                }
+            }
+    }
+
+    fun deleteUserRoute(partners: List<Partner>) {
+//         清空user onRoute Id
+        partners.forEach {
+            db.collection("User")
+                .document(it.userId)
+                .update("onRoute", null)
+        }
+    }
+
+    fun getLatlng(pointId: String): LatLng? {
+
+        val list = currentPointDatas?.filter { it.marketId == pointId }
+
+        return if (list.isNullOrEmpty()) {
+            null
+        } else {
+            LatLng(list.first().latitude, list.first().longitude)
+        }
+    }
+
+    fun setRoutePath(paths: List<LatLng>) {
+        readyToRoute?.paths?.clear()
+        paths.map {
+            readyToRoute?.paths?.add("${it.latitude},${it.longitude}")
+        }
+    }
+
+    fun onCompletedDisplayed() {
+        _displayCompleted.value = null
+    }
+
+    fun onErrorDisplayed() {
+        _error.value = null
+    }
+
+    fun onCameraMoved() {
+        _moveCamera.value = null
+    }
+
+    fun newRoute() {
+
+        if (readyToRoute == null) {
+            _error.value = "something wrong"
+        } else {
+
+            readyToRoute?.points?.let {
+                checkAndUploadPoints(it)
+            }
+
+        }
+    }
+
+    fun uploadNewRoute() {
+
+        var document = db.collection("Routes").document()
+
+        val route = RouteStore(
+            id = document.id,
+            startPoint = "起點",
+            startLat = "${readyToRoute?.startPoint?.latitude}",
+            startLon = "${readyToRoute?.startPoint?.longitude}",
+            endPoint = "${readyToRoute?.destinationName}",
+            endLat = "${readyToRoute?.destinationPoint?.latitude}",
+            endLon = "${readyToRoute?.destinationPoint?.longitude}",
+            marketCount = readyToRoute?.points?.size?.toLong() ?: 0,
+            length = readyToRoute?.distance ?: 0,
+            hardDegree = null,
+            comments = null,
+            points = readyToRoute?.sortedPlaceIds?.toList(),
+            paths = readyToRoute?.paths?.toList()
+        )
+
+        document.set(route).addOnCompleteListener {
+            if (it.isSuccessful) {
+
+                joinToRoute(document.id)
+                // change to routing
+                uploadUserCurrentRouteId(document.id)
+            } else {
+                _error.value = "upload route fail ^.<"
+            }
+        }
+    }
+
 }

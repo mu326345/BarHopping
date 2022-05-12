@@ -11,7 +11,7 @@
 
         <variable
             name="viewModel"
-            type="com.yuyu.barhopping.map.sheet.BottomSheetViewModel" />
+            type="com.yuyu.barhopping.map.MapViewModel" />
 
         <variable
             name="route"
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
-            android:text="@{viewModel.nextName}"
+            android:text="@{viewModel.nextProgressName}"
             app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
             app:layout_constraintStart_toEndOf="@id/market_icon_card"
             app:layout_constraintTop_toTopOf="@id/market_icon_card" />
@@ -65,7 +65,7 @@
             android:id="@+id/schedule_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(viewModel.imageCount)}"
+            android:text="@{String.valueOf(viewModel.currentProgress)}"
             app:layout_constraintStart_toEndOf="@id/schedule_tv"
             app:layout_constraintTop_toTopOf="@id/schedule_tv"
             app:layout_constraintBottom_toBottomOf="@id/schedule_tv"/>
@@ -89,7 +89,7 @@
             android:id="@+id/total_num"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(viewModel.totalMarket)}"
+            android:text="@{String.valueOf(viewModel.totalProgress)}"
             app:layout_constraintStart_toEndOf="@id/total_tv"
             app:layout_constraintTop_toTopOf="@id/total_tv" />
 

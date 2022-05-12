@@ -52,7 +52,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 app:cardCornerRadius="90dp"
                 app:layout_constraintBottom_toTopOf="@+id/location_card"
                 app:layout_constraintEnd_toEndOf="@+id/location_card"
@@ -64,7 +64,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:background="#00000000"
-                    android:src="@drawable/ic_baseline_camera_alt_24" />
+                    android:src="@drawable/ic_baseline_camera_alt_24"
+                    android:visibility="visible" />
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView

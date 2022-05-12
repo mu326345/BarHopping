@@ -6,7 +6,7 @@
 
         <variable
             name="item"
-            type="com.yuyu.barhopping.data.SheetItem.MarketNameAndState" />
+            type="com.yuyu.barhopping.data.SheetItem" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

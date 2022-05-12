@@ -5,9 +5,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
-import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -19,9 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.bumptech.glide.Glide
@@ -38,24 +37,20 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.google.maps.android.SphericalUtil
-import com.yuyu.barhopping.Application
-import com.yuyu.barhopping.BuildConfig
-import com.yuyu.barhopping.MainActivity
+import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
-import com.yuyu.barhopping.data.FriendsProgress
 import com.yuyu.barhopping.data.MarketName
-import com.yuyu.barhopping.data.SheetItem
+import com.yuyu.barhopping.data.OnRouteUserImages
+import com.yuyu.barhopping.data.Partner
+import com.yuyu.barhopping.data.PointData
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
 import com.yuyu.barhopping.map.sheet.BottomSheetAdapter
-import com.yuyu.barhopping.map.sheet.BottomSheetViewModel
 import com.yuyu.barhopping.util.PermissionUtils
 import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.*
 
 
 class MapFragment : Fragment(),
@@ -63,11 +58,7 @@ class MapFragment : Fragment(),
     ActivityCompat.OnRequestPermissionsResultCallback {
 
     private lateinit var binding: FragmentMapBinding
-    private var isGameStart = false
     private val viewModel by viewModels<MapViewModel> {
-        ViewModelFactory((context?.applicationContext as Application).repository)
-    }
-    private val sheetViewModel by viewModels<BottomSheetViewModel> {
         ViewModelFactory((context?.applicationContext as Application).repository)
     }
 
@@ -78,10 +69,7 @@ class MapFragment : Fragment(),
     private var map: GoogleMap? = null
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var placesClient: PlacesClient
-    private var markerMap: EnumMap<MarketName, List<Marker?>> = EnumMap(MarketName::class.java)
     private var polyline: Polyline? = null
-    private var nextPointId: String? = null
-    private var userOnRouteId: String? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,10 +77,6 @@ class MapFragment : Fragment(),
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupPlaceApi()
 
-        sheetViewModel.addImageAndLatLngToPair()
-        sheetViewModel.addCheckUserFinishedMediator()
-        sheetViewModel.addCountAndStateMediatoe()
-        sheetViewModel.waitProgressLiveData()
     }
 
     override fun onCreateView(
@@ -102,13 +86,13 @@ class MapFragment : Fragment(),
 
         binding = FragmentMapBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
+
         val stepRecyclerView = binding.stepRecycler
         stepRecyclerView.layoutManager = object : LinearLayoutManager(context, HORIZONTAL, false) {
             override fun canScrollHorizontally(): Boolean = false
         }
 
         binding.detailSheet.lifecycleOwner = this
-        binding.detailSheet.viewModel = sheetViewModel
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment =
@@ -117,6 +101,7 @@ class MapFragment : Fragment(),
 
         binding.detailSheet.root.visibility = View.GONE
 
+        binding.detailSheet.viewModel = viewModel
         sheetAdapter = BottomSheetAdapter()
         val detailSheet = binding.detailSheet
         val sheetRecycler = detailSheet.routeDetailRecycler
@@ -131,15 +116,15 @@ class MapFragment : Fragment(),
                 override fun onClick(view: View?) {
                     when (view?.id) {
                         // step1: 0, step2: 1, Step3: 2
-                        R.id.next_step_btn -> viewModel.setStepPage(StepTypeFilter.STEP2)
-                        R.id.next_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP3)
-                        R.id.previous_step_btn2 -> viewModel.setStepPage(StepTypeFilter.STEP1)
-                        R.id.previous_step_btn3 -> viewModel.setStepPage(StepTypeFilter.STEP2)
+                        R.id.next_step_btn -> { // step 1 to step 2
+                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP2)
+                        }
+                        R.id.next_step_btn2 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP3)
+                        R.id.previous_step_btn2 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
+                        R.id.previous_step_btn3 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP2)
                         R.id.start_game_btn -> {
-                            viewModel.setStepPage(StepTypeFilter.STEP1)
-                            viewModel.onRouting()
-                            viewModel.storeOnRoute() // and upload onRouteId to User
-                            Toast.makeText(context, "Start Game!", Toast.LENGTH_SHORT).show()
+//                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
+                            viewModel.newRoute()
                         }
                     }
                 }
@@ -148,40 +133,23 @@ class MapFragment : Fragment(),
                 override fun onFocusChange(view: View?, focus: Boolean) {
                     if (focus) {
                         context?.let {
+                            val intent = Autocomplete.IntentBuilder(
+                                AutocompleteActivityMode.FULLSCREEN,
+                                fields
+                            ).build(it)
+
                             when (view?.id) {
                                 R.id.destination_edit -> {
-                                    val intent = Autocomplete.IntentBuilder(
-                                        AutocompleteActivityMode.FULLSCREEN,
-                                        fields
-                                    )
-                                        .build(it)
                                     startActivityForResult(intent, DESTINATION_REQUEST_CODE)
-                                    view.clearFocus()
-                                }
-                                R.id.step2_destination_edit -> {
-                                    val intent = Autocomplete.IntentBuilder(
-                                        AutocompleteActivityMode.FULLSCREEN,
-                                        fields
-                                    )
-                                        .build(it)
-                                    startActivityForResult(intent, STEP2_DESTINATION_REQUEST_CODE)
-                                    view.clearFocus()
-                                }
-                                R.id.location_edit -> {
-                                    val intent = Autocomplete.IntentBuilder(
-                                        AutocompleteActivityMode.FULLSCREEN,
-                                        fields
-                                    )
-                                        .build(it)
-                                    startActivityForResult(intent, STEP2_LOCATION_REQUEST_CODE)
-                                    view.clearFocus()
                                 }
                             }
+                            view?.clearFocus()
                         }
                     }
                 }
             }
         )
+
         binding.stepRecycler.adapter = adapter
         adapter.submitList(listOf(StepTypeFilter.STEP1, StepTypeFilter.STEP2, StepTypeFilter.STEP3))
 
@@ -194,28 +162,21 @@ class MapFragment : Fragment(),
         }
 
         binding.gameOverBtn.setOnClickListener {
-            viewModel.notOnRouting()
+            map?.clear()
+            viewModel.clearUserCurrentRouteId()
             // game over直接離開
         }
 
-
-        viewModel.moveCameraLiveData.observe(
-            viewLifecycleOwner, Observer {
+        viewModel.moveCamera.observe(viewLifecycleOwner) {
+            it?.let {
                 moveCameraToMarker(it)
+                viewModel.onCameraMoved()
             }
-        )
+        }
 
-        // destination marker
-        viewModel.desMarkerLiveData.observe(
-            viewLifecycleOwner, Observer {
-                map?.clear()
-                addMarkersToMap(it, viewModel.desMarkerNameLiveData.value)
-            }
-        )
-
-        viewModel.paths.observe(
-            viewLifecycleOwner, Observer {
-                polyline?.remove()
+        viewModel.step2Paths.observe(viewLifecycleOwner) {
+            polyline?.remove()
+            it?.let {
                 val lineOption = PolylineOptions()
                 lineOption.addAll(it)
                 lineOption.width(10f)
@@ -223,413 +184,208 @@ class MapFragment : Fragment(),
                 lineOption.geodesic(true)
                 polyline = map?.addPolyline(lineOption)!!
             }
-        )
+        }
 
-        // nearby market marker
-        viewModel.addMarkerLiveData.observe(
-            viewLifecycleOwner, Observer {
-                val markerList = it.marketOptions.map { map?.addMarker(it) }
-                markerMap.put(it.markerName, markerList)
+        // get nearby result set market Icon
+        viewModel.marketMarkers.observe(viewLifecycleOwner) {
+            Log.d("yy", "viewModel.marketMarketMarkers.observe, it=$it")
 
-                markerList.forEachIndexed {index,  marker ->
-                    marker?.tag = it.placeIds[index]
-                }
-            }
-        )
+            it?.let {
+                it.forEach { item ->
+                    val marker = map?.addMarker(
+                        item.marketOptions
+                    )?.apply {
+                        tag = item.placeId
 
-        viewModel.visibleMarker.observe(
-            viewLifecycleOwner, Observer {
-                val marketValueList = markerMap.get(it.first)
-                marketValueList?.forEach { marker ->
-                    marker?.isVisible = it.second
-                }
-            }
-        )
-
-        // market check box
-        viewModel.sevenChecked.observe(
-            viewLifecycleOwner, Observer {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val futureTarget = Glide.with(requireContext())
-                        .asBitmap()
-                        .load(R.drawable.sevenmarker)
-                        .submit(150, 150)
-                    val bitmap = futureTarget.get()
-
-                    withContext(Dispatchers.Main) {
-                        viewModel.setMarketCheck(
-                            MarketName.SEVEN,
-                            it,
-                            markerMap[MarketName.SEVEN] != null,
-                            bitmap
-                        )
+                        when (item.markerName) {
+                            MarketName.SEVEN -> {
+                                setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sevenmarker2))
+                            }
+                            MarketName.FAMILY -> {
+                                setIcon(BitmapDescriptorFactory.fromResource(R.drawable.familymarker2))
+                            }
+                            MarketName.HILIFE -> {
+                                setIcon(BitmapDescriptorFactory.fromResource(R.drawable.hilifemarker2))
+                            }
+                            MarketName.OKMART -> {
+                                setIcon(BitmapDescriptorFactory.fromResource(R.drawable.okmarker2))
+                            }
+                        }
+                    }
+                    marker?.let { // 判斷沒有marker -> 儲存一個markerList
+                        if (viewModel.currentMarketMarkers[item.markerName] == null) {
+                            viewModel.currentMarketMarkers[item.markerName] = mutableListOf()
+                        }
+                        viewModel.currentMarketMarkers[item.markerName]?.add(marker)
                     }
                 }
+
             }
-        )
+        }
 
-        viewModel.familyChecked.observe(
-            viewLifecycleOwner, Observer {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val futureTarget = Glide.with(requireContext())
-                        .asBitmap()
-                        .load(R.drawable.family1marker)
-                        .submit(150, 150)
-                    val bitmap = futureTarget.get()
-
-                    withContext(Dispatchers.Main) {
-                        viewModel.setMarketCheck(
-                            MarketName.FAMILY,
-                            it,
-                            markerMap[MarketName.FAMILY] != null,
-                            bitmap
-                        )
-                    }
+            // market check box
+            viewModel.sevenChecked.observe(viewLifecycleOwner) {
+                it?.let { isVisible ->
+                    viewModel.setMarkersVisibility(MarketName.SEVEN, isVisible)
                 }
             }
-        )
-
-        viewModel.hiLifeChecked.observe(
-            viewLifecycleOwner, Observer {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val futureTarget = Glide.with(requireContext())
-                        .asBitmap()
-                        .load(R.drawable.hilifemarker)
-                        .submit(150, 150)
-                    val bitmap = futureTarget.get()
-
-                    withContext(Dispatchers.Main) {
-                        viewModel.setMarketCheck(
-                            MarketName.HILIFE,
-                            it,
-                            markerMap[MarketName.HILIFE] != null,
-                            bitmap
-                        )
-                    }
+            viewModel.familyChecked.observe(viewLifecycleOwner) {
+                it?.let { isVisible ->
+                    viewModel.setMarkersVisibility(MarketName.FAMILY, isVisible)
                 }
             }
-        )
-
-        viewModel.okMartChecked.observe(
-            viewLifecycleOwner, Observer {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    val futureTarget = Glide.with(requireContext())
-                        .asBitmap()
-                        .load(R.drawable.okmarker)
-                        .submit(150, 150)
-                    val bitmap = futureTarget.get()
-
-                    withContext(Dispatchers.Main) {
-                        viewModel.setMarketCheck(
-                            MarketName.OKMART,
-                            it,
-                            markerMap[MarketName.OKMART] != null,
-                            bitmap
-                        )
-                    }
+            viewModel.hiLifeChecked.observe(viewLifecycleOwner) {
+                it?.let { isVisible ->
+                    viewModel.setMarkersVisibility(MarketName.HILIFE, isVisible)
                 }
             }
-        )
-
-        viewModel.stepPage.observe(
-            viewLifecycleOwner, Observer {
-                binding.stepRecycler.layoutManager?.scrollToPosition(it)
-            }
-        )
-
-        /**
-         * control game state and their behavior and UI
-         */
-        viewModel.onRoute.observe(
-            viewLifecycleOwner, Observer {
-                when (it) {
-                    true -> {
-                        viewModel.getUserData()
-                        isGameStart = true
-                        binding.detailSheet.root.visibility = View.VISIBLE
-                        stepRecyclerView.visibility = View.GONE
-                        (activity as MainActivity).hideBottomNav()
-                    }
-                    false -> {
-                        isGameStart = false
-                        map?.clear()
-                        stepRecyclerView.visibility = View.VISIBLE
-                        binding.cameraCard.visibility = View.GONE
-                        binding.detailSheet.root.visibility = View.GONE
-                        (activity as MainActivity).showBottomNav()
-                    }
+            viewModel.okMartChecked.observe(viewLifecycleOwner) {
+                it?.let { isVisible ->
+                    viewModel.setMarkersVisibility(MarketName.OKMART, isVisible)
                 }
             }
-        )
-
-        // make sure user have onRoute or not
-        viewModel.userOnRouteId.observe(
-            viewLifecycleOwner, Observer {
-                it?.let {
-                    userOnRouteId = it
-                    viewModel.onRouting()
-                    viewModel.addPartnerToOnRoute() //第一次增加partner檔案
-                    sheetViewModel.getRouteDetail(it)
-                    sheetViewModel.snapOnRouteUserImages(it)
-                    sheetViewModel.snapOnRouteUserLocation(it)
-                }
-            }
-        )
 
         binding.cameraBtn.setOnClickListener {
             startCamera()
         }
 
-        viewModel.lastLocationLiveData.observe(
-            viewLifecycleOwner, Observer {
-                viewModel.updatePartnerLocation()
-
-                it?.let {
-                    if (isGameStart) {
-                        val nextPoint = sheetViewModel.getNextPoint()
-                        val nextLatLng = nextPoint?.first
-                        nextPointId = nextPoint?.second
-                        val locationLatLng = LatLng(it.latitude, it.longitude)
-
-                        nextLatLng?.let { next ->
-                            if (viewModel.canTakePhoto(locationLatLng, next)) {
-                                binding.cameraCard.visibility = View.VISIBLE
-
-                            } else {
-                                binding.cameraCard.visibility = View.GONE
-                            }
-                        }
-                    }
-                }
-            }
-        )
-
-        viewModel.userSelectMarketName.observe(
-            viewLifecycleOwner, Observer {
-                sheetViewModel.nameAndStateInDataClass(it)
-            })
-
-        sheetViewModel.marketDetailData.observe(viewLifecycleOwner) {
-            it.forEach {
-                when(it.type) {
-                    1 -> {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val futureTarget = Glide.with(requireContext())
-                                .asBitmap()
-                                .load(R.drawable.sevenmarker)
-                                .submit(150, 150)
-                            val bitmap = futureTarget.get()
-
-                            withContext(Dispatchers.Main) {
-                                map?.addMarker(
-                                    MarkerOptions()
-                                        .position(LatLng(it.latitude, it.longitude))
-                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                                        .zIndex(1.0f)
-                                )
-                            }
-                        }
-                    }
-
-                    2 -> {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val futureTarget = Glide.with(requireContext())
-                                .asBitmap()
-                                .load(R.drawable.family1marker)
-                                .submit(150, 150)
-                            val bitmap = futureTarget.get()
-
-                            withContext(Dispatchers.Main) {
-                                map?.addMarker(
-                                    MarkerOptions()
-                                        .position(LatLng(it.latitude, it.longitude))
-                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                                        .zIndex(1.0f)
-                                )
-                            }
-                        }
-                    }
-
-                    3 -> {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val futureTarget = Glide.with(requireContext())
-                                .asBitmap()
-                                .load(R.drawable.hilifemarker)
-                                .submit(150, 150)
-                            val bitmap = futureTarget.get()
-
-                            withContext(Dispatchers.Main) {
-                                map?.addMarker(
-                                    MarkerOptions()
-                                        .position(LatLng(it.latitude, it.longitude))
-                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                                        .zIndex(1.0f)
-                                )
-                            }
-                        }
-                    }
-
-                    4 -> {
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val futureTarget = Glide.with(requireContext())
-                                .asBitmap()
-                                .load(R.drawable.okmarker)
-                                .submit(150, 150)
-                            val bitmap = futureTarget.get()
-
-                            withContext(Dispatchers.Main) {
-                                map?.addMarker(
-                                    MarkerOptions()
-                                        .position(LatLng(it.latitude, it.longitude))
-                                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
-                                        .zIndex(1.0f)
-                                )
-                            }
-                        }
-                    }
-
-                    else -> null
-                }
-            }
-        }
-
-        sheetViewModel.finishedGame.observe(viewLifecycleOwner) {
+        viewModel.onRoute.observe(viewLifecycleOwner) {
             it?.let {
+                initRouteUi(it)
+                viewModel.resetReadyToRoute()
                 if (it) {
-                    map?.clear()
-                    viewModel.notOnRouting()
-                    findNavController().navigate(MapFragmentDirections.actionMapFragmentToSuccessDialogFragment())
+                    Log.d("yy", "on route")
+                    setupCurrentRoute(UserManager.user?.onRoute ?: "")
+                } else {
+                    Log.d("yy", "not on route")
+                    viewModel.setReadyToRoute()
                 }
-                //TODO upload userId complete to firebase
-                // BVM checkUserFinished() 如果好友還沒結束，先不要清理map跟clear db
             }
         }
 
-        sheetViewModel.imageImageAndLatLngLiveData.observe(viewLifecycleOwner) {
-            val pairList = mutableListOf<Pair<String, LatLng>>()
-            it.first?.let { first ->
-                it.second?.let { second ->
-                    first.forEach { image ->
-                        second.forEach { market ->
-                            // TODO: 判斷此路線的朋友，決定顯示的圖片
-                            if (image.pointId == market.marketId) {
-                                val url = image.url
-                                val latLng = LatLng(market.latitude, market.longitude)
-
-                                val imagePair = Pair(url, latLng)
-                                pairList.add(imagePair)
-                            }
-                        }
-                    }
-                }
-            }
-
-            val newPairList = mutableListOf<Pair<String, LatLng>>()
-            for (index in 0 until pairList.size) {
-                var count = -1
-                for (index2 in index + 1 until pairList.size) {
-                    if (pairList[index].second == pairList[index2].second) {
-                        count++
-                    }
-                }
-                val oldPair = pairList[index]
-                val pair = Pair(oldPair.first,
-                    LatLng(oldPair.second.latitude + (count * 0.00005),
-                        oldPair.second.longitude + (count * 0.00005)))
-
-                newPairList.add(pair)
-            }
-
-            newPairList.forEach {
-                glideLoadImageAddMarker(it.first, it.second)
-            }
-        }
-
-        sheetViewModel.checkUserFinishedLiveData.observe(viewLifecycleOwner) {
-            sheetViewModel.checkUserFinished()
-        }
-
-        // transformations.map pointsId list from routeData
-        sheetViewModel.pointsIdList.observe(viewLifecycleOwner) {
+        viewModel.currentStep.observe(viewLifecycleOwner) {
+            Log.d("yy", "currentStep = $it")
             it?.let {
-                sheetViewModel.getPointDetailList(it)
-            }
-        }
+                when (it) {
+                    StepTypeFilter.STEP1 -> {
+                        Log.i("yy", "current step: 1")
+                        map?.setOnPoiClickListener(object : GoogleMap.OnPoiClickListener {
+                            override fun onPoiClick(point: PointOfInterest) {
 
-        // use pointId to query pointName LiveData
-        sheetViewModel.marketName.observe(viewLifecycleOwner) {
-            sheetViewModel.nameAndStateInDataClass(it)
-        }
-
-        sheetViewModel.countAndState.observe(viewLifecycleOwner) {
-            if (it.first != null && it.second != null) {
-                sheetViewModel.countUserImage()
-            }
-        }
-
-        // TODO: change this observe to friends and mediator images
-        sheetViewModel.imagesLiveData.observe(viewLifecycleOwner) {
-            sheetViewModel.countFriendsImage("bb11111")
-        }
-
-        sheetViewModel.progressLiveData.observe(viewLifecycleOwner) {
-            it.first?.let { first ->
-                it.second?.let { second ->
-                    val mainList = mutableListOf<SheetItem>()
-                    first.forEachIndexed { index, marketNameAndState ->
-                        val subList = mutableListOf<FriendsProgress>()
-                        second.forEach { friend ->
-                            if(index.plus(1) == friend.progress) {
-                                subList.add(friend)
+                                setCurrentMapMarker(point.latLng)
+                                viewModel.setDestinationPoint(point.name, point.latLng)
                             }
-                        }
-                        if(subList.size > 0) {
-                            marketNameAndState.friends = subList
-                        }
-                        mainList.add(marketNameAndState)
+                        })
                     }
-                    sheetAdapter.submitList(mainList)
-                    sheetAdapter.notifyDataSetChanged()
+                    StepTypeFilter.STEP2 -> {
+                        Log.i("yy", "current step: 2")
+                        binding.stepRecycler.scrollToPosition(1)
+                        resetMap()
+                        viewModel.showDirection()
+                        viewModel.readyToRoute?.destinationPoint?.let {
+                            setCurrentMapMarker(it)
+                        }
+                    }
+                    StepTypeFilter.STEP3 -> {
+                        Log.i("yy", "current step: 3")
+                        binding.stepRecycler.scrollToPosition(2)
+                        resetMap()
+                        viewModel.showDirection()
+                        viewModel.readyToRoute?.points?.let {
+                            addPointMarkers(it)
+                        }
+                        viewModel.readyToRoute?.destinationPoint?.let {
+                            setCurrentMapMarker(it)
+                        }
+                    }
                 }
             }
         }
 
-        sheetViewModel.routeDataList.observe(viewLifecycleOwner) {
-            it?.let{
-                sheetViewModel.routePathsLatLngDrawPolyLine()
-            }
-        }
-
-        sheetViewModel.routeDetailLatLngList.observe(viewLifecycleOwner) {
-            polyline?.remove()
-            val lineOption = PolylineOptions()
-            lineOption.addAll(it)
-            lineOption.width(10f)
-            lineOption.color(Color.BLUE)
-            lineOption.geodesic(true)
-            polyline = map?.addPolyline(lineOption)!!
-        }
-
-        sheetViewModel.usersLocationLiveData.observe(viewLifecycleOwner) {
-            it.forEach {
-                addUserLocationMarkerToMap(LatLng(it.lat.toDouble(), it.lng.toDouble()))
+        viewModel.error.observe(viewLifecycleOwner) {
+            it?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                viewModel.onErrorDisplayed()
             }
         }
 
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        sheetViewModel.addImageAndLatLngToPair()
-//        sheetViewModel.addCheckUserFinishedMediator()
-//        sheetViewModel.addCountAndStateMediatoe()
-//        sheetViewModel.waitProgressLiveData()
+    fun initRouteUi(onRoute: Boolean) {
+
+        map?.clear()
+        binding.stepRecycler.scrollToPosition(0)
+        if (onRoute) {
+            binding.cameraBtn.visibility = View.VISIBLE
+            binding.gameOverBtn.visibility = View.VISIBLE
+            binding.detailSheet.root.visibility = View.VISIBLE
+            binding.stepRecycler.visibility = View.GONE
+            (activity as MainActivity).hideBottomNav()
+        } else {
+            binding.cameraBtn.visibility = View.GONE
+            binding.gameOverBtn.visibility = View.GONE
+            binding.detailSheet.root.visibility = View.GONE
+            binding.stepRecycler.visibility = View.VISIBLE
+            (activity as MainActivity).showBottomNav()
+        }
+    }
+
+    fun setupCurrentRoute(routeId: String) {
+
+        viewModel.getRouteDetail(routeId)
+
+        viewModel.images.observe(viewLifecycleOwner) {
+            Log.d("Wayne", "viewModel.images.observe, it=$it")
+            it?.let { images ->
+
+                addMarkers(
+                    viewModel.currentRoute?.paths ?: emptyList(),
+                    viewModel.currentPointDatas ?: emptyList(),
+                    images
+                )
+
+                viewModel.checkProgress(it)
+            }
+        }
+
+        viewModel.sheetItems.observe(viewLifecycleOwner) {
+            it?.let {
+                sheetAdapter.submitList(it)
+                sheetAdapter.notifyDataSetChanged()
+            }
+        }
+
+        viewModel.partners.observe(viewLifecycleOwner) {
+            it?.let {
+                addPartnerMarkers(it)
+            }
+        }
+
+        // check finished
+        viewModel.displayCompleted.observe(viewLifecycleOwner) {
+            it?.let {
+                Toast.makeText(context, "user finished", Toast.LENGTH_SHORT).show()
+                viewModel.onCompletedDisplayed()
+            }
+        }
+
+        viewModel.partnersFinished.observe(viewLifecycleOwner) { allFinished ->
+            if(allFinished) {
+                Toast.makeText(context, "all user finished", Toast.LENGTH_SHORT).show()
+                viewModel.onCompletedDisplayed()
+            }
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         stopLocationUpdates()
+    }
+
+    fun resetMap() {
+        map?.setOnPoiClickListener(null)
+        map?.clear()
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -638,7 +394,6 @@ class MapFragment : Fragment(),
 
         googleMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
         googleMap.setOnMyLocationClickListener(onMyLocationClickListener)
-        googleMap.setOnPoiClickListener(onPoiClickListener)
         googleMap.setOnMarkerClickListener(setOnMarkerClickListener)
         getLastLocation()
         enableMyLocation()
@@ -679,7 +434,9 @@ class MapFragment : Fragment(),
         }
     }
 
-    // autoComplete intent
+    /**
+     * autoComplete intent and imagePicker result
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
             DESTINATION_REQUEST_CODE -> {
@@ -687,51 +444,11 @@ class MapFragment : Fragment(),
                     Activity.RESULT_OK -> {
                         data?.let {
                             val place = Autocomplete.getPlaceFromIntent(data)
-                            viewModel.onPlaceSelect(place)
-                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
-                        }
-                    }
-                    AutocompleteActivity.RESULT_ERROR -> {
-                        data?.let {
-                            val status = Autocomplete.getStatusFromIntent(data)
-                            Log.i(TAG, status.statusMessage ?: "")
-                        }
-                    }
-                    Activity.RESULT_CANCELED -> {
-                        // The user canceled the operation.
-                    }
-                }
-                return
-            }
 
-            STEP2_DESTINATION_REQUEST_CODE -> {
-                when (resultCode) {
-                    Activity.RESULT_OK -> {
-                        data?.let {
-                            val place = Autocomplete.getPlaceFromIntent(data)
-                            viewModel.onPlaceSelect(place)
-                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
-                        }
-                    }
-                    AutocompleteActivity.RESULT_ERROR -> {
-                        data?.let {
-                            val status = Autocomplete.getStatusFromIntent(data)
-                            Log.i(TAG, status.statusMessage ?: "")
-                        }
-                    }
-                    Activity.RESULT_CANCELED -> {
-                        // The user canceled the operation.
-                    }
-                }
-                return
-            }
-
-            STEP2_LOCATION_REQUEST_CODE -> {
-                when (resultCode) {
-                    Activity.RESULT_OK -> {
-                        data?.let {
-                            val place = Autocomplete.getPlaceFromIntent(data)
-                            Log.i(TAG, "Place: ${place.name}, ${place.id}, ${place.latLng}")
+                            setCurrentMapMarker(place.latLng ?: LatLng(0.0, 0.0))
+                            viewModel.setDestinationPoint(place.name ?: "", place.latLng ?: LatLng(0.0, 0.0))
+                            moveCameraToMarker(place.latLng ?: LatLng(0.0, 0.0))
+                            viewModel.onCameraMoved()
                         }
                     }
                     AutocompleteActivity.RESULT_ERROR -> {
@@ -749,26 +466,22 @@ class MapFragment : Fragment(),
 
             // imagePicker
             CAMERA_IMAGE_REQ_CODE -> {
-                if (resultCode == Activity.RESULT_OK) {
-                    //Image Uri will not be null for RESULT_OK
-                    val uri: Uri = data?.data!!
-
-                    nextPointId?.let { pointId ->
-                        userOnRouteId?.let { routeId ->
-                            viewModel.uploadImageUriToStorage(routeId, uri, pointId)
+                when (resultCode) {
+                    Activity.RESULT_OK -> {
+                        //Image Uri will not be null for RESULT_OK
+                        data?.data?.let {
+                            viewModel.uploadImageToStorage(it)
                         }
                     }
-
-                    // Use Uri object instead of File to avoid storage permissions
-//                    binding.imgCamera.setImageURI(uri)
-                } else if (resultCode == ImagePicker.RESULT_ERROR) {
-                    Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Task Cancelled", Toast.LENGTH_SHORT).show()
+                    ImagePicker.RESULT_ERROR -> {
+                        Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(context, "Task Cancelled", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-
         super.onActivityResult(requestCode, resultCode, data)
     }
 
@@ -843,14 +556,6 @@ class MapFragment : Fragment(),
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    private fun addMarkersToMap(latLng: LatLng, title: String?) {
-        map?.addMarker(
-            MarkerOptions()
-                .position(latLng)
-                .title(title)
-        )
-    }
-
     private fun addUserLocationMarkerToMap(latLng: LatLng) {
         var userLocationMarker: Marker? = null
         userLocationMarker?.remove()
@@ -862,7 +567,96 @@ class MapFragment : Fragment(),
         )
     }
 
-    private fun glideLoadImageAddMarker(url: String, latlng: LatLng) {
+
+
+    private fun addMarkers(paths: List<String>, points: List<PointData>, images: List<OnRouteUserImages>) {
+
+        addPathMarkers(paths)
+        addPointMarkers(points)
+        addImageMarkers(images)
+    }
+
+    private fun addPathMarkers(paths: List<String>) {
+
+        val pathLatlngs = viewModel.getPathLatlngs(paths)
+
+        polyline?.remove()
+        val lineOption = PolylineOptions()
+        lineOption.addAll(pathLatlngs)
+        lineOption.width(10f)
+        lineOption.color(Color.BLUE)
+        lineOption.geodesic(true)
+        polyline = map?.addPolyline(lineOption)!!
+    }
+
+    private fun addPointMarkers(points: List<PointData>) {
+        points.forEach { point ->
+
+            when (point.type) {
+
+                1 -> {
+                    map?.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(point.latitude, point.longitude))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.sevenmarker2))
+                            .zIndex(1.0f)
+                    )
+                }
+
+                2 -> {
+                    map?.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(point.latitude, point.longitude))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.familymarker2))
+                            .zIndex(1.0f)
+                    )
+                }
+
+                3 -> {
+                    map?.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(point.latitude, point.longitude))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.hilifemarker2))
+                            .zIndex(1.0f)
+                    )
+                }
+
+                4 -> {
+                    map?.addMarker(
+                        MarkerOptions()
+                            .position(LatLng(point.latitude, point.longitude))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.okmarker2))
+                            .zIndex(1.0f)
+                    )
+                }
+
+                else -> null
+            }
+        }
+
+        addOriAndDesMarkers()
+    }
+
+    private fun addImageMarkers(images: List<OnRouteUserImages>) {
+
+        val cacheMaps = mutableMapOf<LatLng, Int>()
+
+        for (image in images) {
+            viewModel.getLatlng(image.pointId)?.let { latlng ->
+
+                if (cacheMaps.containsKey(latlng)) {
+                    cacheMaps[latlng] = cacheMaps[latlng]?.plus(1) ?: 1
+                } else {
+                    cacheMaps[latlng] = 1
+                }
+
+                addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.0005),
+                    latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.0005)))
+            }
+        }
+    }
+
+    private fun addMarkerAndLoadImage(url: String, latlng: LatLng) {
         lifecycleScope.launch(Dispatchers.IO) {
             val futureTarget = Glide.with(requireContext())
                 .asBitmap()
@@ -879,6 +673,66 @@ class MapFragment : Fragment(),
             }
             Glide.with(requireContext()).clear(futureTarget)
         }
+    }
+
+    private fun addOriAndDesMarkers() {
+
+        // ori marker
+        val startPointLatlng = LatLng(
+            viewModel.currentRoute?.startLat?.toDouble() ?: 0.0,
+            viewModel.currentRoute?.startLon?.toDouble() ?: 0.0
+        )
+
+        val startPointTitle = viewModel.currentRoute?.startPoint
+
+        map?.addMarker(
+            MarkerOptions()
+                .position(startPointLatlng)
+                .title(startPointTitle)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_circle))
+                .zIndex(1.0f)
+        )
+
+        // des marker
+        val endPointLatlng = LatLng(
+            viewModel.currentRoute?.endLat?.toDouble() ?: 0.0,
+            viewModel.currentRoute?.endLon?.toDouble() ?: 0.0
+        )
+
+        val endPointTitle = viewModel.currentRoute?.endPoint
+
+        map?.addMarker(
+            MarkerOptions()
+                .position(endPointLatlng)
+                .title(endPointTitle)
+        )
+    }
+
+    private fun addPartnerMarkers(partners: List<Partner>) {
+
+        partners.forEach {
+
+            map?.addMarker(
+                MarkerOptions()
+                    .position(
+                        LatLng(
+                            it.lat.toDouble(),
+                            it.lng.toDouble()
+                        )
+                    )
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+            )
+        }
+    }
+
+    var currentMapMarker: Marker? = null
+
+    fun setCurrentMapMarker(latLng: LatLng) {
+        currentMapMarker?.remove()
+        currentMapMarker = map?.addMarker(
+            MarkerOptions()
+                .position(latLng)
+        )
     }
 
     private fun moveCameraToMarker(latLng: LatLng) {
@@ -907,20 +761,6 @@ class MapFragment : Fragment(),
                 .start(CAMERA_IMAGE_REQ_CODE)
     }
 
-
-    private val onPoiClickListener = object : GoogleMap.OnPoiClickListener {
-        override fun onPoiClick(poi: PointOfInterest) {
-            viewModel.onPoiClick(poi)
-
-            Toast.makeText(
-                context, """Clicked: ${poi.name}
-            Place ID:${poi.placeId}
-            Latitude:${poi.latLng.latitude} Longitude:${poi.latLng.longitude}""",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {
         override fun onMyLocationClick(location: Location) {
             Toast.makeText(context, "Current location:\n$location", Toast.LENGTH_LONG)
@@ -943,7 +783,7 @@ class MapFragment : Fragment(),
         override fun onLocationResult(locationResult: LocationResult?) {
             locationResult ?: return
             if (locationResult.locations.size > 0) {
-                viewModel.onLocationUpdate(locationResult.locations[0])
+                viewModel.onLocationUpdated(locationResult.locations[0])
             }
         }
     }
@@ -962,6 +802,40 @@ class MapFragment : Fragment(),
         }
     }
 
+    fun vectorToBitmap(drawable: Int): BitmapDescriptor? {
+        return ContextCompat.getDrawable(requireContext(), drawable)?.run {
+            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
+            val bitmap = Bitmap.createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
+            draw(Canvas(bitmap))
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        }
+    }
+
+//    /////// 測試GoogleMapSnapshot，photo -> route detail Image
+//    val snapshotReadyCallback = object : GoogleMap.SnapshotReadyCallback {
+//        override fun onSnapshotReady(bitmap: Bitmap?) {
+//            var bitmapfrommap = bitmap
+//
+//            if (bitmapfrommap != null) {
+//                fileOut.writeBitmap(bitmapfrommap!!, Bitmap.CompressFormat.PNG, 85)
+//            }
+//        }
+//
+//        val onMapLoadedCallback : GoogleMap.OnMapLoadedCallback = GoogleMap.OnMapLoadedCallback {
+//            map?.snapshot(snapshotReadyCallback, bitmapfrommap)
+//        }
+//        map?.setOnMapLoadedCallback(onMapLoadedCallback)
+//    }
+
+    ///////// it works can get bitmap
+    ///////// https://github.com/googlemaps/android-samples/blob/816f8cc4241ec7c4eaf41b16f7fefcf10ae95faf/ApiDemos/kotlin/app/src/gms/java/com/example/kotlindemos/SnapshotDemoActivity.kt
+//    binding.cameraBtn.setOnClickListener {
+//        map?.snapshot {
+//
+//        }
+//    }
+
+
     companion object {
         /**
          * Request code for location permission request.
@@ -972,8 +846,8 @@ class MapFragment : Fragment(),
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
         private const val DESTINATION_REQUEST_CODE = 1
-        private const val STEP2_DESTINATION_REQUEST_CODE = 2
-        private const val STEP2_LOCATION_REQUEST_CODE = 3
+//        private const val STEP2_DESTINATION_REQUEST_CODE = 2
+//        private const val STEP2_LOCATION_REQUEST_CODE = 3
         val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
         private const val CAMERA_IMAGE_REQ_CODE = 103
     }
