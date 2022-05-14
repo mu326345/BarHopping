@@ -17,6 +17,7 @@ class QrCodeDialogFragment : DialogFragment() {
 
     private lateinit var binding: FragmentQrCodeDialogBinding
     private val viewModel by viewModels<QrCodeViewModel>()
+    private val mapViewModel by viewModels<MapViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -491,6 +491,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                     UserManager.user?.onRoute = routeId
                     _onRoute.value = true
 
+                    onQrCodeReady()
                 }
                 .addOnFailureListener { e ->
                     Log.w(
@@ -799,7 +800,9 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
     fun onQrCodeReady() {
-        _qrCodeReady.value = true
+        UserManager.user?.onRoute?.let {
+            _qrCodeReady.value = true
+        }
     }
 
     fun resetQrCode() {

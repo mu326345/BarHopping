@@ -143,7 +143,6 @@ class MapFragment : Fragment(),
                         R.id.start_game_btn -> {
 //                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                             viewModel.newRoute()
-                            viewModel.onQrCodeReady()
                         }
                     }
                 }
@@ -297,8 +296,20 @@ class MapFragment : Fragment(),
                         binding.stepRecycler.scrollToPosition(1)
                         resetMap()
                         viewModel.showDirection()
-                        viewModel.readyToRoute?.destinationPoint?.let {
-                            setCurrentMapMarker(it)
+                        viewModel.readyToRoute?.let {
+                            it.destinationPoint?.let { des ->
+                                it.startPoint?.let { start ->
+                                    setCurrentMapMarker(des)
+
+                                    val update = CameraUpdateFactory.newLatLngBounds(
+                                        LatLngBounds.builder()
+                                            .include(LatLng(start.latitude, start.longitude))
+                                            .include(LatLng(des.latitude, des.longitude))
+                                            .build(), 200
+                                    )
+                                    map?.animateCamera(update)
+                                }
+                            }
                         }
                     }
                     StepTypeFilter.STEP3 -> {
@@ -327,7 +338,7 @@ class MapFragment : Fragment(),
         viewModel.qrCodeReady.observe(viewLifecycleOwner) {
             it?.let {
                 if(it) {
-                    findNavController().navigate(MapFragmentDirections.navigateToQrCodeScannerFragment())
+                    findNavController().navigate(MapFragmentDirections.navigateToQrCodeDialogFragment())
                 }
                 viewModel.resetQrCode()
             }
@@ -501,10 +512,10 @@ class MapFragment : Fragment(),
                         }
                     }
                     ImagePicker.RESULT_ERROR -> {
-                        Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(context, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
                     }
                     else -> {
-                        Toast.makeText(context, "Task Cancelled", Toast.LENGTH_SHORT).show()
+//                        Toast.makeText(context, "Task Cancelled", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -790,8 +801,8 @@ class MapFragment : Fragment(),
 
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {
         override fun onMyLocationClick(location: Location) {
-            Toast.makeText(context, "Current location:\n$location", Toast.LENGTH_LONG)
-                .show()
+//            Toast.makeText(context, "Current location:\n$location", Toast.LENGTH_LONG)
+//                .show()
         }
     }
 
@@ -819,11 +830,11 @@ class MapFragment : Fragment(),
         override fun onMarkerClick(marker: Marker): Boolean {
             viewModel.onMarkerClick(marker)
 
-            Toast.makeText(
-                context,
-                "${marker.title} has been clicked newClickCount times.",
-                Toast.LENGTH_SHORT
-            ).show()
+//            Toast.makeText(
+//                context,
+//                "${marker.title} has been clicked newClickCount times.",
+//                Toast.LENGTH_SHORT
+//            ).show()
 
             return false
         }
