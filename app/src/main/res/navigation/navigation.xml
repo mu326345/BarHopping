@@ -3,7 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation"
-    app:startDestination="@id/mapFragment">
+    app:startDestination="@id/googleLogin">
+
+    <fragment
+        android:id="@+id/googleLogin"
+        android:name="com.yuyu.barhopping.login.GoogleLoginFragment"
+        android:label="GoogleLogin" />
 
     <fragment
         android:id="@+id/mapFragment"

@@ -108,21 +108,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         get() = _partnersFinished
 
     init {
-        getUserDetail("yuyu11111")
-    }
-
-    /**
-     *  init this fun
-     *  存取user 資料，確認是否有onRoute路線
-     *  如果開始遊戲時，會再call this fun again then
-     */
-    fun getUserDetail(userId: String) {
-        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
-            override fun onResult(user: User) {
-                UserManager.user = user
-                checkState()
-            }
-        }, userId)
+//        checkState()
     }
 
     fun checkState() {

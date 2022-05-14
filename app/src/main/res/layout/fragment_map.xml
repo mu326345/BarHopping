@@ -52,7 +52,7 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="visible"
+                android:visibility="invisible"
                 app:cardCornerRadius="90dp"
                 app:layout_constraintBottom_toTopOf="@+id/location_card"
                 app:layout_constraintEnd_toEndOf="@+id/location_card"

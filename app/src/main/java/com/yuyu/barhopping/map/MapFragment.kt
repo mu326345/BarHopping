@@ -74,6 +74,8 @@ class MapFragment : Fragment(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupPlaceApi()
 
@@ -317,13 +319,13 @@ class MapFragment : Fragment(),
         map?.clear()
         binding.stepRecycler.scrollToPosition(0)
         if (onRoute) {
-            binding.cameraBtn.visibility = View.VISIBLE
+            binding.cameraCard.visibility = View.VISIBLE
             binding.gameOverBtn.visibility = View.VISIBLE
             binding.detailSheet.root.visibility = View.VISIBLE
             binding.stepRecycler.visibility = View.GONE
             (activity as MainActivity).hideBottomNav()
         } else {
-            binding.cameraBtn.visibility = View.GONE
+            binding.cameraCard.visibility = View.GONE
             binding.gameOverBtn.visibility = View.GONE
             binding.detailSheet.root.visibility = View.GONE
             binding.stepRecycler.visibility = View.VISIBLE
@@ -398,6 +400,7 @@ class MapFragment : Fragment(),
         getLastLocation()
         enableMyLocation()
         startLocationUpdates()
+        viewModel.checkState()
     }
 
     override fun onRequestPermissionsResult(

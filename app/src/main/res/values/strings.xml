@@ -67,4 +67,5 @@
     <string name="permission_required_toast">權限要求通知</string>
     <string name="permission_rationale_location">我們需要您的位置來開始遊戲</string>
 
+    <string name="server_client_id">910821268879-j1p8l78iu3f8doi6hjdrd8vvmr2o203q.apps.googleusercontent.com</string>
 </resources>

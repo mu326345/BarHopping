@@ -9,4 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="item_ground">#808080</color>
     <color name="new_black">#000000</color>
+    <color name="e_huang">#F2C867</color>
+    <color name="ju_yi">#D3A237</color>
+    <color name="yu_jin">#D08635</color>
+    <color name="huang_liu">#9F6027</color>
 </resources>
