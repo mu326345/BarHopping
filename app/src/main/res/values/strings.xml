@@ -27,8 +27,9 @@
     <string name="step_2">步驟二：規劃路徑</string>
     <string name="step_2_content">請篩選超商，並點選想經過的超商</string>
     <string name="step_2_tips">再次點擊取消</string>
-    <string name="step_3">步驟三：邀請好友</string>
-    <string name="step_3_content">掃描QR Code 邀請好友</string>
+    <string name="step_3">步驟三：邀請好友並開始遊戲</string>
+    <string name="step_3_content">點選下一步QR Code，掃描加入此路線\n遊戲即將開始🍺🍻</string>
+    <string name="qr_dialog">請朋友掃描QR Code加入遊戲！</string>
     <string name="schedule">目前進度：</string>
     <string name="total">總共超商：</string>
 

@@ -59,19 +59,6 @@ class GoogleLoginFragment : Fragment() {
             }
         }
 
-//        val acct = GoogleSignIn.getLastSignedInAccount(requireContext())
-//        if (acct != null) {
-//            val user = User(
-//                acct.id ?: "",
-//                acct.givenName+acct.familyName,
-//                "",
-//                acct.photoUrl.toString(),
-//                "",
-//                "",
-//                ""
-//            )
-//        }
-
         return binding.root
     }
 
@@ -95,10 +82,6 @@ class GoogleLoginFragment : Fragment() {
         Log.v("yy", "")
         try {
             val account = completedTask.getResult(ApiException::class.java)
-
-            Log.v("yy", "account = ${account.idToken}")
-            Log.v("yy", "account = ${account.id}")
-            Log.v("yy", "account = ${account.displayName}")
 
             account?.let {
                 val user = User(

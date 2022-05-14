@@ -32,7 +32,6 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
                     Log.v("yy", "user = $user")
                     UserManager.user = user
                     _navigateToMap.value = true
-                    //TODO: navigate to map
 
                 } else {
                     Log.v("yy", "使用者不存在")
@@ -60,7 +59,6 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
                 Log.v("yy", "添加成功")
                 UserManager.user = user
                 _navigateToMap.value = true
-                // TODO: navigate to map
             }
             .addOnFailureListener {
                 Log.v("yy", "添加失敗")

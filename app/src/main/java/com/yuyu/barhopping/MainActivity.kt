@@ -14,6 +14,8 @@ import androidx.navigation.fragment.NavHostFragment
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation
 import com.yuyu.barhopping.databinding.ActivityMainBinding
 import com.yuyu.barhopping.map.MapFragment
+import com.yuyu.barhopping.map.qrcode.QrCodeScannerFragment
+import com.yuyu.barhopping.map.qrcode.QrCodeScannerFragmentDirections
 import com.yuyu.barhopping.util.CurrentFragmentType
 
 class MainActivity : AppCompatActivity() {
@@ -95,6 +97,16 @@ class MainActivity : AppCompatActivity() {
                 val list = navHostFragment.childFragmentManager.fragments
                 for (f in list) {
                     if (f is MapFragment) {
+                        f.onRequestPermissionsResult(requestCode, newArr.toTypedArray(), grantResults)
+                    }
+                }
+            }
+            987 -> { // x camera
+                val newArr  = permissions.map{ it }
+                val navHostFragment = binding.myNavHostFragment.getFragment<NavHostFragment>()
+                val list = navHostFragment.childFragmentManager.fragments
+                for (f in list) {
+                    if (f is QrCodeScannerFragment) {
                         f.onRequestPermissionsResult(requestCode, newArr.toTypedArray(), grantResults)
                     }
                 }

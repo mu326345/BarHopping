@@ -1,9 +1,14 @@
 package com.yuyu.barhopping.map
 
+import android.R
 import android.content.ContentValues
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Matrix
 import android.location.Location
 import android.net.Uri
 import android.util.Log
+import android.widget.EditText
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.FieldPath
@@ -11,14 +16,20 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.google.zxing.common.BitMatrix
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.network.DirectionApi
 import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.max
+
 
 class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
@@ -107,6 +118,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     val partnersFinished: LiveData<Boolean>
         get() = _partnersFinished
 
+    private val _qrCodeReady = MutableLiveData(false)
+    val qrCodeReady: LiveData<Boolean?>
+        get() = _qrCodeReady
+
     init {
 //        checkState()
     }
@@ -153,6 +168,9 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
             StepTypeFilter.STEP3 -> {
                 Log.d("yy", "setReadyToRouteStep STEP3")
+                currentRoute?.let {
+                    Log.v("QQ", "qrCodeBitmap1")
+                }
                 if (readyToRoute?.points?.size ?: 0 > 0) {
                     _currentStep.value = nextStep
                 } else {
@@ -395,7 +413,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                 val diffrentIdDatas = points.filterNot { select ->
                     existPointIdList.contains(select.marketId) //3. 找出不一樣的DocId
                 }
-
 
                 var count = diffrentIdDatas.size
                 fun checkCount() {
@@ -779,6 +796,14 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
 
         }
+    }
+
+    fun onQrCodeReady() {
+        _qrCodeReady.value = true
+    }
+
+    fun resetQrCode() {
+        _qrCodeReady.value = null
     }
 
     fun uploadNewRoute() {

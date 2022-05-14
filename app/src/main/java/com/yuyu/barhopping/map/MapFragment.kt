@@ -12,15 +12,15 @@ import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.bumptech.glide.Glide
@@ -31,12 +31,19 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.vision.CameraSource
+import com.google.android.gms.vision.Detector
+import com.google.android.gms.vision.barcode.Barcode
+import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.common.BitMatrix
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.MarketName
@@ -75,10 +82,8 @@ class MapFragment : Fragment(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
         setupPlaceApi()
-
     }
 
     override fun onCreateView(
@@ -111,6 +116,17 @@ class MapFragment : Fragment(),
         sheetRecycler.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
+        binding.cameraBtn.setOnClickListener {
+            startCamera()
+        }
+
+        binding.qrScannerBtn.setOnClickListener {
+            findNavController().navigate(MapFragmentDirections.navigateToQrCodeScannerFragment())
+        }
+
+        binding.qrCodeBtn.setOnClickListener {
+            findNavController().navigate(MapFragmentDirections.navigateToQrCodeDialogFragment())
+        }
 
         adapter = MapAdapter(
             viewModel,
@@ -127,6 +143,7 @@ class MapFragment : Fragment(),
                         R.id.start_game_btn -> {
 //                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                             viewModel.newRoute()
+                            viewModel.onQrCodeReady()
                         }
                     }
                 }
@@ -225,30 +242,26 @@ class MapFragment : Fragment(),
             }
         }
 
-            // market check box
-            viewModel.sevenChecked.observe(viewLifecycleOwner) {
-                it?.let { isVisible ->
-                    viewModel.setMarkersVisibility(MarketName.SEVEN, isVisible)
-                }
+        // market check box
+        viewModel.sevenChecked.observe(viewLifecycleOwner) {
+            it?.let { isVisible ->
+                viewModel.setMarkersVisibility(MarketName.SEVEN, isVisible)
             }
-            viewModel.familyChecked.observe(viewLifecycleOwner) {
-                it?.let { isVisible ->
-                    viewModel.setMarkersVisibility(MarketName.FAMILY, isVisible)
-                }
+        }
+        viewModel.familyChecked.observe(viewLifecycleOwner) {
+            it?.let { isVisible ->
+                viewModel.setMarkersVisibility(MarketName.FAMILY, isVisible)
             }
-            viewModel.hiLifeChecked.observe(viewLifecycleOwner) {
-                it?.let { isVisible ->
-                    viewModel.setMarkersVisibility(MarketName.HILIFE, isVisible)
-                }
+        }
+        viewModel.hiLifeChecked.observe(viewLifecycleOwner) {
+            it?.let { isVisible ->
+                viewModel.setMarkersVisibility(MarketName.HILIFE, isVisible)
             }
-            viewModel.okMartChecked.observe(viewLifecycleOwner) {
-                it?.let { isVisible ->
-                    viewModel.setMarkersVisibility(MarketName.OKMART, isVisible)
-                }
+        }
+        viewModel.okMartChecked.observe(viewLifecycleOwner) {
+            it?.let { isVisible ->
+                viewModel.setMarkersVisibility(MarketName.OKMART, isVisible)
             }
-
-        binding.cameraBtn.setOnClickListener {
-            startCamera()
         }
 
         viewModel.onRoute.observe(viewLifecycleOwner) {
@@ -311,6 +324,15 @@ class MapFragment : Fragment(),
             }
         }
 
+        viewModel.qrCodeReady.observe(viewLifecycleOwner) {
+            it?.let {
+                if(it) {
+                    findNavController().navigate(MapFragmentDirections.navigateToQrCodeScannerFragment())
+                }
+                viewModel.resetQrCode()
+            }
+        }
+
         return binding.root
     }
 
@@ -323,12 +345,14 @@ class MapFragment : Fragment(),
             binding.gameOverBtn.visibility = View.VISIBLE
             binding.detailSheet.root.visibility = View.VISIBLE
             binding.stepRecycler.visibility = View.GONE
+            binding.qrCodeCard.visibility = View.VISIBLE
             (activity as MainActivity).hideBottomNav()
         } else {
             binding.cameraCard.visibility = View.GONE
             binding.gameOverBtn.visibility = View.GONE
             binding.detailSheet.root.visibility = View.GONE
             binding.stepRecycler.visibility = View.VISIBLE
+            binding.qrCodeCard.visibility = View.GONE
             (activity as MainActivity).showBottomNav()
         }
     }
@@ -853,5 +877,6 @@ class MapFragment : Fragment(),
 //        private const val STEP2_LOCATION_REQUEST_CODE = 3
         val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
         private const val CAMERA_IMAGE_REQ_CODE = 103
+        private const val CAMERA_IMAGE_QR_CODE = 104
     }
 }

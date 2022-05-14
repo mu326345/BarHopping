@@ -69,6 +69,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -87,6 +88,42 @@
                     android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/qr_scanner_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintBottom_toBottomOf="@+id/location_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/location_card">
+
+                <ImageButton
+                    android:id="@+id/qr_scanner_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:src="@drawable/qr_code_scan" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/qr_code_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintEnd_toEndOf="@id/qr_scanner_card"
+                app:layout_constraintStart_toStartOf="@id/qr_scanner_card"
+                app:layout_constraintTop_toBottomOf="@id/qr_scanner_card">
+
+                <ImageButton
+                    android:id="@+id/qr_code_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:src="@drawable/ic_baseline_qr_code_2_24" />
+            </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include

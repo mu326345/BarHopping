@@ -64,6 +64,16 @@
         android:name="com.yuyu.barhopping.explore.grid.GridExploreFragment"
         android:label="fragment_grid_explore"
         tools:layout="@layout/fragment_grid_explore" />
+    <fragment
+        android:id="@+id/qrCodeScannerFragment"
+        android:name="com.yuyu.barhopping.map.qrcode.QrCodeScannerFragment"
+        android:label="fragment_qr_code_scanner"
+        tools:layout="@layout/fragment_qr_code_scanner" />
+    <dialog
+        android:id="@+id/qrCodeDialogFragment"
+        android:name="com.yuyu.barhopping.map.qrcode.QrCodeDialogFragment"
+        android:label="fragment_qr_code_dialog"
+        tools:layout="@layout/fragment_qr_code_dialog" />
     <dialog
         android:id="@+id/successDialogFragment"
         android:name="com.yuyu.barhopping.map.finished.SuccessDialogFragment"
@@ -85,4 +95,6 @@
     <action android:id="@+id/navigate_to_profile_fragment" app:destination="@id/profileFragment"
         app:popUpTo="@id/navigation"
         app:popUpToInclusive="true" />
+    <action android:id="@+id/navigate_to_qr_code_dialog_fragment" app:destination="@id/qrCodeDialogFragment" />
+    <action android:id="@+id/navigate_to_qr_code_scanner_fragment" app:destination="@id/qrCodeScannerFragment" />
 </navigation>
