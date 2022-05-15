@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.yuyu.barhopping.Application
+import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.User
 import com.yuyu.barhopping.databinding.FragmentGoogleLoginBinding
@@ -37,6 +38,7 @@ class GoogleLoginFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
+        (activity as MainActivity).hideBottomNav()
         binding = FragmentGoogleLoginBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
 
@@ -62,6 +64,11 @@ class GoogleLoginFragment : Fragment() {
         return binding.root
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as MainActivity).showBottomNav()
+    }
+
     fun signIn() {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
@@ -79,7 +86,6 @@ class GoogleLoginFragment : Fragment() {
     }
 
     fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
-        Log.v("yy", "")
         try {
             val account = completedTask.getResult(ApiException::class.java)
 

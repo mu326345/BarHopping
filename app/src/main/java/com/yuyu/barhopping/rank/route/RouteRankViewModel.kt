@@ -43,8 +43,8 @@ class RouteRankViewModel : ViewModel() {
                         length = x["length"] as Long,
                         hardDegree = x["hardDegree"] as Int?,
                         comments = x["comments"] as String?,
-                        points = x["points"] as List<String>,
-                        paths = x["paths"] as List<String>
+                        points = x["points"] as List<String>?,
+                        paths = x["paths"] as List<String>?
                     )
                     list.add(routeList)
                 }

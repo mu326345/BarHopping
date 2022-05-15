@@ -74,6 +74,10 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
         snapOnRoutePartnersData(callBack, routeId)
     }
 
+    override fun getOnRoutePartners(callBack: UserRoutePartnerCallBack, routeId: String) {
+        getOnRoutePartnersData(callBack, routeId)
+    }
+
     // docid == googleid
     private fun getUserData(callBack: UserCallBack, userId: String) {
         db.collection("User")
@@ -194,6 +198,32 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 } else {
                     Log.d(MapViewModel.TAG, "data: null")
                 }
+            }
+    }
+
+    private fun getOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
+        db.collection("Routes")
+            .document(routeId)
+            .collection("Partners")
+            .get().addOnSuccessListener { documents ->
+                val userPartnerList = mutableListOf<Partner>()
+
+                for (document in documents) {
+                    Log.d("yy", "${document.id} => ${document.data}")
+
+                    val partnerData = Partner(
+                        id = document["id"] as String,
+                        userId = document["userId"] as String,
+                        lat = document["lat"] as String,
+                        lng = document["lng"] as String,
+                        name = document["name"] as String,
+                        imageUrl = document["imageUrl"] as String,
+                        finished = document["finished"] as Boolean
+                    )
+                    userPartnerList.add(partnerData)
+                }
+
+                callBack.onResult(userPartnerList)
             }
     }
 

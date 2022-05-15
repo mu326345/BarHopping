@@ -8,9 +8,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="item_ground">#808080</color>
+    <color name="gray">#9b9f9e</color>
+    <color name="light_gray">#F5F5F5</color>
     <color name="new_black">#000000</color>
     <color name="e_huang">#F2C867</color>
     <color name="ju_yi">#D3A237</color>
     <color name="yu_jin">#D08635</color>
     <color name="huang_liu">#9F6027</color>
+    <color name="golden_time">#f2b922</color>
+    <color name="coffee_red">#8B3314</color>
+
 </resources>

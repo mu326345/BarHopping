@@ -1,14 +1,9 @@
 package com.yuyu.barhopping.map
 
-import android.R
 import android.content.ContentValues
-import android.graphics.Bitmap
-import android.graphics.Color
-import android.graphics.Matrix
 import android.location.Location
 import android.net.Uri
 import android.util.Log
-import android.widget.EditText
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.FieldPath
@@ -16,17 +11,12 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.WriterException
-import com.google.zxing.common.BitMatrix
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.network.DirectionApi
 import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
@@ -86,7 +76,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     var currentRoute: RouteStore? = null
     var currentPointDatas: List<PointData>? = null
-    var currentUsers: List<User>? = null
+    var currentUsers: List<Partner>? = null
 
     val totalProgress = Transformations.map(sheetItems) {
         it.size
@@ -476,7 +466,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     }
 
-    private fun uploadUserCurrentRouteId(routeId: String) {
+    fun uploadUserCurrentRouteId(routeId: String) {
 
         UserManager.user?.id?.let {
             db.collection("User")
@@ -630,42 +620,31 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                 currentPointDatas = pointDatas
 
                 currentRoute?.id?.let {
-                    getUsers(it)
+                    getPartners(it)
                 }
             }
         }, pointIds)
     }
 
-    fun getUsers(routeId: String) {
+    fun getPartners(routeId: String) {
         // one time
-        val users = listOf(
-            User(
-                id = "bb11111",
-                name = "BB",
-                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
-            ),
-            User(
-                id = "waynechen323",
-                name = "Wayne",
-                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
-            ),
-            User(
-                id = "yuyu11111",
-                name = "Yuyu",
-                icon = "https://p3-tt.byteimg.com/origin/pgc-image/46fcb4a9a4ad4bbba1719cc0ff40d074?from=pc"
-            )
-        ) // mock
-        currentUsers = users
+        repository.getOnRoutePartners(object : FirebaseDataSource.UserRoutePartnerCallBack {
+            override fun onResult(partners: List<Partner>) {
+                currentUsers = partners
 
-        currentRoute?.id?.let {
-            fetchLiveImages(it)
-            fetchLivePartners(it)
-        }
+                currentRoute?.id?.let {
+                    fetchLiveImages(it)
+                    fetchLivePartners(it)
+                }
+            }
+        }, routeId)
     }
 
     fun fetchLivePartners(routeId: String) {
         repository.snapOnRoutePartner(object : FirebaseDataSource.UserRoutePartnerCallBack {
             override fun onResult(partners: List<Partner>) {
+                val p = partners.filter { it.userId != UserManager.user?.id }
+                currentUsers = p
                 _partners.value = partners.filter { it.userId != UserManager.user?.id }
 
                 // 全部partner都結束
@@ -702,19 +681,20 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             for ((index, point) in points.withIndex()) {
                 val sheetItem = SheetItem(
                     name = point.name,
-                    done = positionMyself >= index
+                    done = positionMyself >= index,
+                    count = positionMyself
                 )
                 items.add(sheetItem)
             }
         }
 
-        currentUsers?.let { users ->
-
-            for (user in users) {
-                val imageCount = images.filter { it.userId == user.id }.size
+        currentUsers?.let { partners ->
+            val partner = partners.filter { it.userId != UserManager.user?.id }
+            for (p in partner) {
+                val imageCount = images.filter { it.userId == p.userId }.size
                 val position = imageCount - 1
                 if (position >= 0) {
-                    items[position].users.add(user)
+                    items[position].partners.add(p)
                 }
             }
             _sheetItems.value = items

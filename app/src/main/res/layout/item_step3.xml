@@ -36,11 +36,9 @@
 
                 <TextView
                     android:id="@+id/step3_title_tv"
+                    style="@style/step_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="8dp"
                     android:gravity="left"
                     android:text="@string/step_3"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -51,30 +49,31 @@
                     android:id="@+id/step3_content_tv"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="8dp"
                     android:gravity="left"
                     android:text="@string/step_3_content"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/step3_title_tv"
+                    app:layout_constraintStart_toStartOf="@+id/step3_title_tv"
                     app:layout_constraintTop_toBottomOf="@id/step3_title_tv" />
 
                 <Button
                     android:id="@+id/previous_step_btn3"
+                    style="@style/step_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="8dp"
                     android:text="@string/previous_step"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/step3_content_tv"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintHorizontal_chainStyle="spread_inside"
-                    app:layout_constraintStart_toStartOf="@+id/step3_content_tv" />
+                    app:layout_constraintStart_toStartOf="@+id/step3_content_tv"
+                    app:layout_constraintTop_toBottomOf="@id/step3_content_tv" />
 
                 <Button
                     android:id="@+id/start_game_btn"
+                    style="@style/step_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -83,7 +82,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/step3_content_tv"
                     app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintTop_toBottomOf="@id/step3_content_tv"/>
+                    app:layout_constraintTop_toBottomOf="@id/step3_content_tv" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>

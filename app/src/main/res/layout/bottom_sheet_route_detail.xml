@@ -37,8 +37,8 @@
                 android:id="@+id/market_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleType="fitCenter"
-                app:srcCompat="@drawable/seven_eleven_logo" />
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/seven_logo_2" />
 
         </androidx.cardview.widget.CardView>
 
@@ -47,6 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="16dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="@{viewModel.nextProgressName}"
             app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
             app:layout_constraintStart_toEndOf="@id/market_icon_card"
