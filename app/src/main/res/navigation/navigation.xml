@@ -79,6 +79,11 @@
         android:name="com.yuyu.barhopping.map.finished.SuccessDialogFragment"
         android:label="success_dialog_fragment"
         tools:layout="@layout/success_dialog_fragment" />
+    <dialog
+        android:id="@+id/allSuccessDialogFragment"
+        android:name="com.yuyu.barhopping.map.finished.AllSuccessDialogFragment"
+        android:label="fragment_all_success_dialog"
+        tools:layout="@layout/fragment_all_success_dialog" />
 
     <action android:id="@+id/navigate_to_map_fragment" app:destination="@id/mapFragment"
         app:popUpTo="@id/navigation"
@@ -97,4 +102,5 @@
         app:popUpToInclusive="true" />
     <action android:id="@+id/navigate_to_qr_code_dialog_fragment" app:destination="@id/qrCodeDialogFragment" />
     <action android:id="@+id/navigate_to_qr_code_scanner_fragment" app:destination="@id/qrCodeScannerFragment" />
+    <action android:id="@+id/navigate_to_all_success_dialog_fragment" app:destination="@id/allSuccessDialogFragment" />
 </navigation>

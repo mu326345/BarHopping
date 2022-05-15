@@ -16,5 +16,7 @@ interface FirebaseRepository {
 
     fun snapOnRoutePartner(callBack: FirebaseDataSource.UserRoutePartnerCallBack, routeId: String)
 
+    fun getOnRoutePartners(callBack: FirebaseDataSource.UserRoutePartnerCallBack, routeId: String)
+
     fun getUserDetail(callBack: FirebaseDataSource.UserCallBack, userId: String)
 }

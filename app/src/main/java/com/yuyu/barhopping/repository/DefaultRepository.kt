@@ -28,6 +28,10 @@ class DefaultRepository(private val dataSource: FirebaseRepository): FirebaseRep
         return dataSource.snapOnRoutePartner(callBack, routeId)
     }
 
+    override fun getOnRoutePartners(callBack: FirebaseDataSource.UserRoutePartnerCallBack, routeId: String) {
+        return dataSource.getOnRoutePartners(callBack, routeId)
+    }
+
     override fun getUserDetail(callBack: FirebaseDataSource.UserCallBack, userId: String) {
         return dataSource.getUserDetail(callBack, userId)
     }

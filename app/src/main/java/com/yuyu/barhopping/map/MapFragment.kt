@@ -13,11 +13,11 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.*
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -31,19 +31,12 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
-import com.google.android.gms.vision.CameraSource
-import com.google.android.gms.vision.Detector
-import com.google.android.gms.vision.barcode.Barcode
-import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.MultiFormatWriter
-import com.google.zxing.common.BitMatrix
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.MarketName
@@ -122,6 +115,14 @@ class MapFragment : Fragment(),
 
         binding.qrScannerBtn.setOnClickListener {
             findNavController().navigate(MapFragmentDirections.navigateToQrCodeScannerFragment())
+
+            setFragmentResultListener("qrCodeResult") { requestKey, bundle ->
+                val result = bundle.getString("qrCodeKey")
+                if(result != null) {
+                    viewModel.joinToRoute(result)
+                    viewModel.uploadUserCurrentRouteId(result)
+                }
+            }
         }
 
         binding.qrCodeBtn.setOnClickListener {
@@ -402,14 +403,15 @@ class MapFragment : Fragment(),
         // check finished
         viewModel.displayCompleted.observe(viewLifecycleOwner) {
             it?.let {
-                Toast.makeText(context, "user finished", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(context, "user finished", Toast.LENGTH_SHORT).show()
                 viewModel.onCompletedDisplayed()
             }
         }
 
         viewModel.partnersFinished.observe(viewLifecycleOwner) { allFinished ->
-            if(allFinished) {
-                Toast.makeText(context, "all user finished", Toast.LENGTH_SHORT).show()
+            if (allFinished) {
+//                Toast.makeText(context, "all user finished", Toast.LENGTH_SHORT).show()
+                findNavController().navigate(MapFragmentDirections.navigateToAllSuccessDialogFragment())
                 viewModel.onCompletedDisplayed()
             }
         }
@@ -605,8 +607,6 @@ class MapFragment : Fragment(),
         )
     }
 
-
-
     private fun addMarkers(paths: List<String>, points: List<PointData>, images: List<OnRouteUserImages>) {
 
         addPathMarkers(paths)
@@ -746,20 +746,33 @@ class MapFragment : Fragment(),
         )
     }
 
+    // 朋友在遊戲中的頭貼
     private fun addPartnerMarkers(partners: List<Partner>) {
 
         partners.forEach {
 
-            map?.addMarker(
-                MarkerOptions()
-                    .position(
-                        LatLng(
-                            it.lat.toDouble(),
-                            it.lng.toDouble()
-                        )
+            lifecycleScope.launch(Dispatchers.IO) {
+                val futureTarget = Glide.with(requireContext())
+                    .asBitmap()
+                    .load(it.imageUrl)
+                    .circleCrop()
+                    .submit(100, 100)
+                val bitmap = futureTarget.get()
+
+                withContext(Dispatchers.Main) {
+                    map?.addMarker(
+                        MarkerOptions()
+                            .position(
+                                LatLng(
+                                    it.lat.toDouble(),
+                                    it.lng.toDouble()
+                                )
+                            )
+                            .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                     )
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-            )
+                }
+                Glide.with(requireContext()).clear(futureTarget)
+            }
         }
     }
 

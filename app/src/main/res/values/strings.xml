@@ -35,6 +35,7 @@
 
     <!-- Map finished-->
     <string name="congrate">恭喜達成！</string>
+    <string name="congrate_all">恭喜全體達成！</string>
     <string name="leave_commend">請留下你的評分及評論！</string>
     <string name="your_commend">請在這輸入評論！</string>
     <string name="submit">提交</string>

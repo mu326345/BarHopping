@@ -16,7 +16,10 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.maps.MapView
 import com.google.common.util.concurrent.ListenableFuture
@@ -31,7 +34,6 @@ class QrCodeScannerFragment : Fragment() {
 
     private lateinit var cameraExecutor: ExecutorService
     private lateinit var binding: FragmentQrCodeScannerBinding
-    private val mapViewModel by viewModels<MapViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +95,11 @@ class QrCodeScannerFragment : Fragment() {
         override fun invoke(barcodes: List<Barcode>) {
 
             if (barcodes.size > 0) {
-                mapViewModel.joinToRoute(barcodes[0].rawValue.toString())
+                lifecycleScope.launchWhenResumed {
+                    val result = barcodes[0].rawValue.toString()
+                    setFragmentResult("qrCodeResult", bundleOf("qrCodeKey" to result))
+                    findNavController().navigateUp()
+                }
             }
         }
     }
