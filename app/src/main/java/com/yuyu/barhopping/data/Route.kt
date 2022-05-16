@@ -14,5 +14,5 @@ data class RouteStore(
     val hardDegree: Int? = 0,
     val comments: String?,
     val points: List<String>? = null,
-    val paths: List<String>? = null
+    val paths: List<String>? = null,
 )

@@ -1,6 +1,8 @@
 package com.yuyu.barhopping
 
+import android.annotation.SuppressLint
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
@@ -22,4 +24,14 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
             )
             .into(imgView)
     }
+}
+
+@BindingAdapter("length")
+fun bindLength(textView: TextView, length: Long) {
+    textView.text = "${length}公尺"
+}
+
+@BindingAdapter("store")
+fun bindStore(textView: TextView, store: Long) {
+    textView.text = "${store}間"
 }

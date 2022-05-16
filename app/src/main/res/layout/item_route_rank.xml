@@ -20,7 +20,9 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/card_constrain"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="@+id/location_tv"
+            app:layout_constraintTop_toBottomOf="@+id/location_tv">
 
             <ImageView
                 android:id="@+id/location_img"
@@ -101,7 +103,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/market_number_tv"
                 app:layout_constraintStart_toEndOf="@id/market_number_tv"
                 app:layout_constraintTop_toTopOf="@id/market_number_tv"
-                tools:text="@{String.valueOf(routeStore.marketCount)}" />
+                app:store="@{routeStore.marketCount}" />
 
             <TextView
                 android:id="@+id/route_length_tv"
@@ -119,7 +121,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/route_length_tv"
                 app:layout_constraintStart_toEndOf="@id/route_length_tv"
                 app:layout_constraintTop_toTopOf="@id/route_length_tv"
-                tools:text="@{String.valueOf(routeStore.length)}" />
+                app:length="@{routeStore.length}" />
 
             <ImageView
                 android:id="@+id/star_img"

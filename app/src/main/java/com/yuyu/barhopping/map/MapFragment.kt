@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
@@ -17,8 +18,10 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,6 +54,7 @@ import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 class MapFragment : Fragment(),
@@ -119,6 +123,7 @@ class MapFragment : Fragment(),
             setFragmentResultListener("qrCodeResult") { requestKey, bundle ->
                 val result = bundle.getString("qrCodeKey")
                 if(result != null) {
+                    resetMap()
                     viewModel.joinToRoute(result)
                     viewModel.uploadUserCurrentRouteId(result)
                 }
@@ -144,6 +149,7 @@ class MapFragment : Fragment(),
                         R.id.start_game_btn -> {
 //                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                             viewModel.newRoute()
+//                            takeSnapshot()
                         }
                     }
                 }
@@ -238,7 +244,6 @@ class MapFragment : Fragment(),
                         viewModel.currentMarketMarkers[item.markerName]?.add(marker)
                     }
                 }
-
             }
         }
 
@@ -296,6 +301,7 @@ class MapFragment : Fragment(),
                         Log.i("yy", "current step: 2")
                         binding.stepRecycler.scrollToPosition(1)
                         resetMap()
+                        viewModel.navigteToProgress()
                         viewModel.showDirection()
                         viewModel.readyToRoute?.let {
                             it.destinationPoint?.let { des ->
@@ -326,6 +332,14 @@ class MapFragment : Fragment(),
                         }
                     }
                 }
+            }
+        }
+
+        viewModel.navigateToProgress.observe(viewLifecycleOwner) {
+            if(it) {
+                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFrqragment())
+            } else {
+                findNavController().popBackStack()
             }
         }
 
@@ -862,30 +876,6 @@ class MapFragment : Fragment(),
         }
     }
 
-//    /////// 測試GoogleMapSnapshot，photo -> route detail Image
-//    val snapshotReadyCallback = object : GoogleMap.SnapshotReadyCallback {
-//        override fun onSnapshotReady(bitmap: Bitmap?) {
-//            var bitmapfrommap = bitmap
-//
-//            if (bitmapfrommap != null) {
-//                fileOut.writeBitmap(bitmapfrommap!!, Bitmap.CompressFormat.PNG, 85)
-//            }
-//        }
-//
-//        val onMapLoadedCallback : GoogleMap.OnMapLoadedCallback = GoogleMap.OnMapLoadedCallback {
-//            map?.snapshot(snapshotReadyCallback, bitmapfrommap)
-//        }
-//        map?.setOnMapLoadedCallback(onMapLoadedCallback)
-//    }
-
-    ///////// it works can get bitmap
-    ///////// https://github.com/googlemaps/android-samples/blob/816f8cc4241ec7c4eaf41b16f7fefcf10ae95faf/ApiDemos/kotlin/app/src/gms/java/com/example/kotlindemos/SnapshotDemoActivity.kt
-//    binding.cameraBtn.setOnClickListener {
-//        map?.snapshot {
-//
-//        }
-//    }
-
 
     companion object {
         /**
@@ -897,10 +887,7 @@ class MapFragment : Fragment(),
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
         private const val DESTINATION_REQUEST_CODE = 1
-//        private const val STEP2_DESTINATION_REQUEST_CODE = 2
-//        private const val STEP2_LOCATION_REQUEST_CODE = 3
         val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
         private const val CAMERA_IMAGE_REQ_CODE = 103
-        private const val CAMERA_IMAGE_QR_CODE = 104
     }
 }

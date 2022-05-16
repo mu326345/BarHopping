@@ -124,8 +124,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                         length = document["length"] as Long,
                         hardDegree = document["hardDegree"] as Int?,
                         comments = document["comments"] as String?,
-                        points = document["points"] as List<String>,
-                        paths = document["paths"] as List<String>
+                        points = document["points"] as List<String>?,
+                        paths = document["paths"] as List<String>?,
                     )
                     callBack.onResult(routeList)
                 }
