@@ -29,32 +29,101 @@
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_marginEnd="16dp"
-                android:layout_marginBottom="64dp"
                 android:elevation="10dp"
                 app:cardCornerRadius="90dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageButton
                     android:id="@+id/location_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:background="@color/white"
+                    android:background="#00000000"
                     android:scaleType="centerInside"
-                    android:src="@drawable/location" />
+                    android:src="@drawable/ic_baseline_near_me_24"
+                    app:tint="@color/quantum_lightblue" />
 
             </androidx.cardview.widget.CardView>
 
-            <Button
-                android:id="@+id/game_over_btn"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/camera_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="invisible"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintBottom_toTopOf="@+id/location_card"
+                app:layout_constraintEnd_toEndOf="@+id/location_card"
+                app:layout_constraintStart_toStartOf="@+id/location_card">
+
+                <ImageButton
+                    android:id="@+id/camera_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="#00000000"
+                    android:src="@drawable/ic_baseline_camera_alt_24"
+                    android:visibility="visible" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="game over"
-                app:layout_constraintBottom_toTopOf="@+id/location_card"
-                app:layout_constraintEnd_toEndOf="parent" />
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintEnd_toEndOf="@+id/location_card"
+                app:layout_constraintStart_toStartOf="@+id/location_card"
+                app:layout_constraintTop_toBottomOf="@+id/location_card">
 
+                <Button
+                    android:id="@+id/game_over_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="#00000000"
+                    android:text="game\nover"
+                    android:textColor="@color/black" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/qr_scanner_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="8dp"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintBottom_toBottomOf="@+id/location_card"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/location_card">
+
+                <ImageButton
+                    android:id="@+id/qr_scanner_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:src="@drawable/qr_code_scan" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/qr_code_card"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintEnd_toEndOf="@id/qr_scanner_card"
+                app:layout_constraintStart_toStartOf="@id/qr_scanner_card"
+                app:layout_constraintTop_toBottomOf="@id/qr_scanner_card">
+
+                <ImageButton
+                    android:id="@+id/qr_code_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/white"
+                    android:src="@drawable/ic_baseline_qr_code_2_24" />
+            </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include

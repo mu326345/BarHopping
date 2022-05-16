@@ -27,10 +27,22 @@
     <string name="step_2">步驟二：規劃路徑</string>
     <string name="step_2_content">請篩選超商，並點選想經過的超商</string>
     <string name="step_2_tips">再次點擊取消</string>
-    <string name="step_3">步驟三：邀請好友</string>
-    <string name="step_3_content">掃描QR Code 邀請好友</string>
+    <string name="step_3">步驟三：邀請好友並開始遊戲</string>
+    <string name="step_3_content">點選下一步QR Code，掃描加入此路線\n遊戲即將開始🍺🍻</string>
+    <string name="qr_dialog">請朋友掃描QR Code加入遊戲！</string>
     <string name="schedule">目前進度：</string>
     <string name="total">總共超商：</string>
+
+    <!-- Map finished-->
+    <string name="congrate">恭喜達成！</string>
+    <string name="congrate_all">恭喜全體達成！</string>
+    <string name="leave_commend">請留下你的評分及評論！</string>
+    <string name="your_commend">請在這輸入評論！</string>
+    <string name="submit">提交</string>
+    <string name="already_market">已到達便利商店！</string>
+    <string name="take_photo_content">拍張照片來顯示完成任務吧！</string>
+    <string name="give_up">放棄遊戲</string>
+    <string name="take_photo">前往拍照</string>
 
     <!-- Rank market -->
     <string name="count">超商數量：</string>
@@ -57,4 +69,5 @@
     <string name="permission_required_toast">權限要求通知</string>
     <string name="permission_rationale_location">我們需要您的位置來開始遊戲</string>
 
+    <string name="server_client_id">910821268879-j1p8l78iu3f8doi6hjdrd8vvmr2o203q.apps.googleusercontent.com</string>
 </resources>

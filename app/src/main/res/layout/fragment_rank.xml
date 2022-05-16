@@ -12,6 +12,8 @@
             android:id="@+id/tabs_rank"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:tabIndicatorColor="@color/e_huang"
+            app:tabSelectedTextColor="@color/e_huang"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

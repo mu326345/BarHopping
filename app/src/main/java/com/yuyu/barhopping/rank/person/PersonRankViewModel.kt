@@ -39,7 +39,8 @@ class PersonRankViewModel : ViewModel() {
                         title = x["title"] as String,
                         icon = x["icon"] as String,
                         routeCollection = x["routeCollection"] as String,
-                        userCollection = x["userCollection"] as String
+                        userCollection = x["userCollection"] as String,
+                        onRoute = x["onRoute"] as String?
                     )
                     list.add(userList)
                 }

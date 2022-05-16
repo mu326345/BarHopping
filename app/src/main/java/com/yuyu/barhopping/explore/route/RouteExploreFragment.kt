@@ -8,8 +8,6 @@ import android.view.ViewGroup
 import android.widget.ViewSwitcher
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.yuyu.barhopping.Application
 import com.yuyu.barhopping.databinding.FragmentRouteExploreBinding
