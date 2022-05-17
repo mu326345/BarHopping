@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
         setupNavController(navController)
     }
 
-
     private fun setupBottomNav(navController: NavController) {
         binding.bottomNavView.setOnClickMenuListener { item ->
             when (item.id) {

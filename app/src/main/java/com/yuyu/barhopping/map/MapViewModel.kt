@@ -1,6 +1,7 @@
 package com.yuyu.barhopping.map
 
 import android.content.ContentValues
+import android.graphics.Bitmap
 import android.location.Location
 import android.net.Uri
 import android.util.Log
@@ -18,6 +19,7 @@ import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
 import kotlin.math.max
 
 
@@ -111,6 +113,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     private val _qrCodeReady = MutableLiveData(false)
     val qrCodeReady: LiveData<Boolean?>
         get() = _qrCodeReady
+
+    private val _navigateToProgress = MutableLiveData<Boolean>()
+    val navigateToProgress: LiveData<Boolean>
+        get() = _navigateToProgress
 
     init {
 //        checkState()
@@ -294,6 +300,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
     fun getAllMarketResult(paths: List<LatLng>) {
+//        _navigateToProgress.value = true
         viewModelScope.launch {
             try {
 
@@ -337,6 +344,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 Log.i("yy", "items=${items}")
                 _marketMarkers.value = items
+                _navigateToProgress.value = false
 
             } catch (e: NullPointerException) {
                 Log.e("MapViewModel", "${e.message}")
@@ -526,6 +534,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         uploadTask.addOnFailureListener {
             // Handle unsuccessful uploads
         }.addOnSuccessListener { taskSnapshot ->
+            // 獲取下載網址
             uploadTask.continueWithTask { task ->
                 if (!task.isSuccessful) {
                     task.exception?.let {
@@ -806,7 +815,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             hardDegree = null,
             comments = null,
             points = readyToRoute?.sortedPlaceIds?.toList(),
-            paths = readyToRoute?.paths?.toList()
+            paths = readyToRoute?.paths?.toList(),
         )
 
         document.set(route).addOnCompleteListener {
@@ -820,5 +829,11 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
         }
     }
+    fun navigteToProgress() {
+        _navigateToProgress.value = true
+    }
 
+    fun onNavigteProgress() {
+        _navigateToProgress.value = false
+    }
 }
