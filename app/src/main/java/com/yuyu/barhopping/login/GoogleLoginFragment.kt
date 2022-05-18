@@ -17,6 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.yuyu.barhopping.Application
+import com.yuyu.barhopping.BuildConfig
 import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.User

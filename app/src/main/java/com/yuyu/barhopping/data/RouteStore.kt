@@ -1,6 +1,9 @@
 package com.yuyu.barhopping.data
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class RouteStore(
     val id: String?,
     val startPoint: String,
@@ -15,4 +18,7 @@ data class RouteStore(
     val comments: String?,
     val points: List<String>? = null,
     val paths: List<String>? = null,
-)
+    val time: String?,
+    val userName: String?,
+    val userIcon: String?
+) : Parcelable

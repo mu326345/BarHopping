@@ -18,6 +18,10 @@ class RouteRankViewModel : ViewModel() {
 
     private val list = mutableListOf<RouteStore>()
 
+    private val _navigateToDetail = MutableLiveData<RouteStore>()
+    val navigateToDetail: LiveData<RouteStore>
+        get() = _navigateToDetail
+
     init {
         snapRouteData()
     }
@@ -45,11 +49,22 @@ class RouteRankViewModel : ViewModel() {
                         comments = x["comments"] as String?,
                         points = x["points"] as List<String>?,
                         paths = x["paths"] as List<String>?,
+                        time = x["time"] as String?,
+                        userName = x["userName"] as String?,
+                        userIcon = x["userIcon"] as String?
                     )
                     list.add(routeList)
                 }
                 _routeItem.value = list
             }
         }
+    }
+
+    fun navigateToDetail(routeStore: RouteStore) {
+        _navigateToDetail.value = routeStore
+    }
+
+    fun onDetailNavigated() {
+        _navigateToDetail.value = null
     }
 }

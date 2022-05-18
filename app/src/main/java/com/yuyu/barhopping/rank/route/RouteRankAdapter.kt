@@ -9,11 +9,11 @@ import com.yuyu.barhopping.data.RouteStore
 import com.yuyu.barhopping.databinding.ItemRouteRankBinding
 import com.yuyu.barhopping.rank.route.RouteRankAdapter.*
 
-class RouteRankAdapter: ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallback) {
+class RouteRankAdapter(val onClickListener: OnClickListener): ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallback) {
 
     class RouteRankViewHolder(private var binding: ItemRouteRankBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(RouteStore: RouteStore) {
-            binding.routeStore = RouteStore
+        fun bind(routeStore: RouteStore) {
+            binding.routeStore = routeStore
             binding.executePendingBindings()
         }
     }
@@ -23,7 +23,11 @@ class RouteRankAdapter: ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallbac
     }
 
     override fun onBindViewHolder(holder: RouteRankViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val item = getItem(position)
+        holder.itemView.setOnClickListener {
+            onClickListener.click(item)
+        }
+        holder.bind(item)
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<RouteStore>() {
@@ -34,5 +38,9 @@ class RouteRankAdapter: ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallbac
         override fun areContentsTheSame(oldItem: RouteStore, newItem: RouteStore): Boolean {
             return oldItem == newItem
         }
+    }
+
+    class OnClickListener(val clickListener: (routeStore: RouteStore) -> Unit) {
+        fun click(routeStore: RouteStore) = clickListener(routeStore)
     }
 }

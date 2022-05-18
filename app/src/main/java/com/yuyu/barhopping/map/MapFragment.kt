@@ -34,6 +34,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
@@ -42,10 +43,7 @@ import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
-import com.yuyu.barhopping.data.MarketName
-import com.yuyu.barhopping.data.OnRouteUserImages
-import com.yuyu.barhopping.data.Partner
-import com.yuyu.barhopping.data.PointData
+import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
 import com.yuyu.barhopping.map.sheet.BottomSheetAdapter
@@ -112,6 +110,13 @@ class MapFragment : Fragment(),
         sheetRecycler.adapter = sheetAdapter
         sheetRecycler.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        setFragmentResultListener("routeIdKey") { requestKey, bundle ->
+            val result = bundle.getParcelable<RouteStore>("routeId")
+            if(result != null) {
+                viewModel.uploadOldRoute(result)
+            }
+        }
 
         binding.cameraBtn.setOnClickListener {
             startCamera()
@@ -189,7 +194,6 @@ class MapFragment : Fragment(),
         binding.gameOverBtn.setOnClickListener {
             map?.clear()
             viewModel.clearUserCurrentRouteId()
-            // game over直接離開
         }
 
         viewModel.moveCamera.observe(viewLifecycleOwner) {
@@ -337,7 +341,7 @@ class MapFragment : Fragment(),
 
         viewModel.navigateToProgress.observe(viewLifecycleOwner) {
             if(it) {
-                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFrqragment())
+                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFragment())
             } else {
                 findNavController().popBackStack()
             }

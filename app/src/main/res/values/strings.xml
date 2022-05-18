@@ -48,6 +48,8 @@
     <string name="count">超商數量：</string>
     <string name="length">路程長度：</string>
     <string name="degree">難易程度：</string>
+    <string name="go_navigate">開始遊戲</string>
+    <string name="detail_hint">點擊地標，地圖右下可以切換Googl Map導航</string>
 
     <!-- profile -->
     <string name="length_total">路程總計：</string>

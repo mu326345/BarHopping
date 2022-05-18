@@ -69,6 +69,16 @@
         android:name="com.yuyu.barhopping.map.qrcode.QrCodeScannerFragment"
         android:label="fragment_qr_code_scanner"
         tools:layout="@layout/fragment_qr_code_scanner" />
+    <fragment
+        android:id="@+id/routeDetailFragment"
+        android:name="com.yuyu.barhopping.rank.route.detail.RouteDetailFragment"
+        android:label="fragment_route_detail"
+        tools:layout="@layout/fragment_route_detail">
+
+        <argument android:name="storeKey"
+            app:argType="com.yuyu.barhopping.data.RouteStore"
+            app:nullable="false" />
+    </fragment>
     <dialog
         android:id="@+id/qrCodeDialogFragment"
         android:name="com.yuyu.barhopping.map.qrcode.QrCodeDialogFragment"
@@ -108,5 +118,7 @@
     <action android:id="@+id/navigate_to_qr_code_dialog_fragment" app:destination="@id/qrCodeDialogFragment" />
     <action android:id="@+id/navigate_to_qr_code_scanner_fragment" app:destination="@id/qrCodeScannerFragment" />
     <action android:id="@+id/navigate_to_all_success_dialog_fragment" app:destination="@id/allSuccessDialogFragment" />
-    <action android:id="@+id/navigate_to_progress_bar_dialog_frqragment" app:destination="@id/progressBarFragment" />
+    <action android:id="@+id/navigate_to_progress_bar_dialog_fragment" app:destination="@id/progressBarFragment" />
+    <action android:id="@+id/navigate_to_route_detail_fragment" app:destination="@id/routeDetailFragment" />
+
 </navigation>

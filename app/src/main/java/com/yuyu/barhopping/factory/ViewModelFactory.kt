@@ -6,6 +6,7 @@ import com.yuyu.barhopping.explore.bar.BarExploreViewModel
 import com.yuyu.barhopping.explore.route.RouteExploreViewModel
 import com.yuyu.barhopping.login.GoogleLoginViewModel
 import com.yuyu.barhopping.map.MapViewModel
+import com.yuyu.barhopping.rank.route.detail.RouteDetailViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
 
 class ViewModelFactory(val repository: FirebaseRepository) : ViewModelProvider.Factory {

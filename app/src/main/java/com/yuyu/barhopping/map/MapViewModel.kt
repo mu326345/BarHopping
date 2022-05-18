@@ -1,7 +1,6 @@
 package com.yuyu.barhopping.map
 
 import android.content.ContentValues
-import android.graphics.Bitmap
 import android.location.Location
 import android.net.Uri
 import android.util.Log
@@ -18,8 +17,8 @@ import com.yuyu.barhopping.network.DirectionApi
 import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
+import com.yuyu.barhopping.util.timeNow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import kotlin.math.max
 
 
@@ -461,17 +460,18 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
      * update user location
      */
     fun updatePartnerLocation(location: Location) {
-//        newRouteId?.let {
-//            db.collection("Routes")
-//                .document(it.route)
-//                .collection("Partners")
-//                .document(it.partner)
-//                .update(
-//                    "lat", location.latitude.toString(),
-//                    "lng", location.longitude.toString()
-//                )
-//        }
-
+        UserManager.user?.let { user ->
+            user.onRoute?.let {
+                db.collection("Routes")
+                    .document(it)
+                    .collection("Partners")
+                    .document(user.id)
+                    .update(
+                        "lat", location.latitude.toString(),
+                        "lng", location.longitude.toString()
+                    )
+            }
+        }
     }
 
     fun uploadUserCurrentRouteId(routeId: String) {
@@ -784,7 +784,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             readyToRoute?.points?.let {
                 checkAndUploadPoints(it)
             }
-
         }
     }
 
@@ -798,6 +797,9 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         _qrCodeReady.value = null
     }
 
+    /**
+     * 按照step flow會用到的新增new Route
+     */
     fun uploadNewRoute() {
 
         var document = db.collection("Routes").document()
@@ -816,6 +818,9 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             comments = null,
             points = readyToRoute?.sortedPlaceIds?.toList(),
             paths = readyToRoute?.paths?.toList(),
+            time = timeNow(),
+            userName = UserManager.user?.name,
+            userIcon = UserManager.user?.icon
         )
 
         document.set(route).addOnCompleteListener {
@@ -829,6 +834,45 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
         }
     }
+
+    /**
+     * 從rank一鍵開啟新遊戲的複製的 new route
+     */
+    fun uploadOldRoute(baseRoute: RouteStore) {
+
+        var document = db.collection("Routes").document()
+
+        val route = RouteStore(
+            id = document.id,
+            startPoint = baseRoute.startPoint,
+            startLat = baseRoute.startLat,
+            startLon = baseRoute.startLon,
+            endPoint = baseRoute.endPoint,
+            endLat = baseRoute.endLat,
+            endLon = baseRoute.endLon,
+            marketCount = baseRoute.marketCount,
+            length = baseRoute.length,
+            hardDegree = null,
+            comments = null,
+            points = baseRoute.points,
+            paths = baseRoute.paths,
+            time = timeNow(),
+            userName = UserManager.user?.name,
+            userIcon = UserManager.user?.icon
+        )
+
+        document.set(route).addOnCompleteListener {
+            if (it.isSuccessful) {
+
+                joinToRoute(document.id)
+                // change to routing
+                uploadUserCurrentRouteId(document.id)
+            } else {
+                _error.value = "upload route fail ^.<"
+            }
+        }
+    }
+
     fun navigteToProgress() {
         _navigateToProgress.value = true
     }

@@ -7,9 +7,11 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
+import com.yuyu.barhopping.util.timeNow
 
 class FirebaseDataSource(context: Context) : FirebaseRepository {
 
@@ -126,6 +128,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                         comments = document["comments"] as String?,
                         points = document["points"] as List<String>?,
                         paths = document["paths"] as List<String>?,
+                        time = document["time"] as String,
+                        userName = document["userName"] as String?,
+                        userIcon = document["userIcon"] as String?
                     )
                     callBack.onResult(routeList)
                 }

@@ -2,6 +2,8 @@ package com.yuyu.barhopping.util
 
 import android.util.Log
 import com.yuyu.barhopping.data.MarketName
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 fun String.getMarketType(): Int {
@@ -26,4 +28,12 @@ fun String.getMarketType(): Int {
     } else {
         return 0
     }
+}
+
+fun timeNow(): String {
+    val now = Calendar.getInstance(Locale.TAIWAN).timeInMillis
+    val format = SimpleDateFormat("yyyy-MM-dd")
+    val currentDate = format.format(now)
+
+    return currentDate.toString()
 }
