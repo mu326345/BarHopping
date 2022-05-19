@@ -18,7 +18,9 @@ import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 import com.yuyu.barhopping.util.getMarketType
 import com.yuyu.barhopping.util.timeNow
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.max
 
 
@@ -147,10 +149,24 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         when (nextStep) {
             StepTypeFilter.STEP1 -> {
                 Log.d("yy", "setReadyToRouteStep STEP1")
+
+                // 回第一步的清空
+                selectedLocationName.value = null
+
+                // 第一步 正常流程
                 _currentStep.value = nextStep
             }
             StepTypeFilter.STEP2 -> {
                 Log.d("yy", "setReadyToRouteStep STEP2")
+
+                // 回第二步的清空
+                readyToRoute?.points = mutableListOf()
+                sevenChecked.value = false
+                familyChecked.value = false
+                hiLifeChecked.value = false
+                okMartChecked.value = false
+
+                // 第二步 正常流程
                 if (readyToRoute?.destinationName != null) {
                     currentLocation?.let {
                         Log.d("yy", "setReadyToRouteStep STEP2 in")
@@ -163,6 +179,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
             StepTypeFilter.STEP3 -> {
                 Log.d("yy", "setReadyToRouteStep STEP3")
+                
                 currentRoute?.let {
                     Log.v("QQ", "qrCodeBitmap1")
                 }
@@ -299,7 +316,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
     fun getAllMarketResult(paths: List<LatLng>) {
-//        _navigateToProgress.value = true
         viewModelScope.launch {
             try {
 
@@ -681,41 +697,42 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         }, routeId)
     }
 
-    fun checkProgress(images: List<OnRouteUserImages>) {
+    suspend fun checkProgress(images: List<OnRouteUserImages>) {
+        withContext(Dispatchers.Main) {
+            val positionMyself = images.filter { it.userId == UserManager.user?.id }.size - 1
 
-        val positionMyself = images.filter { it.userId == UserManager.user?.id }.size - 1
-
-        val items = mutableListOf<SheetItem>()
-        currentPointDatas?.let { points ->
-            for ((index, point) in points.withIndex()) {
-                val sheetItem = SheetItem(
-                    name = point.name,
-                    done = positionMyself >= index,
-                    count = positionMyself
-                )
-                items.add(sheetItem)
-            }
-        }
-
-        currentUsers?.let { partners ->
-            val partner = partners.filter { it.userId != UserManager.user?.id }
-            for (p in partner) {
-                val imageCount = images.filter { it.userId == p.userId }.size
-                val position = imageCount - 1
-                if (position >= 0) {
-                    items[position].partners.add(p)
+            val items = mutableListOf<SheetItem>()
+            currentPointDatas?.let { points ->
+                for ((index, point) in points.withIndex()) {
+                    val sheetItem = SheetItem(
+                        name = point.name,
+                        done = positionMyself >= index,
+                        count = positionMyself
+                    )
+                    items.add(sheetItem)
                 }
             }
-            _sheetItems.value = items
-        }
 
-        // check user finished?
-        currentPointDatas?.let { points ->
-            if (points.size - 1 == positionMyself) {
-                _displayCompleted.value = true
+            currentUsers?.let { partners ->
+                val partner = partners.filter { it.userId != UserManager.user?.id }
+                for (p in partner) {
+                    val imageCount = images.filter { it.userId == p.userId }.size
+                    val position = imageCount - 1
+                    if (position >= 0) {
+                        items[position].partners.add(p)
+                    }
+                }
+                _sheetItems.value = items
+            }
 
-                UserManager.user?.let {
-                    uploadPartnerFinished(it.onRoute ?: "", it.id)
+            // check user finished?
+            currentPointDatas?.let { points ->
+                if (points.size - 1 == positionMyself) {
+                    _displayCompleted.value = true
+
+                    UserManager.user?.let {
+                        uploadPartnerFinished(it.onRoute ?: "", it.id)
+                    }
                 }
             }
         }
@@ -765,6 +782,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun onCompletedDisplayed() {
         _displayCompleted.value = null
+    }
+
+    fun onPartnersCompleteDisplayed() {
+        _partnersFinished.value = false
     }
 
     fun onErrorDisplayed() {

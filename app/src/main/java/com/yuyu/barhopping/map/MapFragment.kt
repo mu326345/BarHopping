@@ -41,6 +41,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.common.collect.MapDifference
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.*
@@ -152,9 +153,7 @@ class MapFragment : Fragment(),
                         R.id.previous_step_btn2 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                         R.id.previous_step_btn3 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP2)
                         R.id.start_game_btn -> {
-//                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                             viewModel.newRoute()
-//                            takeSnapshot()
                         }
                     }
                 }
@@ -274,7 +273,7 @@ class MapFragment : Fragment(),
         }
 
         viewModel.onRoute.observe(viewLifecycleOwner) {
-            it?.let {
+            it.let {
                 initRouteUi(it)
                 viewModel.resetReadyToRoute()
                 if (it) {
@@ -293,6 +292,9 @@ class MapFragment : Fragment(),
                 when (it) {
                     StepTypeFilter.STEP1 -> {
                         Log.i("yy", "current step: 1")
+                        binding.stepRecycler.scrollToPosition(0)
+                        resetMap()
+
                         map?.setOnPoiClickListener(object : GoogleMap.OnPoiClickListener {
                             override fun onPoiClick(point: PointOfInterest) {
 
@@ -367,7 +369,6 @@ class MapFragment : Fragment(),
     }
 
     fun initRouteUi(onRoute: Boolean) {
-
         map?.clear()
         binding.stepRecycler.scrollToPosition(0)
         if (onRoute) {
@@ -400,8 +401,6 @@ class MapFragment : Fragment(),
                     viewModel.currentPointDatas ?: emptyList(),
                     images
                 )
-
-                viewModel.checkProgress(it)
             }
         }
 
@@ -430,7 +429,7 @@ class MapFragment : Fragment(),
             if (allFinished) {
 //                Toast.makeText(context, "all user finished", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(MapFragmentDirections.navigateToAllSuccessDialogFragment())
-                viewModel.onCompletedDisplayed()
+                viewModel.onPartnersCompleteDisplayed()
             }
         }
     }
@@ -697,23 +696,26 @@ class MapFragment : Fragment(),
 
         val cacheMaps = mutableMapOf<LatLng, Int>()
 
-        for (image in images) {
-            viewModel.getLatlng(image.pointId)?.let { latlng ->
+        lifecycleScope.launch(Dispatchers.IO) {
+            for (image in images) {
+                viewModel.getLatlng(image.pointId)?.let { latlng ->
 
-                if (cacheMaps.containsKey(latlng)) {
-                    cacheMaps[latlng] = cacheMaps[latlng]?.plus(1) ?: 1
-                } else {
-                    cacheMaps[latlng] = 1
+                    if (cacheMaps.containsKey(latlng)) {
+                        cacheMaps[latlng] = cacheMaps[latlng]?.plus(1) ?: 1
+                    } else {
+                        cacheMaps[latlng] = 1
+                    }
+
+                    addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.0005),
+                        latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.0005)))
                 }
-
-                addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.0005),
-                    latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.0005)))
             }
+
+            viewModel.checkProgress(images)
         }
     }
 
-    private fun addMarkerAndLoadImage(url: String, latlng: LatLng) {
-        lifecycleScope.launch(Dispatchers.IO) {
+    private suspend fun addMarkerAndLoadImage(url: String, latlng: LatLng) {
             val futureTarget = Glide.with(requireContext())
                 .asBitmap()
                 .load(url)
@@ -721,14 +723,13 @@ class MapFragment : Fragment(),
             val bitmap = futureTarget.get()
 
             withContext(Dispatchers.Main) {
-                map!!.addMarker(
+                map?.addMarker(
                     MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                         .position(latlng)
                 )
             }
             Glide.with(requireContext()).clear(futureTarget)
-        }
     }
 
     private fun addOriAndDesMarkers() {
