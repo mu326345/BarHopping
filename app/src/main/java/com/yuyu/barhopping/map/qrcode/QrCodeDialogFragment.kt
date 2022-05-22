@@ -36,9 +36,14 @@ class QrCodeDialogFragment : DialogFragment() {
         }
 
         binding.checkBtn.setOnClickListener {
-            findNavController().navigateUp()
+//            findNavController().navigateUp()
+            dismiss()
         }
 
         return binding.root
+    }
+
+    override fun dismiss() {
+        super.dismiss()
     }
 }

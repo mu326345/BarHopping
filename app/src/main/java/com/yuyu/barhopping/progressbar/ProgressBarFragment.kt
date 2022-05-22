@@ -1,20 +1,30 @@
 package com.yuyu.barhopping.progressbar
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.yuyu.barhopping.R
+import androidx.fragment.app.DialogFragment
+import com.yuyu.barhopping.databinding.FragmentProgressBarBinding
 
 
-class ProgressBarFragment : Fragment() {
+class ProgressBarFragment : DialogFragment() {
 
+    private lateinit var binding: FragmentProgressBarBinding
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_progress_bar, container, false)
+
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        binding = FragmentProgressBarBinding.inflate(inflater, container, false)
+
+        dialog?.setCancelable(false)
+
+        return binding.root
     }
 }

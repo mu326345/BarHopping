@@ -4,10 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <variable
+            name="itemPosition"
+            type="Integer" />
+
+        <variable
+            name="viewModel"
+            type="com.yuyu.barhopping.rank.route.RouteRankViewModel" />
 
         <variable
             name="routeStore"
-            type="com.yuyu.barhopping.data.RouteStore" />
+            type="com.yuyu.barhopping.data.NewRouteStore" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -20,26 +27,96 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/card_constrain"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="@+id/location_tv"
+            app:layout_constraintTop_toBottomOf="@+id/location_tv">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/user_icon_card"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="90dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/card_constrain">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{routeStore.userIcon}" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/user_name_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="@{routeStore.userName}"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/user_icon_card"
+                app:layout_constraintTop_toTopOf="@id/user_icon_card" />
+
+            <TextView
+                android:id="@+id/time_now"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="16dp"
+                android:gravity="right"
+                android:text="@{routeStore.time}"
+                app:layout_constraintBottom_toBottomOf="@id/user_icon_card"
+                app:layout_constraintStart_toStartOf="@id/user_name_tv"
+                app:layout_constraintTop_toBottomOf="@id/user_name_tv" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/star_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:button="@drawable/collection_select"
+                android:gravity="center"
+                android:checked="@{routeStore.userLike}"
+                android:onCheckedChanged="@{viewModel.getCheckedListener()}"
+                android:backgroundTint="@color/white"
+                android:tag="@{itemPosition}"
+                app:layout_constraintBottom_toBottomOf="@+id/user_icon_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/user_icon_card"
+                app:useMaterialThemeColors="false" />
+
+            <ImageView
+                android:id="@+id/line"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/light_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/user_icon_card" />
 
             <ImageView
                 android:id="@+id/location_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:src="@drawable/ic_baseline_my_location_24"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/card_constrain" />
+                app:layout_constraintTop_toBottomOf="@id/line" />
 
             <TextView
                 android:id="@+id/location_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:gravity="center_vertical"
+                android:layout_marginEnd="8dp"
                 android:text="@{routeStore.startPoint}"
-                app:layout_constraintBottom_toTopOf="@id/destination_tv"
+                app:layout_constraintBottom_toBottomOf="@+id/location_img"
+                app:layout_constraintEnd_toStartOf="@id/guideline"
                 app:layout_constraintStart_toEndOf="@id/location_img"
                 app:layout_constraintTop_toTopOf="@id/location_img"
                 tools:text="A點" />
@@ -67,15 +144,15 @@
             <TextView
                 android:id="@+id/destination_tv"
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:gravity="center_vertical"
+                android:ellipsize="marquee"
+                android:gravity="top"
                 android:text="@{routeStore.endPoint}"
                 app:layout_constraintBottom_toBottomOf="@id/destination_img"
                 app:layout_constraintEnd_toStartOf="@id/guideline"
                 app:layout_constraintStart_toEndOf="@id/destination_img"
-                app:layout_constraintTop_toBottomOf="@id/location_tv"
                 tools:text="B點" />
 
             <androidx.constraintlayout.widget.Guideline
@@ -90,9 +167,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/count"
-                app:layout_constraintBottom_toTopOf="@id/route_length_tv"
+                app:layout_constraintBottom_toTopOf="@+id/route_length_tv"
                 app:layout_constraintStart_toStartOf="@id/guideline"
-                app:layout_constraintTop_toTopOf="@+id/location_tv" />
+                app:layout_constraintTop_toTopOf="@+id/location_img"
+                app:layout_constraintVertical_chainStyle="spread_inside" />
 
             <TextView
                 android:id="@+id/number_tv"
@@ -101,7 +179,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/market_number_tv"
                 app:layout_constraintStart_toEndOf="@id/market_number_tv"
                 app:layout_constraintTop_toTopOf="@id/market_number_tv"
-                tools:text="@{String.valueOf(routeStore.marketCount)}" />
+                app:store="@{routeStore.marketCount}" />
 
             <TextView
                 android:id="@+id/route_length_tv"
@@ -119,25 +197,17 @@
                 app:layout_constraintBottom_toBottomOf="@id/route_length_tv"
                 app:layout_constraintStart_toEndOf="@id/route_length_tv"
                 app:layout_constraintTop_toTopOf="@id/route_length_tv"
-                tools:text="@{String.valueOf(routeStore.length)}" />
+                app:length="@{routeStore.length}" />
 
-            <ImageView
-                android:id="@+id/star_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_baseline_star_border_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/market_number_tv" />
 
             <TextView
                 android:id="@+id/degree_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/degree"
-                app:layout_constraintBottom_toBottomOf="@+id/destination_tv"
+                app:layout_constraintBottom_toBottomOf="@+id/destination_img"
                 app:layout_constraintStart_toStartOf="@id/route_length_tv"
-                app:layout_constraintTop_toBottomOf="@id/route_length_tv" />
+                app:layout_constraintTop_toBottomOf="@+id/route_length_tv" />
 
             <TextView
                 android:id="@+id/degree_number_tv"
@@ -146,7 +216,6 @@
                 android:text="5"
                 app:layout_constraintStart_toEndOf="@id/degree_tv"
                 app:layout_constraintTop_toTopOf="@id/degree_tv" />
-
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

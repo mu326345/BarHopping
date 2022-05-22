@@ -7,9 +7,11 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
+import com.yuyu.barhopping.util.timeNow
 
 class FirebaseDataSource(context: Context) : FirebaseRepository {
 
@@ -23,7 +25,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     interface BarCallBack {
-        fun onResult(list: List<Bar>)
+        fun onResult(list: List<BarPost>)
     }
 
     interface RouteCommendCallBack {
@@ -124,8 +126,12 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                         length = document["length"] as Long,
                         hardDegree = document["hardDegree"] as Int?,
                         comments = document["comments"] as String?,
-                        points = document["points"] as List<String>,
-                        paths = document["paths"] as List<String>
+                        points = document["points"] as List<String>?,
+                        paths = document["paths"] as List<String>?,
+                        time = document["time"] as String,
+                        userName = document["userName"] as String?,
+                        userIcon = document["userIcon"] as String?,
+                        userId = document["userId"] as String
                     )
                     callBack.onResult(routeList)
                 }
@@ -263,8 +269,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapBarData(callBack: BarCallBack) {
-        db.collection("Bar").addSnapshotListener { snapshot, e ->
-            val list = mutableListOf<Bar>()
+        db.collection("BarPost").addSnapshotListener { snapshot, e ->
+            val list = mutableListOf<BarPost>()
             if (e != null) {
                 Log.w(ContentValues.TAG, "Listen failed.", e)
                 return@addSnapshotListener
@@ -272,19 +278,23 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
 
             if (snapshot != null) {
                 for (x in snapshot.documents) {
-                    val barList = Bar(
+                    val barList = BarPost(
                         id = x["id"] as String,
-                        senderId = x["senderId"] as String,
-                        locationX = x.getDouble("locationX") as Double,
-                        locationY = x.getDouble("locationY") as Double,
-                        name = x["name"] as String,
-                        address = x["address"] as String,
-                        image = x["image"] as String,
+                        userId = x["userId"] as String,
+                        userName = x["userName"] as String,
+                        userImg = x["userImg"] as String,
+                        uri = x["uri"] as String,
                         commend = x["commend"] as String,
-                        phone = x["phone"] as String,
-                        like = x["like"] as Long
+                        barName = x["barName"] as String?,
+                        barId = x["barId"] as String,
+                        barAddress = x["barAddress"] as String?,
+                        barLat = x["barLat"] as String,
+                        barLng = x["barLng"] as String,
+                        barPhone = x["barPhone"] as String?,
+                        time = x["time"] as String
                     )
-                    list.add(barList)
+
+                   list.add(barList)
                 }
                 callBack.onResult(list)
             }

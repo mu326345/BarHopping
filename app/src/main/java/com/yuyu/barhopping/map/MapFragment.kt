@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
@@ -17,8 +18,10 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,18 +34,17 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.Polyline
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.common.collect.MapDifference
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
-import com.yuyu.barhopping.data.MarketName
-import com.yuyu.barhopping.data.OnRouteUserImages
-import com.yuyu.barhopping.data.Partner
-import com.yuyu.barhopping.data.PointData
+import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.databinding.FragmentMapBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
 import com.yuyu.barhopping.map.sheet.BottomSheetAdapter
@@ -51,6 +53,7 @@ import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 class MapFragment : Fragment(),
@@ -109,6 +112,13 @@ class MapFragment : Fragment(),
         sheetRecycler.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
+        setFragmentResultListener("routeIdKey") { requestKey, bundle ->
+            val result = bundle.getParcelable<RouteStore>("routeId")
+            if(result != null) {
+                viewModel.uploadOldRoute(result)
+            }
+        }
+
         binding.cameraBtn.setOnClickListener {
             startCamera()
         }
@@ -119,6 +129,7 @@ class MapFragment : Fragment(),
             setFragmentResultListener("qrCodeResult") { requestKey, bundle ->
                 val result = bundle.getString("qrCodeKey")
                 if(result != null) {
+                    resetMap()
                     viewModel.joinToRoute(result)
                     viewModel.uploadUserCurrentRouteId(result)
                 }
@@ -142,7 +153,6 @@ class MapFragment : Fragment(),
                         R.id.previous_step_btn2 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                         R.id.previous_step_btn3 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP2)
                         R.id.start_game_btn -> {
-//                            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
                             viewModel.newRoute()
                         }
                     }
@@ -183,7 +193,6 @@ class MapFragment : Fragment(),
         binding.gameOverBtn.setOnClickListener {
             map?.clear()
             viewModel.clearUserCurrentRouteId()
-            // game over直接離開
         }
 
         viewModel.moveCamera.observe(viewLifecycleOwner) {
@@ -238,7 +247,6 @@ class MapFragment : Fragment(),
                         viewModel.currentMarketMarkers[item.markerName]?.add(marker)
                     }
                 }
-
             }
         }
 
@@ -265,7 +273,7 @@ class MapFragment : Fragment(),
         }
 
         viewModel.onRoute.observe(viewLifecycleOwner) {
-            it?.let {
+            it.let {
                 initRouteUi(it)
                 viewModel.resetReadyToRoute()
                 if (it) {
@@ -284,6 +292,9 @@ class MapFragment : Fragment(),
                 when (it) {
                     StepTypeFilter.STEP1 -> {
                         Log.i("yy", "current step: 1")
+                        binding.stepRecycler.scrollToPosition(0)
+                        resetMap()
+
                         map?.setOnPoiClickListener(object : GoogleMap.OnPoiClickListener {
                             override fun onPoiClick(point: PointOfInterest) {
 
@@ -296,6 +307,7 @@ class MapFragment : Fragment(),
                         Log.i("yy", "current step: 2")
                         binding.stepRecycler.scrollToPosition(1)
                         resetMap()
+                        viewModel.navigteToProgress()
                         viewModel.showDirection()
                         viewModel.readyToRoute?.let {
                             it.destinationPoint?.let { des ->
@@ -329,6 +341,14 @@ class MapFragment : Fragment(),
             }
         }
 
+        viewModel.navigateToProgress.observe(viewLifecycleOwner) {
+            if(it) {
+                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFragment())
+            } else {
+                findNavController().popBackStack()
+            }
+        }
+
         viewModel.error.observe(viewLifecycleOwner) {
             it?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -349,7 +369,6 @@ class MapFragment : Fragment(),
     }
 
     fun initRouteUi(onRoute: Boolean) {
-
         map?.clear()
         binding.stepRecycler.scrollToPosition(0)
         if (onRoute) {
@@ -382,8 +401,6 @@ class MapFragment : Fragment(),
                     viewModel.currentPointDatas ?: emptyList(),
                     images
                 )
-
-                viewModel.checkProgress(it)
             }
         }
 
@@ -412,7 +429,7 @@ class MapFragment : Fragment(),
             if (allFinished) {
 //                Toast.makeText(context, "all user finished", Toast.LENGTH_SHORT).show()
                 findNavController().navigate(MapFragmentDirections.navigateToAllSuccessDialogFragment())
-                viewModel.onCompletedDisplayed()
+                viewModel.onPartnersCompleteDisplayed()
             }
         }
     }
@@ -679,23 +696,26 @@ class MapFragment : Fragment(),
 
         val cacheMaps = mutableMapOf<LatLng, Int>()
 
-        for (image in images) {
-            viewModel.getLatlng(image.pointId)?.let { latlng ->
+        lifecycleScope.launch(Dispatchers.IO) {
+            for (image in images) {
+                viewModel.getLatlng(image.pointId)?.let { latlng ->
 
-                if (cacheMaps.containsKey(latlng)) {
-                    cacheMaps[latlng] = cacheMaps[latlng]?.plus(1) ?: 1
-                } else {
-                    cacheMaps[latlng] = 1
+                    if (cacheMaps.containsKey(latlng)) {
+                        cacheMaps[latlng] = cacheMaps[latlng]?.plus(1) ?: 1
+                    } else {
+                        cacheMaps[latlng] = 1
+                    }
+
+                    addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.00009),
+                        latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.00009)))
                 }
-
-                addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.0005),
-                    latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.0005)))
             }
+
+            viewModel.checkProgress(images)
         }
     }
 
-    private fun addMarkerAndLoadImage(url: String, latlng: LatLng) {
-        lifecycleScope.launch(Dispatchers.IO) {
+    private suspend fun addMarkerAndLoadImage(url: String, latlng: LatLng) {
             val futureTarget = Glide.with(requireContext())
                 .asBitmap()
                 .load(url)
@@ -703,14 +723,13 @@ class MapFragment : Fragment(),
             val bitmap = futureTarget.get()
 
             withContext(Dispatchers.Main) {
-                map!!.addMarker(
+                map?.addMarker(
                     MarkerOptions()
                         .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                         .position(latlng)
                 )
             }
             Glide.with(requireContext()).clear(futureTarget)
-        }
     }
 
     private fun addOriAndDesMarkers() {
@@ -804,12 +823,12 @@ class MapFragment : Fragment(),
 
     // ImagePicker
     private fun startCamera() {
-            ImagePicker.with(this)
-                .cameraOnly()	//User can only capture image using Camera
-                .compress(1024)
-                .maxResultSize(620, 620)
-                .crop()
-                .start(CAMERA_IMAGE_REQ_CODE)
+        ImagePicker.with(this)
+            .cameraOnly()    //User can only capture image using Camera
+            .compress(1024)
+            .maxResultSize(620, 620)
+            .cropSquare()
+            .start(CAMERA_IMAGE_REQ_CODE)
     }
 
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {
@@ -862,30 +881,6 @@ class MapFragment : Fragment(),
         }
     }
 
-//    /////// 測試GoogleMapSnapshot，photo -> route detail Image
-//    val snapshotReadyCallback = object : GoogleMap.SnapshotReadyCallback {
-//        override fun onSnapshotReady(bitmap: Bitmap?) {
-//            var bitmapfrommap = bitmap
-//
-//            if (bitmapfrommap != null) {
-//                fileOut.writeBitmap(bitmapfrommap!!, Bitmap.CompressFormat.PNG, 85)
-//            }
-//        }
-//
-//        val onMapLoadedCallback : GoogleMap.OnMapLoadedCallback = GoogleMap.OnMapLoadedCallback {
-//            map?.snapshot(snapshotReadyCallback, bitmapfrommap)
-//        }
-//        map?.setOnMapLoadedCallback(onMapLoadedCallback)
-//    }
-
-    ///////// it works can get bitmap
-    ///////// https://github.com/googlemaps/android-samples/blob/816f8cc4241ec7c4eaf41b16f7fefcf10ae95faf/ApiDemos/kotlin/app/src/gms/java/com/example/kotlindemos/SnapshotDemoActivity.kt
-//    binding.cameraBtn.setOnClickListener {
-//        map?.snapshot {
-//
-//        }
-//    }
-
 
     companion object {
         /**
@@ -897,10 +892,7 @@ class MapFragment : Fragment(),
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val DEFAULT_ZOOM = 15
         private const val DESTINATION_REQUEST_CODE = 1
-//        private const val STEP2_DESTINATION_REQUEST_CODE = 2
-//        private const val STEP2_LOCATION_REQUEST_CODE = 3
         val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
         private const val CAMERA_IMAGE_REQ_CODE = 103
-        private const val CAMERA_IMAGE_QR_CODE = 104
     }
 }

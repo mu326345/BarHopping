@@ -5,15 +5,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.yuyu.barhopping.data.NewRouteStore
 import com.yuyu.barhopping.data.RouteStore
 import com.yuyu.barhopping.databinding.ItemRouteRankBinding
 import com.yuyu.barhopping.rank.route.RouteRankAdapter.*
 
-class RouteRankAdapter: ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallback) {
+class RouteRankAdapter(val onClickListener: OnClickListener): ListAdapter<NewRouteStore, RouteRankViewHolder>(DiffCallback) {
 
     class RouteRankViewHolder(private var binding: ItemRouteRankBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(RouteStore: RouteStore) {
-            binding.routeStore = RouteStore
+        fun bind(routeStore: NewRouteStore, viewModel: RouteRankViewModel, position: Int) {
+            binding.itemPosition = position
+            binding.routeStore = routeStore
+            binding.viewModel = viewModel
             binding.executePendingBindings()
         }
     }
@@ -23,16 +26,24 @@ class RouteRankAdapter: ListAdapter<RouteStore, RouteRankViewHolder>(DiffCallbac
     }
 
     override fun onBindViewHolder(holder: RouteRankViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        val item = getItem(position)
+        holder.itemView.setOnClickListener {
+            onClickListener.click(item)
+        }
+        holder.bind(item, RouteRankViewModel(), position)
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<RouteStore>() {
-        override fun areItemsTheSame(oldItem: RouteStore, newItem: RouteStore): Boolean {
+    companion object DiffCallback : DiffUtil.ItemCallback<NewRouteStore>() {
+        override fun areItemsTheSame(oldItem: NewRouteStore, newItem: NewRouteStore): Boolean {
             return oldItem === newItem
         }
 
-        override fun areContentsTheSame(oldItem: RouteStore, newItem: RouteStore): Boolean {
+        override fun areContentsTheSame(oldItem: NewRouteStore, newItem: NewRouteStore): Boolean {
             return oldItem == newItem
         }
+    }
+
+    class OnClickListener(val clickListener: (newRouteStore: NewRouteStore) -> Unit) {
+        fun click(routeStore: NewRouteStore) = clickListener(routeStore)
     }
 }

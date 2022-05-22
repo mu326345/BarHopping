@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
         setupNavController(navController)
     }
 
-
     private fun setupBottomNav(navController: NavController) {
         binding.bottomNavView.setOnClickMenuListener { item ->
             when (item.id) {
@@ -75,11 +74,32 @@ class MainActivity : AppCompatActivity() {
     private fun setupNavController(navController: NavController) {
         navController.addOnDestinationChangedListener { navController: NavController, _: NavDestination, _: Bundle? ->
             viewModel.currentFragmentType.value = when (navController.currentDestination?.id) {
-                R.id.mapFragment -> CurrentFragmentType.MAP
-                R.id.champFragment -> CurrentFragmentType.RANK
-                R.id.postFragment -> CurrentFragmentType.POST
-                R.id.exploreFragment -> CurrentFragmentType.EXPLORE
-                R.id.profileFragment -> CurrentFragmentType.PROFILE
+
+                R.id.mapFragment -> {
+                    binding.bottomNavView.show(CurrentFragmentType.MAP.index, false)
+                    CurrentFragmentType.MAP
+                }
+
+                R.id.champFragment -> {
+                    binding.bottomNavView.show(CurrentFragmentType.RANK.index, false)
+                    CurrentFragmentType.RANK
+                }
+
+                R.id.postFragment -> {
+                    binding.bottomNavView.show(CurrentFragmentType.POST.index, false)
+                    CurrentFragmentType.POST
+                }
+
+                R.id.exploreFragment -> {
+                    binding.bottomNavView.show(CurrentFragmentType.EXPLORE.index, false)
+                    CurrentFragmentType.EXPLORE
+                }
+
+                R.id.profileFragment -> {
+                    binding.bottomNavView.show(CurrentFragmentType.PROFILE.index, false)
+                    CurrentFragmentType.PROFILE
+                }
+
                 else -> viewModel.currentFragmentType.value
             }
         }

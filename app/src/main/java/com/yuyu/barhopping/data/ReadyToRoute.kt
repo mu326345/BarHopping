@@ -7,7 +7,7 @@ data class ReadyToRoute(
     var destinationPoint: LatLng? = null,
     var startName: String? = null,
     var destinationName: String? = null,
-    val points: MutableList<PointData> = mutableListOf(),
+    var points: MutableList<PointData> = mutableListOf(),
     var paths: MutableList<String> = mutableListOf(),
     var sortedPlaceIds: MutableList<String> = mutableListOf(),
     var distance: Long? = null
