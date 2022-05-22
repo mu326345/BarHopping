@@ -4,10 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <variable
+            name="itemPosition"
+            type="Integer" />
+
+        <variable
+            name="viewModel"
+            type="com.yuyu.barhopping.rank.route.RouteRankViewModel" />
 
         <variable
             name="routeStore"
-            type="com.yuyu.barhopping.data.RouteStore" />
+            type="com.yuyu.barhopping.data.NewRouteStore" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -64,6 +71,22 @@
                 app:layout_constraintBottom_toBottomOf="@id/user_icon_card"
                 app:layout_constraintStart_toStartOf="@id/user_name_tv"
                 app:layout_constraintTop_toBottomOf="@id/user_name_tv" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/star_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:button="@drawable/collection_select"
+                android:gravity="center"
+                android:checked="@{routeStore.userLike}"
+                android:onCheckedChanged="@{viewModel.getCheckedListener()}"
+                android:backgroundTint="@color/white"
+                android:tag="@{itemPosition}"
+                app:layout_constraintBottom_toBottomOf="@+id/user_icon_card"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/user_icon_card"
+                app:useMaterialThemeColors="false" />
 
             <ImageView
                 android:id="@+id/line"
@@ -176,15 +199,6 @@
                 app:layout_constraintTop_toTopOf="@id/route_length_tv"
                 app:length="@{routeStore.length}" />
 
-            <ImageView
-                android:id="@+id/star_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:src="@drawable/ic_baseline_star_border_24"
-                app:layout_constraintBottom_toBottomOf="@+id/user_icon_card"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/user_icon_card" />
 
             <TextView
                 android:id="@+id/degree_tv"

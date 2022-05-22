@@ -179,7 +179,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
             StepTypeFilter.STEP3 -> {
                 Log.d("yy", "setReadyToRouteStep STEP3")
-                
+
                 currentRoute?.let {
                     Log.v("QQ", "qrCodeBitmap1")
                 }

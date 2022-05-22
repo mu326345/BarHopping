@@ -4,19 +4,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
+import com.yuyu.barhopping.data.NewRouteStore
 import com.yuyu.barhopping.data.PointData
 import com.yuyu.barhopping.data.RouteStore
 import com.yuyu.barhopping.repository.FirebaseRepository
 import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 
 class RouteDetailViewModel(
-    private val arguments: RouteStore,
+    private val arguments: NewRouteStore,
     private val repository: FirebaseRepository): ViewModel() {
 
-    private val _routeStore = MutableLiveData<RouteStore>().apply {
+    private val _routeStore = MutableLiveData<NewRouteStore>().apply {
         value = arguments
     }
-    val routeStore: LiveData<RouteStore>
+    val routeStore: LiveData<NewRouteStore>
         get() = _routeStore
 
     val paths = routeStore.value?.let {it.paths}

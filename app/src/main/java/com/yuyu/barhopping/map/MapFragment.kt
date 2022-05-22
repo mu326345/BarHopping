@@ -706,8 +706,8 @@ class MapFragment : Fragment(),
                         cacheMaps[latlng] = 1
                     }
 
-                    addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.0005),
-                        latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.0005)))
+                    addMarkerAndLoadImage(image.url, LatLng(latlng.latitude + ((cacheMaps[latlng] ?: 1) * 0.00009),
+                        latlng.longitude + ((cacheMaps[latlng] ?: 1) * 0.00009)))
                 }
             }
 
@@ -823,12 +823,12 @@ class MapFragment : Fragment(),
 
     // ImagePicker
     private fun startCamera() {
-            ImagePicker.with(this)
-                .cameraOnly()	//User can only capture image using Camera
-                .compress(1024)
-                .maxResultSize(620, 620)
-                .crop()
-                .start(CAMERA_IMAGE_REQ_CODE)
+        ImagePicker.with(this)
+            .cameraOnly()    //User can only capture image using Camera
+            .compress(1024)
+            .maxResultSize(620, 620)
+            .cropSquare()
+            .start(CAMERA_IMAGE_REQ_CODE)
     }
 
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {

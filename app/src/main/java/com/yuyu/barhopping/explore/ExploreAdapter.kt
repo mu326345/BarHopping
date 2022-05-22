@@ -1,17 +1,37 @@
 package com.yuyu.barhopping.explore
 
-import androidx.fragment.app.Fragment
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.yuyu.barhopping.explore.bar.BarExploreFragment
-import com.yuyu.barhopping.explore.route.RouteExploreFragment
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import com.yuyu.barhopping.data.BarPost
+import com.yuyu.barhopping.databinding.ItemBarExploreBinding
 
-class ExploreAdapter(fragment: ExploreFragment): FragmentStateAdapter(fragment) {
-    override fun getItemCount() = ExploreTypeFilter.values().size
+class ExploreAdapter: ListAdapter<BarPost, ExploreAdapter.ExploreViewHolder>(DiffCallback) {
 
-    override fun createFragment(position: Int): Fragment {
-        return when(ExploreTypeFilter.values()[position]) {
-            ExploreTypeFilter.ROUTE -> RouteExploreFragment()
-            else -> BarExploreFragment()
+    class ExploreViewHolder(private var binding: ItemBarExploreBinding): RecyclerView.ViewHolder(binding.root) {
+        fun bind(bar: BarPost) {
+            binding.bar = bar
+            binding.executePendingBindings()
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExploreViewHolder {
+        return ExploreViewHolder(ItemBarExploreBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    }
+
+    override fun onBindViewHolder(holder: ExploreViewHolder, position: Int) {
+        holder.bind(getItem(position))
+    }
+
+    companion object DiffCallback : DiffUtil.ItemCallback<BarPost>() {
+
+        override fun areItemsTheSame(oldItem: BarPost, newItem: BarPost): Boolean {
+            return oldItem === newItem
+        }
+        override fun areContentsTheSame(oldItem: BarPost, newItem: BarPost): Boolean {
+            return oldItem == newItem
         }
     }
 }

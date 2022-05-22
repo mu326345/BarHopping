@@ -6,7 +6,7 @@
     <data>
         <variable
             name="bar"
-            type="com.yuyu.barhopping.data.Bar" />
+            type="com.yuyu.barhopping.data.BarPost" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -36,7 +36,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/user_icon" />
+                    app:imageUrl="@{bar.userImg}" />
             </androidx.cardview.widget.CardView>
 
 
@@ -48,8 +48,7 @@
                 app:layout_constraintBottom_toBottomOf="@id/user_img_card"
                 app:layout_constraintStart_toEndOf="@id/user_img_card"
                 app:layout_constraintTop_toTopOf="@id/user_img_card"
-                tools:text="我是大王"
-                android:text="YUYU"/>
+                android:text="@{bar.userName}"/>
 
             <ImageButton
                 android:id="@+id/follow_btn"
@@ -72,7 +71,7 @@
                 app:layout_constraintEnd_toEndOf="@id/follow_btn"
                 app:layout_constraintStart_toStartOf="@id/user_img_card"
                 app:layout_constraintTop_toBottomOf="@id/user_img_card"
-                app:srcCompat="@drawable/demo_bar" />
+                app:imageUrl="@{bar.uri}" />
 
             <ImageButton
                 android:id="@+id/like_btn"
@@ -103,7 +102,7 @@
                 app:layout_constraintStart_toStartOf="@id/like_btn"
                 app:layout_constraintTop_toBottomOf="@id/like_btn"
                 tools:text="this is location"
-                android:text="霹靂酒吧"/>
+                android:text="@{bar.barName}"/>
 
             <ImageView
                 android:id="@+id/phone_img"
@@ -123,7 +122,7 @@
                 app:layout_constraintStart_toEndOf="@id/phone_img"
                 app:layout_constraintTop_toTopOf="@id/phone_img"
                 tools:text="66666666"
-                android:text="@{bar.phone}"/>
+                android:text="@{bar.barPhone}"/>
 
             <ImageView
                 android:id="@+id/address_img"
@@ -143,7 +142,7 @@
                 app:layout_constraintStart_toEndOf="@id/address_img"
                 app:layout_constraintTop_toTopOf="@id/address_img"
                 tools:text="this is address"
-                android:text="@{bar.address}"/>
+                android:text="@{bar.barAddress}"/>
 
             <TextView
                 android:id="@+id/content_tv"
@@ -153,7 +152,7 @@
                 app:layout_constraintStart_toStartOf="@id/address_img"
                 app:layout_constraintTop_toBottomOf="@id/address_img"
                 tools:text="this is content"
-                android:text="便宜又好吃，下次再來！"/>
+                android:text="@{bar.commend}"/>
 
             <TextView
                 android:id="@+id/time_tv"
@@ -164,7 +163,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/content_tv"
                 app:layout_constraintTop_toBottomOf="@id/content_tv"
-                android:text="2022/5/9"/>
+                android:text="@{bar.time}"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

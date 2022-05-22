@@ -76,7 +76,7 @@
         tools:layout="@layout/fragment_route_detail">
 
         <argument android:name="storeKey"
-            app:argType="com.yuyu.barhopping.data.RouteStore"
+            app:argType="com.yuyu.barhopping.data.NewRouteStore"
             app:nullable="false" />
     </fragment>
     <dialog

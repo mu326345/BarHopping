@@ -5,17 +5,23 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.yuyu.barhopping.Application
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentExploreBinding
+import com.yuyu.barhopping.factory.ViewModelFactory
 
 
 class ExploreFragment : Fragment() {
 
     private lateinit var binding: FragmentExploreBinding
-    private lateinit var exploreAdapter: ExploreAdapter
-    private lateinit var viewPager: ViewPager2
+    private lateinit var adapter: ExploreAdapter
+    private val viewModel by viewModels<ExploreViewModel> {
+        ViewModelFactory((context?.applicationContext as Application).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,38 +34,17 @@ class ExploreFragment : Fragment() {
 
         binding = FragmentExploreBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
+        adapter = ExploreAdapter()
 
-        exploreAdapter = ExploreAdapter(this)
-        viewPager = binding.viewpagerExplore
-        viewPager.adapter = exploreAdapter
+        val recyclerLayout = binding.recyclerLayout
+        binding.recyclerLayout.adapter = adapter
+        recyclerLayout.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-
-        // explore viewpager title
-        val tabLayout = binding.tabsExplore
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when(ExploreTypeFilter.values()[position]) {
-                ExploreTypeFilter.ROUTE -> {
-                    tab.setIcon(tabIcon[0])
-                    tab.text = resources.getString(tabTitle[0])
-                }
-                else -> {
-                    tab.setIcon(tabIcon[1])
-                    tab.text = resources.getString(tabTitle[1])
-                }
-            }
-        }.attach()
-
+        viewModel.barItem.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
+        }
 
         return binding.root
     }
-
-    private val tabIcon = listOf(
-        R.drawable.ic_baseline_directions_run_24,
-        R.drawable.ic_baseline_sports_bar_24
-    )
-
-    private val tabTitle = listOf(
-        R.string.route,
-        R.string.bar
-    )
 }
