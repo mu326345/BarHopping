@@ -841,7 +841,8 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             paths = readyToRoute?.paths?.toList(),
             time = timeNow(),
             userName = UserManager.user?.name,
-            userIcon = UserManager.user?.icon
+            userIcon = UserManager.user?.icon,
+            userId = UserManager.user?.id
         )
 
         document.set(route).addOnCompleteListener {
@@ -879,7 +880,8 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             paths = baseRoute.paths,
             time = timeNow(),
             userName = UserManager.user?.name,
-            userIcon = UserManager.user?.icon
+            userIcon = UserManager.user?.icon,
+            userId = UserManager.user?.id
         )
 
         document.set(route).addOnCompleteListener {

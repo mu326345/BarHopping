@@ -63,6 +63,7 @@ class RouteRankFragment : Fragment() {
                it.time,
                it.userName,
                it.userIcon,
+               it.userId,
                false
            ) }
 

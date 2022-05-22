@@ -20,7 +20,8 @@ data class RouteStore(
     val paths: List<String>? = null,
     val time: String?,
     val userName: String?,
-    val userIcon: String?
+    val userIcon: String?,
+    val userId: String?
 ) : Parcelable
 
 @Parcelize
@@ -41,5 +42,6 @@ data class NewRouteStore(
     val time: String?,
     val userName: String?,
     val userIcon: String?,
+    val userId: String?,
     var userLike:Boolean
 ) : Parcelable

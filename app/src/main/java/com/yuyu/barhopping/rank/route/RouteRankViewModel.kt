@@ -45,11 +45,13 @@ class RouteRankViewModel : ViewModel() {
         val listener = CompoundButton.OnCheckedChangeListener { view, isCheck ->
             val pos = view.tag as Int
 
-            routeItem.value?.get(pos)?.id?.let {
-                if (isCheck) {
-                    uploadRouteCollection(it)
-                } else {
-                    deleteRouteCollection(it)
+            if(routeItem.value?.size ?: 0 > 0) {
+                routeItem.value?.get(pos)?.id?.let {
+                    if (isCheck) {
+                        uploadRouteCollection(it)
+                    } else {
+                        deleteRouteCollection(it)
+                    }
                 }
             }
         }
@@ -125,7 +127,8 @@ class RouteRankViewModel : ViewModel() {
                         paths = x["paths"] as List<String>?,
                         time = x["time"] as String?,
                         userName = x["userName"] as String?,
-                        userIcon = x["userIcon"] as String?
+                        userIcon = x["userIcon"] as String?,
+                        userId = x["userId"] as String?
                     )
                     list.add(routeList)
                 }

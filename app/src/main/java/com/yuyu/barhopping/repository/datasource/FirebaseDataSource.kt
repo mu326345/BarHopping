@@ -131,6 +131,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                         time = document["time"] as String,
                         userName = document["userName"] as String?,
                         userIcon = document["userIcon"] as String?,
+                        userId = document["userId"] as String
                     )
                     callBack.onResult(routeList)
                 }
