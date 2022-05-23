@@ -82,10 +82,10 @@ class PostViewModel: ViewModel() {
                 commend.value!!,
                 selectPlace!!.name!!,
                 selectPlace!!.id!!,
-                selectPlace!!.address ?: null,
+                selectPlace!!.address,
                 selectPlace!!.latLng?.latitude.toString(),
                 selectPlace!!.latLng?.longitude.toString(),
-                selectPlace!!.phoneNumber ?: null,
+                selectPlace!!.phoneNumber,
                 timeNow()
             )
 

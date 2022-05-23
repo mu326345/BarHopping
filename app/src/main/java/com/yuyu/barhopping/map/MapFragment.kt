@@ -606,7 +606,6 @@ class MapFragment : Fragment(),
             locationCallback,
             Looper.getMainLooper()
         )
-
     }
 
     private fun stopLocationUpdates() {

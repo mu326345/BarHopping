@@ -52,7 +52,6 @@ class RouteDetailFragment :
                 setFragmentResult("routeIdKey", bundleOf("routeId" to result))
                 findNavController().navigate(RouteDetailFragmentDirections.navigateToMapFragment())
             }
-
         }
 
         viewModel.currentPointDatas.observe(viewLifecycleOwner) {

@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="bar"
             type="com.yuyu.barhopping.data.BarPost" />
+
+        <import type="android.view.View" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -23,19 +26,19 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/user_img_card"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                app:cardCornerRadius="10dp"
+                app:cardCornerRadius="90dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/user_img"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:scaleType="centerCrop"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitCenter"
                     app:imageUrl="@{bar.userImg}" />
             </androidx.cardview.widget.CardView>
 
@@ -45,10 +48,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                app:layout_constraintBottom_toBottomOf="@id/user_img_card"
+                android:text="@{bar.userName}"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/location_tv"
                 app:layout_constraintStart_toEndOf="@id/user_img_card"
                 app:layout_constraintTop_toTopOf="@id/user_img_card"
-                android:text="@{bar.userName}"/>
+                tools:text="name" />
 
             <ImageButton
                 android:id="@+id/follow_btn"
@@ -65,30 +71,32 @@
                 android:id="@+id/content_img"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:scaleType="centerCrop"
+                app:imageUrl="@{bar.uri}"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="@id/follow_btn"
                 app:layout_constraintStart_toStartOf="@id/user_img_card"
-                app:layout_constraintTop_toBottomOf="@id/user_img_card"
-                app:imageUrl="@{bar.uri}" />
+                app:layout_constraintTop_toBottomOf="@id/user_img_card" />
 
-            <ImageButton
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/like_btn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginTop="8dp"
-                android:background="#00000000"
                 android:layout_marginStart="16dp"
-                android:src="@drawable/ic_baseline_favorite_24"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/white"
+                android:button="@drawable/favorite_check"
+                android:gravity="center"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/content_img" />
+                app:layout_constraintTop_toBottomOf="@id/content_img"
+                app:useMaterialThemeColors="false" />
 
             <ImageButton
                 android:id="@+id/comment_btn"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="16dp"
                 android:background="#00000000"
                 android:src="@drawable/ic_baseline_chat_bubble_24"
                 app:layout_constraintStart_toEndOf="@id/like_btn"
@@ -98,19 +106,21 @@
                 android:id="@+id/location_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="@id/like_btn"
-                app:layout_constraintTop_toBottomOf="@id/like_btn"
-                tools:text="this is location"
-                android:text="@{bar.barName}"/>
+                android:text="@{bar.barName}"
+                app:layout_constraintBottom_toBottomOf="@id/user_img_card"
+                app:layout_constraintStart_toStartOf="@id/user_name_tv"
+                app:layout_constraintTop_toBottomOf="@id/user_name_tv"
+                tools:text="this is location" />
 
             <ImageView
                 android:id="@+id/phone_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="@id/location_tv"
-                app:layout_constraintTop_toBottomOf="@id/location_tv"
+                android:visibility="@{bar.barPhone != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/like_btn"
                 app:srcCompat="@drawable/ic_baseline_call_24" />
 
             <TextView
@@ -118,11 +128,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="@{bar.barPhone}"
+                android:visibility="@{bar.barPhone != null ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@id/phone_img"
                 app:layout_constraintStart_toEndOf="@id/phone_img"
                 app:layout_constraintTop_toTopOf="@id/phone_img"
-                tools:text="66666666"
-                android:text="@{bar.barPhone}"/>
+                tools:text="66666666" />
 
             <ImageView
                 android:id="@+id/address_img"
@@ -130,6 +141,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/ic_baseline_location_on_24"
+                android:visibility="@{bar.barAddress != null ? View.VISIBLE : View.GONE}"
                 app:layout_constraintStart_toStartOf="@id/phone_img"
                 app:layout_constraintTop_toBottomOf="@id/phone_img" />
 
@@ -138,21 +150,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="@{bar.barAddress}"
+                android:visibility="@{bar.barAddress != null ? View.VISIBLE : View.GONE}"
                 app:layout_constraintBottom_toBottomOf="@id/address_img"
                 app:layout_constraintStart_toEndOf="@id/address_img"
                 app:layout_constraintTop_toTopOf="@id/address_img"
-                tools:text="this is address"
-                android:text="@{bar.barAddress}"/>
+                tools:text="this is address" />
 
             <TextView
                 android:id="@+id/content_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toStartOf="@id/address_img"
+                android:text="@{bar.commend}"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/address_img"
-                tools:text="this is content"
-                android:text="@{bar.commend}"/>
+                tools:text="this is content" />
 
             <TextView
                 android:id="@+id/time_tv"
@@ -160,10 +174,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="16dp"
+                android:text="@{bar.time}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@id/content_tv"
-                app:layout_constraintTop_toBottomOf="@id/content_tv"
-                android:text="@{bar.time}"/>
+                app:layout_constraintTop_toBottomOf="@id/content_tv" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
