@@ -59,10 +59,10 @@
     <string name="share">分享</string>
 
     <!-- profile -->
-    <string name="length_total">路程總計：</string>
     <string name="market_total">超商總計：</string>
     <string name="bar_total">酒吧總計：</string>
-    <string name="follow">追蹤</string>
+    <string name="following">追蹤中：</string>
+    <string name="follow">追蹤中</string>
     <string name="followed">被追蹤</string>
     <string name="logout">登出</string>
     <string name="my_post">我的發文</string>

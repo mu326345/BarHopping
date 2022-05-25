@@ -1,10 +1,12 @@
 package com.yuyu.barhopping.rank.person
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.User
 import com.yuyu.barhopping.databinding.ItemPersonRankBinding
 
@@ -13,6 +15,13 @@ class PersonRankAdapter: ListAdapter<User, PersonRankAdapter.PersonRankViewHolde
     class PersonRankViewHolder(private var binding: ItemPersonRankBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(user: User) {
             binding.user = user
+            val countList = user.marketCount
+            if (countList == null) {
+                binding.marketNumberTv.setText("0家")
+            } else {
+                binding.marketNumberTv.setText("${countList.sum()}" + "家")
+            }
+
             binding.executePendingBindings()
         }
     }
