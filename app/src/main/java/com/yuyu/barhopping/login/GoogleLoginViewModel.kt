@@ -43,13 +43,13 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
     }
 
-    fun getUserDetail(userId: String) {
-        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
-            override fun onResult(user: User) {
-                UserManager.user = user
-            }
-        }, userId)
-    }
+//    fun getUserDetail(userId: String) {
+//        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
+//            override fun onResult(user: User) {
+//                UserManager.user = user
+//            }
+//        }, userId)
+//    }
 
     fun addUser(userId: String, user: User) {
         db.collection("User")

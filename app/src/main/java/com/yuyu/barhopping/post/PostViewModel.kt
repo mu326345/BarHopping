@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.libraries.places.api.model.Place
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -90,9 +91,20 @@ class PostViewModel: ViewModel() {
             )
 
             barPostRef.set(barData)
+            updatePostIdToUser(barPostRef.id)
             _success.value = true
         } else {
             _error.value = "Please check finish your commend"
+        }
+    }
+
+    private fun updatePostIdToUser(PostId: String) {
+        UserManager.user?.let {
+            db.collection("User")
+                .document(it.id)
+                .update("barPost", FieldValue.arrayUnion(PostId))
+                .addOnSuccessListener { Log.d("PostViewModel", "DocumentSnapshot successfully written!") }
+                .addOnFailureListener { e -> Log.w("PostViewModel", "Error writing document", e) }
         }
     }
 

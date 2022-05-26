@@ -34,6 +34,7 @@ class PersonRankViewModel : ViewModel() {
             if(snapshot != null) {
                 for(x in snapshot.documents) {
                     val userList = x.toObject(User::class.java)
+
                     if (userList != null) {
                         list.add(userList)
                     }

@@ -10,6 +10,6 @@ data class User(
     val title: String = "",
     val icon: String = "", //URL img
     var onRoute: String? = null,
-    val barPost: List<String>? = emptyList(),
-    val marketCount: List<Int>? = emptyList()
+    var barPost: List<String>? = emptyList(),
+    var marketCount: List<Int>? = listOf(0)
 ) : Parcelable

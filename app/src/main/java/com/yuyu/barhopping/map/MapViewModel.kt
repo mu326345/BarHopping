@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -246,6 +247,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 if (directionResult.routes.size <= 0) {
                     Log.w("MapViewModel", "No routes")
+
                 } else {
                     val path = mutableListOf<LatLng>()
                     var alreadyAddStart = false
@@ -253,15 +255,15 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                         for (j in 0 until directionResult.routes[0].legs[i].steps.size) {
                             if (!alreadyAddStart) {
                                 val startLatLng = LatLng(
-                                    directionResult.routes[0].legs[i].steps[j].start_location.lat.toDouble(),
-                                    directionResult.routes[0].legs[i].steps[j].start_location.lng.toDouble()
+                                    directionResult.routes[0].legs[i].steps[j].start_location.lat,
+                                    directionResult.routes[0].legs[i].steps[j].start_location.lng
                                 )
                                 path.add(startLatLng)
                                 alreadyAddStart = true
                             }
                             val endLatLng = LatLng(
-                                directionResult.routes[0].legs[i].steps[j].end_location.lat.toDouble(),
-                                directionResult.routes[0].legs[i].steps[j].end_location.lng.toDouble()
+                                directionResult.routes[0].legs[i].steps[j].end_location.lat,
+                                directionResult.routes[0].legs[i].steps[j].end_location.lng
                             )
                             path.add(endLatLng)
                         }
@@ -349,7 +351,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                                     )
                                 )
                                 .title(marketResult.name)
-//                                .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
                                 .alpha(0.6f)
                                 .visible(false)
                         )
@@ -359,7 +360,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 Log.i("yy", "items=${items}")
                 _marketMarkers.value = items
-                _navigateToProgress.value = false
+                onNavigateProgress()
 
             } catch (e: NullPointerException) {
                 Log.e("MapViewModel", "${e.message}")
@@ -681,7 +682,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                     UserManager.user?.onRoute = null
                     _onRoute.value = false
                 }
-
             }
         }, routeId)
     }
@@ -733,6 +733,8 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                     UserManager.user?.let {
                         uploadPartnerFinished(it.onRoute ?: "", it.id)
                     }
+
+                    updateRouteIdToUser(points.size)
                 }
             }
         }
@@ -860,7 +862,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     /**
      * 從rank一鍵開啟新遊戲的複製的 new route
      */
-    fun uploadOldRoute(baseRoute: RouteStore) {
+    fun uploadOldRoute(baseRoute: NewRouteStore) {
 
         var document = db.collection("Routes").document()
 
@@ -896,11 +898,22 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         }
     }
 
-    fun navigteToProgress() {
+    fun navigateToProgress() {
         _navigateToProgress.value = true
     }
 
-    fun onNavigteProgress() {
+    fun onNavigateProgress() {
         _navigateToProgress.value = false
+    }
+
+    fun updateRouteIdToUser(marketCount: Int) {
+        UserManager.user?.let {
+            db.collection("User")
+                .document(it.id)
+                .update("marketCount", FieldValue.arrayUnion(marketCount))
+            .addOnSuccessListener { Log.d("PostViewModel", "DocumentSnapshot successfully written!") }
+            .addOnFailureListener { e -> Log.w("PostViewModel", "Error writing document", e) }
+        }
+
     }
 }

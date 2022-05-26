@@ -16,11 +16,6 @@ class PersonRankFragment : Fragment() {
     private lateinit var viewModel: PersonRankViewModel
     private lateinit var adapter: PersonRankAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

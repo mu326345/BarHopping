@@ -51,7 +51,7 @@ class ProfileViewModel(val repository: FirebaseRepository) : ViewModel() {
                         endLon = document["endLon"] as String,
                         marketCount = document["marketCount"] as Long,
                         length = document["length"] as Long,
-                        hardDegree = document["hardDegree"] as Int?,
+                        hardDegree = document["hardDegree"] as Long?,
                         comments = document["comments"] as String?,
                         points = document["points"] as List<String>?,
                         paths = document["paths"] as List<String>?,
