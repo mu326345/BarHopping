@@ -884,14 +884,12 @@ class MapFragment : Fragment(),
     companion object {
         /**
          * Request code for location permission request.
-         *
-         * @see .onRequestPermissionsResult
          */
         private val TAG = MapFragment::class.java.simpleName
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
-        private const val DEFAULT_ZOOM = 15
-        private const val DESTINATION_REQUEST_CODE = 1
-        val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
         private const val CAMERA_IMAGE_REQ_CODE = 103
+        private const val DESTINATION_REQUEST_CODE = 1
+        private const val DEFAULT_ZOOM = 15
+        val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)
     }
 }

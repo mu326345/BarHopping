@@ -9,7 +9,7 @@ data class User(
     val name: String = "",
     val title: String = "",
     val icon: String = "", //URL img
-    val routeCollection: String = "", // List<Route id>
-    val userCollection: String = "", // List<User id>
-    var onRoute: String? = null
+    var onRoute: String? = null,
+    val barPost: List<String>? = emptyList(),
+    val marketCount: List<Int>? = emptyList()
 ) : Parcelable

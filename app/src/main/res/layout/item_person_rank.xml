@@ -57,6 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="@{user.name}"
+                android:textSize="16sp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toEndOf="@id/user_img_card"
                 app:layout_constraintTop_toTopOf="@id/user_img_card"
                 tools:text="yuyu" />
@@ -94,10 +96,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="4家"
                 app:layout_constraintStart_toEndOf="@id/market_tv"
                 app:layout_constraintTop_toTopOf="@id/market_tv"
-                tools:text="6家"
-                android:text="4家"/>
+                tools:text="6家" />
 
             <TextView
                 android:id="@+id/bar_tv"
@@ -115,18 +117,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:text="8家"
                 app:layout_constraintStart_toEndOf="@id/bar_tv"
                 app:layout_constraintTop_toTopOf="@id/bar_tv"
-                tools:text="8家"
-                android:text="8家"/>
+                tools:text="8家" />
 
             <Button
                 android:id="@+id/follow_btn"
+                style="@style/step_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:text="@string/follow"
-                style="@style/step_button"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/user_name_tv" />
 

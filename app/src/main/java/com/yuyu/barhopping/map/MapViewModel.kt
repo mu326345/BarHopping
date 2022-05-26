@@ -386,7 +386,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             marker.position.latitude,
             marker.position.longitude,
             marker.tag.toString(),// MarketId
-            marker.title,
+            marker.title.toString(),
             marker.title?.getMarketType()
         )
 
