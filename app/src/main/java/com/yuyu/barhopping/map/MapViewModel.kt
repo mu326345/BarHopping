@@ -120,6 +120,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     val navigateToProgress: LiveData<Boolean>
         get() = _navigateToProgress
 
+    private val _canTakePhoto = MutableLiveData<Boolean>()
+    val canTakePhoto: LiveData<Boolean>
+        get() = _canTakePhoto
+
     init {
 //        checkState()
     }
@@ -210,6 +214,22 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun onLocationUpdated(location: Location) {
         currentLocation = LatLng(location.latitude, location.longitude)
+
+        currentRoute?.points?.let { points ->
+            sheetItems.value?.let { sheetItems ->
+
+                val nextIndex = sheetItems.filter { it.done }.size
+                if (points.size > nextIndex) {
+                    val marketLatlng = getLatlng(points[nextIndex])
+
+                    marketLatlng?.let {
+                        currentLocation?.let { currentLocation ->
+                            _canTakePhoto.value = canTakePhoto(currentLocation, it)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun onLastLocationUpdated(location: Location) {
@@ -360,7 +380,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 Log.i("yy", "items=${items}")
                 _marketMarkers.value = items
-                _navigateToProgress.value = false
+                onNavigateProgress()
 
             } catch (e: NullPointerException) {
                 Log.e("MapViewModel", "${e.message}")
@@ -599,12 +619,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         val TAG = "MapViewModel"
     }
 
-
-    fun canTakePhoto(
-        currentLatLng: LatLng, nextLatLng: LatLng
-    ): Boolean {
+// TODO: 找地方使用
+    fun canTakePhoto(currentLatLng: LatLng, nextMarketLatLng: LatLng): Boolean {
         val distance = SphericalUtil.computeDistanceBetween(
-            currentLatLng, nextLatLng
+            currentLatLng, nextMarketLatLng
         ).toInt()
 
         return distance <= 20
@@ -904,6 +922,10 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun onNavigateProgress() {
         _navigateToProgress.value = false
+    }
+
+    fun onCanTakePhoto() {
+        _canTakePhoto.value = false
     }
 
     fun updateRouteIdToUser(marketCount: Int) {

@@ -173,6 +173,7 @@ class MapFragment : Fragment(),
         // camera and QR code
         binding.cameraBtn.setOnClickListener {
             startCamera()
+            binding.takePhotoCard.visibility = View.INVISIBLE
         }
 
         binding.qrScannerBtn.setOnClickListener {
@@ -388,6 +389,13 @@ class MapFragment : Fragment(),
             }
         }
 
+        viewModel.canTakePhoto.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.cameraCard.visibility = View.VISIBLE
+                binding.takePhotoCard.visibility = View.VISIBLE
+            }
+        }
+
 
         return binding.root
     }
@@ -397,7 +405,7 @@ class MapFragment : Fragment(),
         binding.stepRecycler.scrollToPosition(0)
 
         if (onRoute) {
-            binding.cameraCard.visibility = View.VISIBLE
+            binding.cameraCard.visibility = View.INVISIBLE
             binding.gameOverBtn.visibility = View.VISIBLE
             binding.detailSheet.root.visibility = View.VISIBLE
             binding.stepRecycler.visibility = View.GONE
@@ -546,6 +554,7 @@ class MapFragment : Fragment(),
                     Activity.RESULT_OK -> {
                         //Image Uri will not be null for RESULT_OK
                         data?.data?.let {
+                            viewModel.onCanTakePhoto()
                             viewModel.uploadImageToStorage(it)
                         }
                     }
@@ -614,7 +623,7 @@ class MapFragment : Fragment(),
     // update location
     fun createLocationRequest() = LocationRequest.create()?.apply {
         interval = 10000
-        fastestInterval = 1000
+        fastestInterval = 5000
         priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
 
@@ -629,18 +638,6 @@ class MapFragment : Fragment(),
 
     private fun stopLocationUpdates() {
         fusedLocationClient.removeLocationUpdates(locationCallback)
-    }
-
-    private fun addUserLocationMarkerToMap(latLng: LatLng) {
-
-        var userLocationMarker: Marker? = null
-        userLocationMarker?.remove()
-
-        userLocationMarker = map?.addMarker(
-            MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-        )
     }
 
     private fun addMarkers(paths: List<String>, points: List<PointData>, images: List<OnRouteUserImages>) {
