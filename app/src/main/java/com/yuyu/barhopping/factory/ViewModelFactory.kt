@@ -3,6 +3,7 @@ package com.yuyu.barhopping.factory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.yuyu.barhopping.explore.ExploreViewModel
+import com.yuyu.barhopping.explore.cluster.ClusterViewModel
 import com.yuyu.barhopping.login.GoogleLoginViewModel
 import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.profile.ProfileViewModel
@@ -24,6 +25,9 @@ class ViewModelFactory(val repository: FirebaseRepository) : ViewModelProvider.F
 
                 isAssignableFrom(ProfileViewModel::class.java) ->
                     ProfileViewModel(repository)
+
+                isAssignableFrom(ClusterViewModel::class.java) ->
+                    ClusterViewModel(repository)
 
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

@@ -50,21 +50,6 @@
         android:label="fragment_person"
         tools:layout="@layout/fragment_person_rank" />
     <fragment
-        android:id="@+id/routeExploreFragment"
-        android:name="com.yuyu.barhopping.explore.route.RouteExploreFragment"
-        android:label="fragment_route_explore"
-        tools:layout="@layout/fragment_route_explore" />
-    <fragment
-        android:id="@+id/barExploreFragment"
-        android:name="com.yuyu.barhopping.explore.bar.BarExploreFragment"
-        android:label="fragment_bar_explore"
-        tools:layout="@layout/fragment_bar_explore" />
-    <fragment
-        android:id="@+id/gridExploreFragment"
-        android:name="com.yuyu.barhopping.explore.grid.GridExploreFragment"
-        android:label="fragment_grid_explore"
-        tools:layout="@layout/fragment_grid_explore" />
-    <fragment
         android:id="@+id/qrCodeScannerFragment"
         android:name="com.yuyu.barhopping.map.qrcode.QrCodeScannerFragment"
         android:label="fragment_qr_code_scanner"
@@ -79,6 +64,11 @@
             app:argType="com.yuyu.barhopping.data.NewRouteStore"
             app:nullable="false" />
     </fragment>
+    <fragment
+        android:id="@+id/clusterFragment"
+        android:name="com.yuyu.barhopping.explore.cluster.ClusterFragment"
+        android:label="fragment_cluster"
+        tools:layout="@layout/fragment_cluster" />
     <dialog
         android:id="@+id/qrCodeDialogFragment"
         android:name="com.yuyu.barhopping.map.qrcode.QrCodeDialogFragment"
@@ -120,5 +110,6 @@
     <action android:id="@+id/navigate_to_all_success_dialog_fragment" app:destination="@id/allSuccessDialogFragment" />
     <action android:id="@+id/navigate_to_progress_bar_dialog_fragment" app:destination="@id/progressBarFragment" />
     <action android:id="@+id/navigate_to_route_detail_fragment" app:destination="@id/routeDetailFragment" />
+    <action android:id="@+id/navigate_to_cluster_fragment" app:destination="@id/clusterFragment" />
 
 </navigation>

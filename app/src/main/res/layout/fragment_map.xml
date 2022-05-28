@@ -69,6 +69,27 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
+                android:id="@+id/take_photo_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:backgroundTint="@color/e_huang"
+                android:visibility="invisible"
+                app:cardCornerRadius="10dp"
+                app:layout_constraintBottom_toBottomOf="@id/camera_card"
+                app:layout_constraintEnd_toStartOf="@id/camera_card"
+                app:layout_constraintTop_toTopOf="@id/camera_card">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6dp"
+                    android:text="拍張照紀錄一下吧 →"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:textColor="@color/white" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

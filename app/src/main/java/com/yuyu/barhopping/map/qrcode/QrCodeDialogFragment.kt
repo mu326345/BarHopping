@@ -17,11 +17,6 @@ class QrCodeDialogFragment : DialogFragment() {
 
     private lateinit var binding: FragmentQrCodeDialogBinding
     private val viewModel by viewModels<QrCodeViewModel>()
-    private val mapViewModel by viewModels<MapViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,7 +31,6 @@ class QrCodeDialogFragment : DialogFragment() {
         }
 
         binding.checkBtn.setOnClickListener {
-//            findNavController().navigateUp()
             dismiss()
         }
 

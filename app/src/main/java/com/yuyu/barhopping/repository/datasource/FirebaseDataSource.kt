@@ -7,11 +7,9 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
-import com.yuyu.barhopping.util.timeNow
 
 class FirebaseDataSource(context: Context) : FirebaseRepository {
 
@@ -80,24 +78,15 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
         getOnRoutePartnersData(callBack, routeId)
     }
 
-    // docid == googleid
     private fun getUserData(callBack: UserCallBack, userId: String) {
-        db.collection("User")
+        db.collection(USER)
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
-            .addOnSuccessListener { querySnapshot ->
+            .addOnSuccessListener { userData ->
 
-                if (querySnapshot.documents.size > 0) {
+                if (userData.documents.size > 0) {
+                    val user = userData.toObjects(User::class.java)[0]
 
-                    val user = User(
-                        id = querySnapshot.documents[0]["id"] as String,
-                        name = querySnapshot.documents[0]["name"] as String,
-                        title = querySnapshot.documents[0]["title"] as String,
-                        icon = querySnapshot.documents[0]["icon"] as String,
-                        routeCollection = querySnapshot.documents[0]["routeCollection"] as String,
-                        userCollection = querySnapshot.documents[0]["userCollection"] as String,
-                        onRoute = querySnapshot.documents[0]["onRoute"] as String?
-                    )
                     callBack.onResult(user)
                 }
             }
@@ -107,32 +96,15 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getRouteData(callBack: RouteCallBack, routeId: String) {
-        db.collection("Routes")
-            .whereEqualTo("id", routeId)
+        db.collection(ROUTES)
+            .whereEqualTo(ROUTE_ID, routeId)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
                     Log.d("yy", "${document.id} => ${document.data}")
 
-                    val routeList = RouteStore(
-                        id = document["id"] as String,
-                        startPoint = document["startPoint"] as String,
-                        startLat = document["startLat"] as String,
-                        startLon = document["startLon"] as String,
-                        endPoint = document["endPoint"] as String,
-                        endLat = document["endLat"] as String,
-                        endLon = document["endLon"] as String,
-                        marketCount = document["marketCount"] as Long,
-                        length = document["length"] as Long,
-                        hardDegree = document["hardDegree"] as Int?,
-                        comments = document["comments"] as String?,
-                        points = document["points"] as List<String>?,
-                        paths = document["paths"] as List<String>?,
-                        time = document["time"] as String,
-                        userName = document["userName"] as String?,
-                        userIcon = document["userIcon"] as String?,
-                        userId = document["userId"] as String
-                    )
+                    val routeList = document.toObject(RouteStore::class.java)
+
                     callBack.onResult(routeList)
                 }
             }
@@ -142,9 +114,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getUserRouteImageData(callBack: UserRouteImagesCallBack, routeId: String) {
-        db.collection("Routes")
+        db.collection(ROUTES)
             .document(routeId)
-            .collection("Images")
+            .collection(IMAGES)
             .addSnapshotListener { snapshot, e ->
                 val imagesList = mutableListOf<OnRouteUserImages>()
 
@@ -155,13 +127,11 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
 
                 if (snapshot != null) {
                     for (x in snapshot.documents) {
-                        val imageList = OnRouteUserImages(
-                            id = x["id"] as String?:"",
-                            pointId = x["pointId"] as String,
-                            url = x["url"] as String,
-                            userId = x["userId"] as String
-                        )
-                        imagesList.add(imageList)
+                        val imageList = x.toObject(OnRouteUserImages::class.java)
+
+                        if (imageList != null) {
+                            imagesList.add(imageList)
+                        }
                     }
                     callBack.onResult(imagesList)
 
@@ -173,9 +143,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
-        db.collection("Routes")
+        db.collection(ROUTES)
             .document(routeId)
-            .collection("Partners")
+            .collection(PARTNERS)
             .addSnapshotListener { snapshot, e ->
                 val userPartnerList = mutableListOf<Partner>()
 
@@ -186,17 +156,11 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
 
                 if (snapshot != null) {
                     for (x in snapshot.documents) {
-//                        val userLocations = x.toObject(OnRouteUserLocation::class.java)
-                        val partnerData = Partner(
-                            id = x["id"] as String,
-                            userId = x["userId"] as String,
-                            lat = x["lat"] as String,
-                            lng = x["lng"] as String,
-                            name = x["name"] as String,
-                            imageUrl = x["imageUrl"] as String,
-                            finished = x["finished"] as Boolean
-                        )
-                        userPartnerList.add(partnerData)
+                        val partnerData = x.toObject(Partner::class.java)
+
+                        if (partnerData != null) {
+                            userPartnerList.add(partnerData)
+                        }
                     }
                     callBack.onResult(userPartnerList)
 
@@ -208,24 +172,17 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
-        db.collection("Routes")
+        db.collection(ROUTES)
             .document(routeId)
-            .collection("Partners")
-            .get().addOnSuccessListener { documents ->
+            .collection(PARTNERS)
+            .get()
+            .addOnSuccessListener { documents ->
                 val userPartnerList = mutableListOf<Partner>()
 
                 for (document in documents) {
                     Log.d("yy", "${document.id} => ${document.data}")
 
-                    val partnerData = Partner(
-                        id = document["id"] as String,
-                        userId = document["userId"] as String,
-                        lat = document["lat"] as String,
-                        lng = document["lng"] as String,
-                        name = document["name"] as String,
-                        imageUrl = document["imageUrl"] as String,
-                        finished = document["finished"] as Boolean
-                    )
+                    val partnerData = document.toObject(Partner::class.java)
                     userPartnerList.add(partnerData)
                 }
 
@@ -234,8 +191,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getPointListData(callBack: PointCallBack, points: List<String>) {
-        db.collection("Points")
-            .whereIn("marketId", points)
+        db.collection(POINTS)
+            .whereIn(MARKET_ID, points)
             .get()
             .addOnSuccessListener { documents ->
                 val unOrderList = mutableListOf<PointData>()
@@ -243,13 +200,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 for (document in documents) {
                     Log.d("yy", "${document.id} => ${document.data}")
 
-                    val pointList = PointData(
-                        latitude = document["latitude"].toString().toDouble(),
-                        longitude = document["longitude"].toString().toDouble(),
-                        marketId = document["marketId"] as String,
-                        name = document["name"] as String,
-                        type = document["type"].toString().toInt()
-                    )
+                    val pointList = document.toObject(PointData::class.java)
                     unOrderList.add(pointList)
                 }
 
@@ -269,8 +220,10 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapBarData(callBack: BarCallBack) {
-        db.collection("BarPost").addSnapshotListener { snapshot, e ->
+        db.collection(BAR_POST)
+            .addSnapshotListener { snapshot, e ->
             val list = mutableListOf<BarPost>()
+
             if (e != null) {
                 Log.w(ContentValues.TAG, "Listen failed.", e)
                 return@addSnapshotListener
@@ -278,23 +231,11 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
 
             if (snapshot != null) {
                 for (x in snapshot.documents) {
-                    val barList = BarPost(
-                        id = x["id"] as String,
-                        userId = x["userId"] as String,
-                        userName = x["userName"] as String,
-                        userImg = x["userImg"] as String,
-                        uri = x["uri"] as String,
-                        commend = x["commend"] as String,
-                        barName = x["barName"] as String?,
-                        barId = x["barId"] as String,
-                        barAddress = x["barAddress"] as String?,
-                        barLat = x["barLat"] as String,
-                        barLng = x["barLng"] as String,
-                        barPhone = x["barPhone"] as String?,
-                        time = x["time"] as String
-                    )
+                    val barList = x.toObject(BarPost::class.java)
 
-                   list.add(barList)
+                    if (barList != null) {
+                        list.add(barList)
+                    }
                 }
                 callBack.onResult(list)
             }
@@ -302,7 +243,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapRouteCommendData(callBack: RouteCommendCallBack) {
-        db.collection("RouteCommend").addSnapshotListener { snapshot, e ->
+        db.collection(ROUTE_COMMEND).addSnapshotListener { snapshot, e ->
             val list = mutableListOf<RouteCommend>()
             if (e != null) {
                 Log.w(ContentValues.TAG, "Listen failed.", e)
@@ -311,19 +252,29 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
 
             if (snapshot != null) {
                 for (x in snapshot.documents) {
-                    val routeCommendList = RouteCommend(
-                        id = x["id"] as String,
-                        senderId = x["senderId"] as String,
-                        userHardDegree = x["userHardDegree"] as Long,
-                        commend = x["commend"] as String,
-                        image = x["image"] as String,
-                        commendTime = x["commendTime"] as String,
-                        like = x["like"] as Long
-                    )
-                    list.add(routeCommendList)
+                    val routeCommendList = x.toObject(RouteCommend::class.java)
+
+                    if (routeCommendList != null) {
+                        list.add(routeCommendList)
+                    }
                 }
                 callBack.onResult(list)
             }
         }
+    }
+
+
+
+    companion object {
+
+        private const val USER = "User"
+        private const val ROUTES = "Routes"
+        private const val ROUTE_ID = "id"
+        private const val IMAGES = "Images"
+        private const val PARTNERS = "Partners"
+        private const val POINTS = "Points"
+        private const val MARKET_ID = "marketId"
+        private const val BAR_POST = "BarPost"
+        private const val ROUTE_COMMEND = "RouteCommend"
     }
 }

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
@@ -23,10 +24,6 @@ class ExploreFragment : Fragment() {
         ViewModelFactory((context?.applicationContext as Application).repository)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -40,6 +37,10 @@ class ExploreFragment : Fragment() {
         binding.recyclerLayout.adapter = adapter
         recyclerLayout.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
+        binding.clusterMapBtn.setOnClickListener {
+            findNavController().navigate(ExploreFragmentDirections.navigateToClusterFragment())
+        }
 
         viewModel.barItem.observe(viewLifecycleOwner) {
             adapter.submitList(it)

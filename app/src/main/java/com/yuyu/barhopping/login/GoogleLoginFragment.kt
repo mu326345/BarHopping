@@ -97,7 +97,7 @@ class GoogleLoginFragment : Fragment() {
                     "",
                     it.photoUrl.toString(),
                     "",
-                    "",
+                    null,
                     null
                 )
                 viewModel.checkUser(user.id, user)

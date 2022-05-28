@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="itemPosition"
             type="Integer" />
@@ -34,8 +35,8 @@
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/user_icon_card"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="90dp"
@@ -77,11 +78,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
-                android:button="@drawable/collection_select"
-                android:gravity="center"
-                android:checked="@{routeStore.userLike}"
-                android:onCheckedChanged="@{viewModel.getCheckedListener()}"
                 android:backgroundTint="@color/white"
+                android:button="@drawable/collection_select"
+                android:checked="@{routeStore.userLike}"
+                android:gravity="center"
+                android:onCheckedChanged="@{viewModel.getCheckedListener()}"
                 android:tag="@{itemPosition}"
                 app:layout_constraintBottom_toBottomOf="@+id/user_icon_card"
                 app:layout_constraintEnd_toEndOf="parent"

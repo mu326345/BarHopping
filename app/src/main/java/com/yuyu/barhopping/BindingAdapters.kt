@@ -19,8 +19,8 @@ fun bindImage(imgView: ImageView, imgUrl: String?) {
             .load(imgUri)
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.user_icon)
-                    .error(R.drawable.user_icon)
+                    .placeholder(R.drawable.bar_hopping_logo)
+                    .error(R.drawable.bar_hopping_logo)
             )
             .into(imgView)
     }

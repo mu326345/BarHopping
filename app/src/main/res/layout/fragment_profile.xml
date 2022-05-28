@@ -5,6 +5,7 @@
     tools:context=".profile.ProfileFragment">
 
     <data>
+
         <variable
             name="user"
             type="com.yuyu.barhopping.UserManager" />
@@ -44,6 +45,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@{user.user.name}"
+            android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_icon_card" />
@@ -53,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="KING OF CLOTHES"
+            tools:text="KING OF CLOTHES"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
