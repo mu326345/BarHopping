@@ -55,7 +55,7 @@ Click to enter route detail, you can start the game directly
 ### Post & Bar Explore
 Take photo share and post your favorite bar information
 <div align=left>
-<img src ="https://i.imgur.com/A7m2evP.png" width="150"><img src="https://i.imgur.com/16Vdfu5.gif" width="150"/>
+<img src="https://i.imgur.com/16Vdfu5.gif" width="150"/>
 </div>
 
 
