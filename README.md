@@ -24,19 +24,18 @@ Invite friends and start the game!
 
 * Best paths
   Recalculate new routes to make the game more flexible
-  （要放code嗎？？？？）
   ![](https://i.imgur.com/mlWZ4fG.gif =200x)
 
 
 * Marker Clustering
   Combine bar information to form a Marker Clustereing
-  ![](https://i.imgur.com/KDnlDfy.gif =200x)
+  ![](https://i.imgur.com/KZU2FZf.gif =200x)
 
 ### QR Code
 Shared QR Code and used scanner for join the game
 ![](https://i.imgur.com/LdU6PGN.gif =200x)
 
-### Rank
+### Ranking
 Route and personal ranking
 Click to enter route detail, you can start the game directly
 ![](https://i.imgur.com/oNEdLSE.gif =200x)
@@ -52,52 +51,50 @@ Take photo share and post your favorite bar information
 ## Techniques
 * Android
 
-    * Kotlin
-    * Coroutines
-    * Model-View-ViewModel
-    * Observer
+  * Kotlin
+  * Coroutines
+  * Model-View-ViewModel
+  * Observer
 
 * Jetpack
 
-    * Lifecycle
-    * LiveData
-    * Navigation
-    * ViewPager2
-    * Data binding
-    * Permissions
-    * CameraX
+  * Lifecycle
+  * LiveData
+  * Navigation
+  * ViewPager2
+  * Data binding
+  * CameraX
 
 * Networking
 
-    * RESTful APIs
-    * Retrofit
-    * Moshi
+  * RESTful APIs
+  * Retrofit
+  * Moshi
 
 
 ## Tools
 * Google Cloud Platform API
 
-    * Google Map API
-    * Google Place API
-    * Google Direction API
-    * Google OAuth
+  * Google Map API
+  * Google Place API
+  * Google Direction API
+  * Google OAuth
 
 * Firebase
 
-    * Firestore
-    * Storage
-    * Crashlytics
+  * Firestore
+  * Storage
+  * Crashlytics
 
 * Other
 
-    * Glide
-    * Lottie
-    * Git & GitHub
+  * Glide
+  * Lottie
+  * Git & GitHub
 
-* Kit
-
-    * [MeowBottomNavigation](https://github.com/oneHamidreza/MeowBottomNavigation) by oneHamidreza
-    * [ImagePicker](https://github.com/Dhaval2404/ImagePicker) by Dhaval2404
+## Library
+* [MeowBottomNavigation](https://github.com/oneHamidreza/MeowBottomNavigation) by oneHamidreza
+* [ImagePicker](https://github.com/Dhaval2404/ImagePicker) by Dhaval2404
 
 
 ## Contact
