@@ -85,7 +85,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="6dp"
-                    android:text="拍張照紀錄一下吧 →"
+                    android:padding="2dp"
+                    android:textStyle="bold"
+                    android:text="@string/click_take_photo"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="@color/white" />
             </androidx.cardview.widget.CardView>

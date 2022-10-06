@@ -12,8 +12,6 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
-import com.yuyu.barhopping.Application
-import com.yuyu.barhopping.R
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.network.DirectionApi
@@ -43,7 +41,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     val marketMarkers: LiveData<List<MarketMarkerDataItem>>
         get() = _marketMarkers
 
-    val sevenChecked = MutableLiveData(false)
+    val sevenChecked = MutableLiveData(true)
     val familyChecked = MutableLiveData(false)
     val hiLifeChecked = MutableLiveData(false)
     val okMartChecked = MutableLiveData(false)
@@ -159,6 +157,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 // 回第一步的清空
                 selectedLocationName.value = null
+                readyToRoute?.destinationName = null
 
                 // 第一步 正常流程
                 _currentStep.value = nextStep
@@ -168,7 +167,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 // 回第二步的清空
                 readyToRoute?.points = mutableListOf()
-                sevenChecked.value = false
+                sevenChecked.value = true
                 familyChecked.value = false
                 hiLifeChecked.value = false
                 okMartChecked.value = false
@@ -243,7 +242,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     // show direction and draw route
     fun showDirection() {
         viewModelScope.launch {
-
             val startPoint = readyToRoute?.startPoint ?: LatLng(0.0, 0.0)
             val destinationPoint = readyToRoute?.destinationPoint ?: LatLng(0.0, 0.0)
             val origin = "${startPoint.latitude},${startPoint.longitude}"
@@ -414,19 +412,28 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         )
 
         // 先判斷是否存在
-
         isExist = readyToRoute?.points?.find {
             it.marketId == marker.tag
         } != null
 
-
-        // 存在 -> 移除，不存在 -> 加入
-        if (isExist) {
-            marker.alpha = 0.6f
-            readyToRoute?.points?.remove(marketData)
+        // 限制waypoints 只能23個
+        val listLimit = readyToRoute?.points?.size?.compareTo(10)
+        if(listLimit == -1) {
+            // 存在 -> 移除，不存在 -> 加入
+            if (isExist) {
+                marker.alpha = 0.6f
+                readyToRoute?.points?.remove(marketData)
+            } else {
+                marker.alpha = 1f
+                readyToRoute?.points?.add(marketData)
+            }
         } else {
-            marker.alpha = 1f
-            readyToRoute?.points?.add(marketData)
+            if (isExist) {
+                marker.alpha = 0.6f
+                readyToRoute?.points?.remove(marketData)
+            } else {
+                _error.value = "店家增加已達上限～"
+            }
         }
     }
 

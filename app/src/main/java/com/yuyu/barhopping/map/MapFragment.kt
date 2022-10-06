@@ -1,29 +1,26 @@
 package com.yuyu.barhopping.map
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
-import android.view.*
-import android.widget.FrameLayout
-import android.widget.Toast
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -43,8 +40,8 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
-import com.google.common.collect.MapDifference
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.*
@@ -56,7 +53,6 @@ import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 
 
 class MapFragment : Fragment(),
@@ -111,6 +107,8 @@ class MapFragment : Fragment(),
 
         val detailSheet = binding.detailSheet
         val sheetRecycler = detailSheet.routeDetailRecycler
+
+        initBottomSheet()
 
         sheetRecycler.adapter = sheetAdapter
         sheetRecycler.layoutManager =
@@ -260,6 +258,7 @@ class MapFragment : Fragment(),
                         viewModel.currentMarketMarkers[item.markerName]?.add(marker)
                     }
                 }
+                viewModel.setMarkersVisibility(MarketName.SEVEN, isVisible)
             }
         }
 
@@ -406,9 +405,9 @@ class MapFragment : Fragment(),
             if (it) {
                 binding.cameraCard.visibility = View.VISIBLE
                 binding.takePhotoCard.visibility = View.VISIBLE
+                animateX(binding.takePhotoCard)
             }
         }
-
 
         return binding.root
     }
@@ -424,6 +423,7 @@ class MapFragment : Fragment(),
             binding.cameraCard.visibility = View.INVISIBLE
             binding.gameOverBtn.visibility = View.VISIBLE
             binding.detailSheet.root.visibility = View.VISIBLE
+            animateY(binding.detailSheet.root)
             binding.stepRecycler.visibility = View.GONE
             binding.qrCodeCard.visibility = View.VISIBLE
             (activity as MainActivity).hideBottomNav()
@@ -876,6 +876,73 @@ class MapFragment : Fragment(),
             .maxResultSize(620, 620)
             .cropSquare()
             .start(CAMERA_IMAGE_REQ_CODE)
+    }
+
+    // detail bottom sheet bottle animate
+    private fun initBottomSheet() {
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.detailSheet.root)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        bottomSheetBehavior.setBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                // Called every time when the bottom sheet changes its state.
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                if (isAdded) {
+                    animateBottomSheetArrows(slideOffset)
+                    transitionBottomSheetBackgroundColor(slideOffset)
+                }
+            }
+        })
+    }
+
+    private fun animateBottomSheetArrows(slideOffset: Float) {
+        binding.detailSheet.bottleImg.rotation = slideOffset * 180
+    }
+
+    private fun animateY(view: View) {
+        view.apply {
+            ObjectAnimator.ofFloat(this, View.TRANSLATION_Y, 0f, -50f, 0f).apply {
+                duration = 500
+                repeatCount = 2
+                startDelay = 500
+                start()
+            }
+        }
+    }
+
+    private fun animateX(view: View) {
+        view.apply {
+            ObjectAnimator.ofFloat(this, View.TRANSLATION_X, 0f, -50f, 0f).apply {
+                duration = 500
+                repeatCount = 2
+                startDelay = 500
+                start()
+            }
+        }
+    }
+    
+    private fun transitionBottomSheetBackgroundColor(slideOffset: Float) {
+        val colorFrom = resources.getColor(R.color.white)
+        val colorTo = resources.getColor(R.color.animate1)
+        binding.detailSheet.root.setBackgroundColor(interpolateColor(slideOffset, colorFrom, colorTo))
+    }
+
+    private fun interpolateColor(fraction: Float, startValue: Int, endValue: Int): Int {
+        val startA = startValue shr 24 and 0xff
+        val startR = startValue shr 16 and 0xff
+        val startG = startValue shr 8 and 0xff
+        val startB = startValue and 0xff
+        val endA = endValue shr 24 and 0xff
+        val endR = endValue shr 16 and 0xff
+        val endG = endValue shr 8 and 0xff
+        val endB = endValue and 0xff
+        return startA + (fraction * (endA - startA)).toInt() shl 24 or
+                (startR + (fraction * (endR - startR)).toInt() shl 16) or
+                (startG + (fraction * (endG - startG)).toInt() shl 8) or
+                startB + (fraction * (endB - startB)).toInt()
     }
 
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {

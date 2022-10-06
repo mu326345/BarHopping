@@ -32,6 +32,7 @@
     <string name="qr_dialog">請朋友掃描QR Code加入遊戲！</string>
     <string name="schedule">目前進度：</string>
     <string name="total">總共超商：</string>
+    <string name="click_take_photo">拍張照紀錄一下吧 →</string>
 
     <!-- Map finished-->
     <string name="congrate">恭喜達成！</string>

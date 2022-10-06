@@ -33,10 +33,13 @@ class BottomSheetAdapter :
                 Glide.with(context).load(UserManager.user?.icon).into(itemBinding.friendsIcon)
                 binding.imgList.addView(itemBinding.root)
             }
-            if(item.done) {
-                binding.itemCardView.setCardBackgroundColor(parseColor("#F2C867")) // e_huang
+            binding.itemCardView.apply {
+                if(item.done) {
+                    setCardBackgroundColor(parseColor("#F2C867")) // e_huang
+                } else {
+                    setCardBackgroundColor(parseColor("#FFFFFFFF")) // white
+                }
             }
-
             item.partners.forEach {
                 binding.imageScroll.visibility = View.VISIBLE
                 val itemBinding = ItemSheetRouteFriendItemBinding.inflate(LayoutInflater.from(context))
@@ -74,11 +77,11 @@ class BottomSheetAdapter :
 
     companion object DiffCallback : DiffUtil.ItemCallback<SheetItem>() {
         override fun areItemsTheSame(oldItem: SheetItem, newItem: SheetItem): Boolean {
-            return oldItem === newItem
+            return oldItem.name === newItem.name
         }
 
         override fun areContentsTheSame(oldItem: SheetItem, newItem: SheetItem): Boolean {
-            return oldItem == newItem
+            return oldItem.done == newItem.done
         }
     }
 }
