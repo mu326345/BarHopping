@@ -12,6 +12,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.maps.android.SphericalUtil
+import com.yuyu.barhopping.Application
+import com.yuyu.barhopping.R
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.network.DirectionApi
@@ -179,7 +181,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                         _currentStep.value = nextStep
                     }
                 } else {
-                    _error.value = "destination is empty"
+                    _error.value = "請先選擇目的地喔！"
                 }
             }
             StepTypeFilter.STEP3 -> {
@@ -191,7 +193,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
                 if (readyToRoute?.points?.size ?: 0 > 0) {
                     _currentStep.value = nextStep
                 } else {
-                    _error.value = "please click marker to select"
+                    _error.value = "請點選地標，安排路徑喔！"
                 }
             }
         }
@@ -496,7 +498,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     /**
      * update user location
      */
-    fun updatePartnerLocation(location: Location) {
+    private fun updatePartnerLocation(location: Location) {
         UserManager.user?.let { user ->
             user.onRoute?.let {
                 db.collection("Routes")
@@ -625,8 +627,8 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
             currentLatLng, nextMarketLatLng
         ).toInt()
 
-        return distance <= 20
-//        return true
+//        return distance <= 20
+        return true
     }
 
     // 1.3.0 flow gogo

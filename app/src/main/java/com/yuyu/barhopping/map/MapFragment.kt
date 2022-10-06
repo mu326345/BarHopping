@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -41,6 +43,7 @@ import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.android.material.snackbar.Snackbar
 import com.google.common.collect.MapDifference
 import com.yuyu.barhopping.*
 import com.yuyu.barhopping.R
@@ -139,8 +142,7 @@ class MapFragment : Fragment(),
 
                         R.id.previous_step_btn3 -> viewModel.setReadyToRouteStep(StepTypeFilter.STEP2)
 
-                        R.id.start_game_btn -> {
-                            viewModel.newRoute() }
+                        R.id.start_game_btn -> viewModel.newRoute()
                     }
                 }
             },
@@ -149,9 +151,10 @@ class MapFragment : Fragment(),
                     if (focus) {
                         context?.let {
                             val intent = Autocomplete.IntentBuilder(
-                                AutocompleteActivityMode.FULLSCREEN,
+                                AutocompleteActivityMode.OVERLAY,
                                 fields
-                            ).build(it)
+                            ).setCountry("TW")
+                                .build(it)
 
                             when (view?.id) {
                                 R.id.destination_edit -> {
@@ -388,7 +391,13 @@ class MapFragment : Fragment(),
 
         viewModel.error.observe(viewLifecycleOwner) {
             it?.let {
-                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                val snackbar = Snackbar.make(binding.snackbarLayout, it, Snackbar.LENGTH_SHORT)
+                val view = snackbar.view
+                val params = view.layoutParams as CoordinatorLayout.LayoutParams
+                params.gravity = Gravity.CENTER
+                view.layoutParams = params
+                snackbar.show()
+
                 viewModel.onErrorDisplayed()
             }
         }
@@ -404,7 +413,9 @@ class MapFragment : Fragment(),
         return binding.root
     }
 
-
+    /**
+     * 路線設定
+     */
     private fun initRouteUi(onRoute: Boolean) {
         map?.clear()
         binding.stepRecycler.scrollToPosition(0)
@@ -477,6 +488,9 @@ class MapFragment : Fragment(),
         stopLocationUpdates()
     }
 
+    /**
+     * 地圖設定
+     */
     private fun resetMap() {
         map?.setOnPoiClickListener(null)
         map?.clear()
@@ -495,6 +509,17 @@ class MapFragment : Fragment(),
         startLocationUpdates()
 
         viewModel.checkState()
+        initMapFirstLocation()
+    }
+
+    private fun initMapFirstLocation() {
+        val taiwan = LatLng(23.929964280259153, 121.09061838278878)
+
+        map?.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                taiwan, FIRST_ZOOM.toFloat()
+            )
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -896,6 +921,7 @@ class MapFragment : Fragment(),
         private const val DESTINATION_REQUEST_CODE = 1
 
         private const val DEFAULT_ZOOM = 15
+        private const val FIRST_ZOOM = 7
         private const val DISPLACEMENT = 0.00009
         private const val DEFAULT_Z_INDEX = 1.0f
         val fields = listOf(Place.Field.NAME, Place.Field.ID, Place.Field.LAT_LNG)

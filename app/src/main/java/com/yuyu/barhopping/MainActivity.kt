@@ -1,9 +1,12 @@
 package com.yuyu.barhopping
 
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -35,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         val bottomNavView: MeowBottomNavigation = binding.bottomNavView
 
         bottomNavView.apply {
-
             add(MeowBottomNavigation.Model(CurrentFragmentType.MAP.index, R.drawable.ic_map_24))
             add(MeowBottomNavigation.Model(CurrentFragmentType.RANK.index, R.drawable.ic_champ_24))
             add(MeowBottomNavigation.Model(CurrentFragmentType.POST.index, R.drawable.ic_add_24))

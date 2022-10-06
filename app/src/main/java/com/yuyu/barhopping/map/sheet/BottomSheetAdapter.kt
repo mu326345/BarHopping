@@ -50,7 +50,10 @@ class BottomSheetAdapter :
                 2 -> R.drawable.family_logo_2
                 3 -> R.drawable.hi_life_logo_2
                 4 -> R.drawable.ok_logo_2
-                else -> Log.v("yy", "market unknown type")
+                else -> {
+                    R.drawable.seven_logo_2
+                    Log.v("yy", "market unknown type")
+                }
             }
             binding.marketIcon.setImageResource(resId)
             binding.executePendingBindings()

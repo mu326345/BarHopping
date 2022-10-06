@@ -55,7 +55,9 @@ class PostFragment : Fragment() {
             val intent = Autocomplete.IntentBuilder(
                 AutocompleteActivityMode.FULLSCREEN,
                 MapFragment.fields
-            ).build(requireContext())
+            ).setCountry("TW")
+                .build(requireContext())
+
             startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
         }
 

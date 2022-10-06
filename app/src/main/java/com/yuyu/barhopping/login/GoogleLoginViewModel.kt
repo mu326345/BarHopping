@@ -10,18 +10,17 @@ import com.google.firebase.ktx.Firebase
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.User
 import com.yuyu.barhopping.repository.FirebaseRepository
-import com.yuyu.barhopping.repository.datasource.FirebaseDataSource
 
 class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     private val db = Firebase.firestore
 
-    private val _navigateToMap = MutableLiveData<Boolean>()
-    val navigateToMap: LiveData<Boolean>
+    private val _navigateToMap = MutableLiveData<Boolean?>()
+    val navigateToMap: LiveData<Boolean?>
         get() = _navigateToMap
 
     fun checkUser(userId: String, user:User) {
-        db.collection("User")
+        db.collection(USER)
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
             .addOnSuccessListener {
@@ -43,16 +42,8 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
             }
     }
 
-//    fun getUserDetail(userId: String) {
-//        repository.getUserDetail(object : FirebaseDataSource.UserCallBack {
-//            override fun onResult(user: User) {
-//                UserManager.user = user
-//            }
-//        }, userId)
-//    }
-
-    fun addUser(userId: String, user: User) {
-        db.collection("User")
+    private fun addUser(userId: String, user: User) {
+        db.collection(USER)
             .document(userId)
             .set(user)
             .addOnSuccessListener {
@@ -67,5 +58,9 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun navigateNull() {
         _navigateToMap.value = null
+    }
+
+    companion object {
+        const val USER = "User"
     }
 }

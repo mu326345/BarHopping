@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -25,6 +27,7 @@ import com.google.android.gms.maps.MapView
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.yuyu.barhopping.databinding.FragmentQrCodeScannerBinding
+import com.yuyu.barhopping.explore.ExploreFragmentDirections
 import com.yuyu.barhopping.map.MapViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -38,6 +41,9 @@ class QrCodeScannerFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cameraExecutor = Executors.newSingleThreadExecutor()
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            findNavController().navigate(QrCodeDialogFragmentDirections.navigateToMapFragment())
+        }
     }
 
     override fun onCreateView(

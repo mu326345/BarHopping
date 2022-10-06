@@ -57,8 +57,9 @@ class GoogleLoginFragment : Fragment() {
         }
 
         viewModel.navigateToMap.observe(viewLifecycleOwner) {
-            if(it) {
+            if(it != null && it == true) {
                 findNavController().navigate(GoogleLoginFragmentDirections.navigateToMapFragment())
+                viewModel.navigateNull()
             }
         }
 
@@ -70,7 +71,7 @@ class GoogleLoginFragment : Fragment() {
         (activity as MainActivity).showBottomNav()
     }
 
-    fun signIn() {
+    private fun signIn() {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
@@ -86,7 +87,7 @@ class GoogleLoginFragment : Fragment() {
         }
     }
 
-    fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
 
