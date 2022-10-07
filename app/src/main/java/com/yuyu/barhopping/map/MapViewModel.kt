@@ -337,49 +337,51 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
         return distance
     }
 
-    fun getAllMarketResult(paths: List<LatLng>) {
+    private fun getAllMarketResult(paths: List<LatLng>) {
         viewModelScope.launch {
             try {
-
                 val middlePoint = paths[paths.size / 2]
                 val radiusA = SphericalUtil.computeDistanceBetween(paths[0], middlePoint)
                 val radiusB =
                     SphericalUtil.computeDistanceBetween(paths[paths.size - 1], middlePoint)
                 val radius = max(radiusA, radiusB).toInt()
 
-
-                val items = mutableListOf<MarketMarkerDataItem>()
-
-                for (market in MarketName.values()) {
-                    val result = DirectionApi.retrofitService.getNearbyMarket(
-                        "${middlePoint.latitude},${middlePoint.longitude}",
-                        radius,
-                        market.value //"7-11, 全家" keyword
-                    )
-//                    currentMarketsList[market] = result.results
-                    Log.w("yy", "result=${result.results}")
-                    for (marketResult in result.results) {
-
-                        val item = MarketMarkerDataItem(
-                            market,
-                            marketResult.place_id,
-                            MarkerOptions()
-                                .position(
-                                    LatLng(
-                                        marketResult.geometry.location.lat,
-                                        marketResult.geometry.location.lng
-                                    )
-                                )
-                                .title(marketResult.name)
-                                .alpha(0.6f)
-                                .visible(false)
+                // 縮限目的地範圍
+                if (radius > 1300) {
+                    _error.value = "目的地有點遠喔～換個近點位置吧"
+                    setReadyToRouteStep(StepTypeFilter.STEP1)
+                } else {
+                    val items = mutableListOf<MarketMarkerDataItem>()
+                    for (market in MarketName.values()) {
+                        val result = DirectionApi.retrofitService.getNearbyMarket(
+                            "${middlePoint.latitude},${middlePoint.longitude}",
+                            radius,
+                            market.value //"7-11, 全家" keyword
                         )
-                        items.add(item)
-                    }
-                }
+//                    currentMarketsList[market] = result.results
+                        Log.w("yy", "result=${result.results}")
+                        for (marketResult in result.results) {
 
-                Log.i("yy", "items=${items}")
-                _marketMarkers.value = items
+                            val item = MarketMarkerDataItem(
+                                market,
+                                marketResult.place_id,
+                                MarkerOptions()
+                                    .position(
+                                        LatLng(
+                                            marketResult.geometry.location.lat,
+                                            marketResult.geometry.location.lng
+                                        )
+                                    )
+                                    .title(marketResult.name)
+                                    .alpha(0.4f)
+                                    .visible(false)
+                            )
+                            items.add(item)
+                        }
+                    }
+                    Log.i("yy", "items=${items}")
+                    _marketMarkers.value = items
+                }
                 onNavigateProgress()
 
             } catch (e: NullPointerException) {
@@ -629,7 +631,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
 // TODO: 找地方使用
-    fun canTakePhoto(currentLatLng: LatLng, nextMarketLatLng: LatLng): Boolean {
+private fun canTakePhoto(currentLatLng: LatLng, nextMarketLatLng: LatLng): Boolean {
         val distance = SphericalUtil.computeDistanceBetween(
             currentLatLng, nextMarketLatLng
         ).toInt()

@@ -5,18 +5,23 @@
       <map>
         <entry key="app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.2045" />
         <entry key="app/src/main/res/drawable/ic_baseline_wine_bar_24.xml" value="0.2975" />
-        <entry key="app/src/main/res/layout/bottom_sheet_route_detail.xml" value="0.2497733454215775" />
+        <entry key="app/src/main/res/drawable/set_all_corner.xml" value="0.183" />
+        <entry key="app/src/main/res/drawable/set_bottom_sheet_corner.xml" value="0.2975" />
+        <entry key="app/src/main/res/layout/bottom_sheet_route_detail.xml" value="0.2863247863247863" />
+        <entry key="app/src/main/res/layout/fragment_all_success_dialog.xml" value="0.14322359982898675" />
         <entry key="app/src/main/res/layout/fragment_google_login.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_qr_code_dialog.xml" value="0.16545784224841342" />
         <entry key="app/src/main/res/layout/fragment_qr_code_scanner.xml" value="0.26054732041049034" />
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.16545784224841342" />
+        <entry key="app/src/main/res/layout/fragment_route_detail.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.2419837537409149" />
-        <entry key="app/src/main/res/layout/item_sheet_route_detail.xml" value="0.14322359982898675" />
+        <entry key="app/src/main/res/layout/item_sheet_route_detail.xml" value="0.5681186283595923" />
         <entry key="app/src/main/res/layout/item_sheet_route_friend_item.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/item_step1.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/item_step2.xml" value="0.6191011235955056" />
         <entry key="app/src/main/res/layout/message_snake.xml" value="0.24112868747327917" />
+        <entry key="app/src/main/res/layout/success_dialog_fragment.xml" value="0.14322359982898675" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/bar_hopping_logo.xml" value="0.2045" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/bar_hopping_logo_round.xml" value="0.2045" />
       </map>

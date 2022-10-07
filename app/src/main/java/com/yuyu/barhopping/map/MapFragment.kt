@@ -172,6 +172,8 @@ class MapFragment : Fragment(),
         binding.gameOverBtn.setOnClickListener {
             map?.clear()
             viewModel.clearUserCurrentRouteId()
+            viewModel.setReadyToRouteStep(StepTypeFilter.STEP1)
+            dismissCameraAndHint()
         }
 
         // camera and QR code
@@ -322,6 +324,7 @@ class MapFragment : Fragment(),
                                 viewModel.setDestinationPoint(point.name, point.latLng)
                             }
                         })
+                        viewModel.onCanTakePhoto()
                     }
 
                     StepTypeFilter.STEP2 -> {
@@ -403,9 +406,9 @@ class MapFragment : Fragment(),
 
         viewModel.canTakePhoto.observe(viewLifecycleOwner) {
             if (it) {
-                binding.cameraCard.visibility = View.VISIBLE
-                binding.takePhotoCard.visibility = View.VISIBLE
-                animateX(binding.takePhotoCard)
+                showCameraAndHint()
+            } else {
+                dismissCameraAndHint()
             }
         }
 
@@ -705,7 +708,7 @@ class MapFragment : Fragment(),
         val lineOption = PolylineOptions()
         lineOption.addAll(pathLatlngs)
         lineOption.width(10f)
-        lineOption.color(Color.BLUE)
+        lineOption.color(resources.getColor(R.color.huang_liu))
         lineOption.geodesic(true)
         polyline = map?.addPolyline(lineOption)!!
     }
@@ -899,7 +902,8 @@ class MapFragment : Fragment(),
     }
 
     private fun animateBottomSheetArrows(slideOffset: Float) {
-        binding.detailSheet.bottleImg.rotation = slideOffset * 180
+        binding.detailSheet.bottleRImg.rotation = slideOffset * 180
+        binding.detailSheet.bottleLImg.rotation = slideOffset * -180
     }
 
     private fun animateY(view: View) {
@@ -927,7 +931,7 @@ class MapFragment : Fragment(),
     private fun transitionBottomSheetBackgroundColor(slideOffset: Float) {
         val colorFrom = resources.getColor(R.color.white)
         val colorTo = resources.getColor(R.color.animate1)
-        binding.detailSheet.root.setBackgroundColor(interpolateColor(slideOffset, colorFrom, colorTo))
+        binding.detailSheet.animateLayout.setBackgroundColor(interpolateColor(slideOffset, colorFrom, colorTo))
     }
 
     private fun interpolateColor(fraction: Float, startValue: Int, endValue: Int): Int {
@@ -943,6 +947,16 @@ class MapFragment : Fragment(),
                 (startR + (fraction * (endR - startR)).toInt() shl 16) or
                 (startG + (fraction * (endG - startG)).toInt() shl 8) or
                 startB + (fraction * (endB - startB)).toInt()
+    }
+    private fun showCameraAndHint() {
+        binding.cameraCard.visibility = View.VISIBLE
+        binding.takePhotoCard.visibility = View.VISIBLE
+        animateX(binding.takePhotoCard)
+    }
+
+    private fun dismissCameraAndHint() {
+        binding.cameraCard.visibility = View.GONE
+        binding.takePhotoCard.visibility = View.GONE
     }
 
     private val onMyLocationClickListener = object : GoogleMap.OnMyLocationClickListener {

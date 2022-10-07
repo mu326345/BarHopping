@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/bottomSheet"
-    android:maxHeight="500dp"
-    app:behavior_hideable="false"
-    app:behavior_peekHeight="110dp"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-    app:layout_constraintBottom_toBottomOf="parent">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
@@ -23,7 +17,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:background="@drawable/set_bottom_sheet_corner"
+        android:maxHeight="450dp"
+        app:behavior_hideable="false"
+        app:behavior_peekHeight="110dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline1"
@@ -35,17 +33,17 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/white"
-            app:layout_constraintBottom_toBottomOf="@id/guideline1"
+            app:layout_constraintBottom_toTopOf="@id/line"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/market_icon_card"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 app:cardCornerRadius="90dp"
+                app:layout_constraintEnd_toStartOf="@id/next_market_tv"
+                app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
@@ -59,7 +57,7 @@
             </androidx.cardview.widget.CardView>
 
             <ImageView
-                android:id="@+id/bottle_img"
+                android:id="@+id/bottle_r_img"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginTop="8dp"
@@ -71,15 +69,29 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/market_icon_card" />
 
+            <ImageView
+                android:id="@+id/bottle_l_img"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:src="@drawable/ic_baseline_wine_bar_24"
+                app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/market_icon_card" />
+
             <TextView
                 android:id="@+id/next_market_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
+                android:padding="8dp"
                 android:text="@{viewModel.nextProgressName}"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/market_icon_card"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/market_icon_card"
                 app:layout_constraintTop_toTopOf="@id/market_icon_card"
                 tools:text="7-Eleven" />
@@ -90,7 +102,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/schedule"
-                app:layout_constraintStart_toStartOf="@id/market_icon_card"
+                app:layout_constraintEnd_toStartOf="@+id/total_tv"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/market_icon_card" />
 
             <TextView
@@ -108,7 +123,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/total"
-                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/schedule_tv"
                 app:layout_constraintTop_toTopOf="@id/schedule_tv" />
 
             <TextView
@@ -141,15 +158,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guideline1" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/route_detail_recycler"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/animate_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/line" />
+            app:layout_constraintTop_toBottomOf="@id/line">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/route_detail_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
