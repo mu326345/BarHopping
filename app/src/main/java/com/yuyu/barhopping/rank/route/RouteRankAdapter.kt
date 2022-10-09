@@ -10,7 +10,7 @@ import com.yuyu.barhopping.data.RouteStore
 import com.yuyu.barhopping.databinding.ItemRouteRankBinding
 import com.yuyu.barhopping.rank.route.RouteRankAdapter.*
 
-class RouteRankAdapter(val onClickListener: OnClickListener): ListAdapter<NewRouteStore, RouteRankViewHolder>(DiffCallback) {
+class RouteRankAdapter(private val onClickListener: OnClickListener): ListAdapter<NewRouteStore, RouteRankViewHolder>(DiffCallback) {
 
     class RouteRankViewHolder(private var binding: ItemRouteRankBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(routeStore: NewRouteStore, viewModel: RouteRankViewModel, position: Int) {

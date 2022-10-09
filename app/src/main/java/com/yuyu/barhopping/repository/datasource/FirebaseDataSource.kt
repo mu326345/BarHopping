@@ -7,6 +7,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.yuyu.barhopping.CommonField
 import com.yuyu.barhopping.data.*
 import com.yuyu.barhopping.map.MapViewModel
 import com.yuyu.barhopping.repository.FirebaseRepository
@@ -79,7 +80,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getUserData(callBack: UserCallBack, userId: String) {
-        db.collection(USER)
+        db.collection(CommonField.USER)
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
             .addOnSuccessListener { userData ->
@@ -96,8 +97,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getRouteData(callBack: RouteCallBack, routeId: String) {
-        db.collection(ROUTES)
-            .whereEqualTo(ROUTE_ID, routeId)
+        db.collection(CommonField.ROUTES)
+            .whereEqualTo(CommonField.ROUTE_ID, routeId)
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
@@ -114,9 +115,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getUserRouteImageData(callBack: UserRouteImagesCallBack, routeId: String) {
-        db.collection(ROUTES)
+        db.collection(CommonField.ROUTES)
             .document(routeId)
-            .collection(IMAGES)
+            .collection(CommonField.IMAGES)
             .addSnapshotListener { snapshot, e ->
                 val imagesList = mutableListOf<OnRouteUserImages>()
 
@@ -143,9 +144,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
-        db.collection(ROUTES)
+        db.collection(CommonField.ROUTES)
             .document(routeId)
-            .collection(PARTNERS)
+            .collection(CommonField.PARTNERS)
             .addSnapshotListener { snapshot, e ->
                 val userPartnerList = mutableListOf<Partner>()
 
@@ -172,9 +173,9 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getOnRoutePartnersData(callBack: UserRoutePartnerCallBack, routeId: String) {
-        db.collection(ROUTES)
+        db.collection(CommonField.ROUTES)
             .document(routeId)
-            .collection(PARTNERS)
+            .collection(CommonField.PARTNERS)
             .get()
             .addOnSuccessListener { documents ->
                 val userPartnerList = mutableListOf<Partner>()
@@ -191,8 +192,8 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun getPointListData(callBack: PointCallBack, points: List<String>) {
-        db.collection(POINTS)
-            .whereIn(MARKET_ID, points)
+        db.collection(CommonField.POINTS)
+            .whereIn(CommonField.MARKET_ID, points)
             .get()
             .addOnSuccessListener { documents ->
                 val unOrderList = mutableListOf<PointData>()
@@ -220,7 +221,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapBarData(callBack: BarCallBack) {
-        db.collection(BAR_POST)
+        db.collection(CommonField.BAR_POST)
             .addSnapshotListener { snapshot, e ->
             val list = mutableListOf<BarPost>()
 
@@ -243,7 +244,7 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
     }
 
     private fun snapRouteCommendData(callBack: RouteCommendCallBack) {
-        db.collection(ROUTE_COMMEND).addSnapshotListener { snapshot, e ->
+        db.collection(CommonField.ROUTE_COMMEND).addSnapshotListener { snapshot, e ->
             val list = mutableListOf<RouteCommend>()
             if (e != null) {
                 Log.w(ContentValues.TAG, "Listen failed.", e)
@@ -261,20 +262,5 @@ class FirebaseDataSource(context: Context) : FirebaseRepository {
                 callBack.onResult(list)
             }
         }
-    }
-
-
-
-    companion object {
-
-        private const val USER = "User"
-        private const val ROUTES = "Routes"
-        private const val ROUTE_ID = "id"
-        private const val IMAGES = "Images"
-        private const val PARTNERS = "Partners"
-        private const val POINTS = "Points"
-        private const val MARKET_ID = "marketId"
-        private const val BAR_POST = "BarPost"
-        private const val ROUTE_COMMEND = "RouteCommend"
     }
 }

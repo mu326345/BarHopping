@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.yuyu.barhopping.CommonField
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.User
 import com.yuyu.barhopping.repository.FirebaseRepository
@@ -20,7 +21,7 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
         get() = _navigateToMap
 
     fun checkUser(userId: String, user:User) {
-        db.collection(USER)
+        db.collection(CommonField.USER)
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
             .addOnSuccessListener {
@@ -43,7 +44,7 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
     }
 
     private fun addUser(userId: String, user: User) {
-        db.collection(USER)
+        db.collection(CommonField.USER)
             .document(userId)
             .set(user)
             .addOnSuccessListener {
@@ -58,9 +59,5 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
 
     fun navigateNull() {
         _navigateToMap.value = null
-    }
-
-    companion object {
-        const val USER = "User"
     }
 }

@@ -2,8 +2,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".rank.route.RouteRankFragment">
-    
+
     <data>
+
         <variable
             name="viewModel"
             type="com.yuyu.barhopping.rank.route.RouteRankViewModel" />
@@ -12,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_layout"
             android:layout_width="match_parent"

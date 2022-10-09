@@ -1,5 +1,8 @@
 package com.yuyu.barhopping
 
+import android.animation.Animator
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -20,6 +23,7 @@ import com.yuyu.barhopping.map.MapFragment
 import com.yuyu.barhopping.map.qrcode.QrCodeScannerFragment
 import com.yuyu.barhopping.map.qrcode.QrCodeScannerFragmentDirections
 import com.yuyu.barhopping.util.CurrentFragmentType
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -143,5 +147,31 @@ class MainActivity : AppCompatActivity() {
 
     fun showBottomNav() {
         binding.bottomNavView.visibility = View.VISIBLE
+    }
+
+    fun animateHideBottomNav(listener: Animator.AnimatorListener) {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavView,
+            View.TRANSLATION_Y,
+            0f,
+            binding.bottomNavView.height.toFloat()
+        ).apply {
+            addListener(listener)
+            duration = 500
+            start()
+        }
+    }
+
+    fun animateShowBottomNav(listener: Animator.AnimatorListener) {
+        ObjectAnimator.ofFloat(
+            binding.bottomNavView,
+            View.TRANSLATION_Y,
+            binding.bottomNavView.height.toFloat(),
+            0f
+        ).apply {
+            addListener(listener)
+            duration = 500
+            start()
+        }
     }
 }

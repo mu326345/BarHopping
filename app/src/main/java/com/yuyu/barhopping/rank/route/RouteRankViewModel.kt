@@ -6,8 +6,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.yuyu.barhopping.CommonField
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.data.NewRouteStore
 import com.yuyu.barhopping.data.RouteStore
@@ -29,7 +31,7 @@ class RouteRankViewModel : ViewModel() {
 
     val collectionCheckBox = MutableLiveData<Boolean>()
 
-//    lateinit var collectionList: List<String>
+    //    lateinit var collectionList: List<String>
     private val _collectionList = MutableLiveData<List<String>>()
     val collectionList: LiveData<List<String>>
         get() = _collectionList
@@ -45,7 +47,7 @@ class RouteRankViewModel : ViewModel() {
         val listener = CompoundButton.OnCheckedChangeListener { view, isCheck ->
             val pos = view.tag as Int
 
-            if(routeItem.value?.size ?: 0 > 0) {
+            if (routeItem.value?.size ?: 0 > 0) {
                 routeItem.value?.get(pos)?.id?.let {
                     if (isCheck) {
                         uploadRouteCollection(it)
@@ -60,7 +62,7 @@ class RouteRankViewModel : ViewModel() {
 
     private fun getUserCollection() {
         UserManager.user?.id?.let {
-            db.collection("User")
+            db.collection(CommonField.USER)
                 .document(it)
                 .collection("routeCollection")
                 .get()
@@ -68,7 +70,7 @@ class RouteRankViewModel : ViewModel() {
                     val collection = mutableListOf<String>()
 
                     if (document != null) {
-                        for(doc in document) {
+                        for (doc in document) {
                             collection.add(doc.id)
                         }
                     } else {
@@ -103,12 +105,13 @@ class RouteRankViewModel : ViewModel() {
     }
 
     private fun snapRouteData() {
-        db.collection("Routes").addSnapshotListener { snapshot, e ->
+        val docRef = db.collection(CommonField.ROUTES)
+        docRef.orderBy(CommonField.TIME, Query.Direction.DESCENDING).limit(10)
+            .addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w("RouteRankViewModel", "Listen failed.", e)
                 return@addSnapshotListener
             }
-
             if (snapshot != null) {
                 for (x in snapshot.documents) {
                     val routeList = RouteStore(
@@ -133,19 +136,17 @@ class RouteRankViewModel : ViewModel() {
                     list.add(routeList)
                 }
                 _routeItem.value = list
-
-                // TODO: 篩選數量 or 評分排行 submit this
             }
         }
     }
 
-    fun uploadRouteCollection(routeId: String) {
+    private fun uploadRouteCollection(routeId: String) {
         UserManager.user?.id?.let {
 
             val id = HashMap<String, String>()
-            id["id"] = routeId
+            id[CommonField.ROUTE_ID] = routeId
 
-            db.collection("User")
+            db.collection(CommonField.USER)
                 .document(it)
                 .collection("routeCollection")
                 .document(routeId)
@@ -153,15 +154,15 @@ class RouteRankViewModel : ViewModel() {
                 .addOnSuccessListener {
                     Log.d(TAG, "DocumentSnapshot successfully written!")
                 }
-                .addOnFailureListener {
-                    e -> Log.w(TAG, "Error writing document", e)
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Error writing document", e)
                 }
         }
     }
 
     fun deleteRouteCollection(routeId: String) {
         UserManager.user?.id?.let {
-            db.collection("User")
+            db.collection(CommonField.USER)
                 .document(it)
                 .collection("routeCollection")
                 .document(routeId)

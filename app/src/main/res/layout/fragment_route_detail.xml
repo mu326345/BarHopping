@@ -171,23 +171,6 @@
             app:layout_constraintTop_toTopOf="@id/route_length_tv"
             app:length="@{viewModel.routeStore.length}" />
 
-        <TextView
-            android:id="@+id/degree_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/degree"
-            app:layout_constraintStart_toStartOf="@+id/market_number_tv"
-            app:layout_constraintTop_toBottomOf="@id/route_length_tv" />
-
-        <TextView
-            android:id="@+id/degree_number_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5"
-            app:layout_constraintStart_toEndOf="@id/degree_tv"
-            app:layout_constraintTop_toTopOf="@id/degree_tv" />
-
         <Button
             android:id="@+id/go_navigate"
             style="@style/step_button"
@@ -195,7 +178,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:text="@string/go_navigate"
-            app:layout_constraintBottom_toBottomOf="@+id/degree_number_tv"
+            app:layout_constraintBottom_toBottomOf="@+id/route_length_tv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/market_number_tv" />
 
@@ -204,12 +187,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="140dp"
+            android:layout_marginBottom="32dp"
             android:text="@string/detail_hint"
             android:textColor="@color/gray"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@id/degree_tv"
-            app:layout_constraintTop_toBottomOf="@id/degree_tv" />
+            app:layout_constraintStart_toStartOf="@id/route_length_tv"
+            app:layout_constraintTop_toBottomOf="@id/length_tv" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
