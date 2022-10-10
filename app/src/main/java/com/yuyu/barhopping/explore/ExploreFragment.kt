@@ -18,6 +18,7 @@ import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentExploreBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
+import com.yuyu.barhopping.map.MapFragmentDirections
 
 
 class ExploreFragment : Fragment() {
@@ -40,7 +41,7 @@ class ExploreFragment : Fragment() {
         val recyclerLayout = binding.recyclerLayout
         binding.recyclerLayout.adapter = adapter
         recyclerLayout.layoutManager =
-                StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
         recyclerLayout.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             var canHide = true
             var canShow = true
@@ -91,6 +92,7 @@ class ExploreFragment : Fragment() {
                 }
             }
         })
+        viewModel.navigateToProgress()
 
         binding.marqueeTv.isSelected = true
 
@@ -98,12 +100,18 @@ class ExploreFragment : Fragment() {
             findNavController().navigate(ExploreFragmentDirections.navigateToClusterFragment())
         }
 
-//        viewModel.barItem.observe(viewLifecycleOwner) {
-//            adapter.submitList(it)
-//        }
-
         viewModel.newBarItem.observe(viewLifecycleOwner) {
             adapter.submitList(it)
+            viewModel.onNavigateProgress()
+        }
+
+        viewModel.navigateToProgress.observe(viewLifecycleOwner) { isProgressBar ->
+            if (isProgressBar) {
+                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFragment())
+
+            } else {
+                findNavController().popBackStack()
+            }
         }
 
         return binding.root

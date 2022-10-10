@@ -1,16 +1,17 @@
 package com.yuyu.barhopping.profile
 
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.yuyu.barhopping.Application
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.UserManager
 import com.yuyu.barhopping.databinding.FragmentProfileBinding
-import com.yuyu.barhopping.databinding.FragmentProgressBarBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
 
 class ProfileFragment : Fragment() {
@@ -24,6 +25,7 @@ class ProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
 
         binding = FragmentProfileBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -31,7 +33,13 @@ class ProfileFragment : Fragment() {
         binding.user = UserManager
         binding.viewModel = viewModel
 
+        binding.logoutTv.setOnClickListener {
+            if (prefs.contains("userId")) {
+                prefs.edit().remove("userId").apply()
+            }
+            findNavController().navigate(R.id.navigate_to_login_fragment)
+        }
+
         return binding.root
     }
-
 }

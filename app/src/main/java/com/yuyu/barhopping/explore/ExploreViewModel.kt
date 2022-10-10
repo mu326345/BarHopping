@@ -31,6 +31,10 @@ class ExploreViewModel(val repository: FirebaseRepository?) : ViewModel() {
     val collectionList: LiveData<List<String>>
         get() = _collectionList
 
+    private val _navigateToProgress = MutableLiveData<Boolean>()
+    val navigateToProgress: LiveData<Boolean>
+        get() = _navigateToProgress
+
     init {
         getBarDetail()
         getUserCollection()
@@ -140,6 +144,14 @@ class ExploreViewModel(val repository: FirebaseRepository?) : ViewModel() {
                 .addOnFailureListener { e -> Log.w(TAG, "Error deleting document", e) }
         }
         getUserCollection()
+    }
+
+    fun navigateToProgress() {
+        _navigateToProgress.value = true
+    }
+
+    fun onNavigateProgress() {
+        _navigateToProgress.value = false
     }
 
     companion object {

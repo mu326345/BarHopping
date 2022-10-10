@@ -20,7 +20,7 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
     val navigateToMap: LiveData<Boolean?>
         get() = _navigateToMap
 
-    fun checkUser(userId: String, user:User) {
+    fun checkUser(userId: String, newUserObj:User?) {
         db.collection(CommonField.USER)
             .whereEqualTo(FieldPath.documentId(), userId)
             .get()
@@ -35,7 +35,9 @@ class GoogleLoginViewModel(val repository: FirebaseRepository) : ViewModel() {
 
                 } else {
                     Log.v("yy", "使用者不存在")
-                    addUser(userId, user)
+                    newUserObj?.let {
+                        addUser(userId, it)
+                    }
                 }
             }
             .addOnFailureListener {

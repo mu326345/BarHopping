@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.databinding.FragmentRouteRankBinding
+import com.yuyu.barhopping.map.MapFragmentDirections
 
 class RouteRankFragment : Fragment() {
 
@@ -60,26 +61,28 @@ class RouteRankFragment : Fragment() {
                 } else if (dy < 0 && canShow) {
                     (activity as MainActivity).animateShowBottomNav(
                         object : Animator.AnimatorListener {
-                        override fun onAnimationStart(p0: Animator?) {
+                            override fun onAnimationStart(p0: Animator?) {
 //                            TODO("Not yet implemented")
-                        }
+                            }
 
-                        override fun onAnimationEnd(p0: Animator?) {
-                            canHide = true
-                        }
+                            override fun onAnimationEnd(p0: Animator?) {
+                                canHide = true
+                            }
 
-                        override fun onAnimationCancel(p0: Animator?) {
+                            override fun onAnimationCancel(p0: Animator?) {
 //                            TODO("Not yet implemented")
-                        }
+                            }
 
-                        override fun onAnimationRepeat(p0: Animator?) {
+                            override fun onAnimationRepeat(p0: Animator?) {
 //                            TODO("Not yet implemented")
-                        }
-                    })
+                            }
+                        })
                     canShow = false
                 }
             }
         })
+
+        viewModel.navigateToProgress()
 
         binding.recyclerLayout.adapter = RouteRankAdapter(
             RouteRankAdapter.OnClickListener {
@@ -88,6 +91,7 @@ class RouteRankFragment : Fragment() {
 
         viewModel.newRouteItem.observe(viewLifecycleOwner) {
             (binding.recyclerLayout.adapter as RouteRankAdapter).submitList(it)
+            viewModel.onNavigateProgress()
         }
 
         viewModel.navigateToDetail.observe(viewLifecycleOwner) {
@@ -98,6 +102,15 @@ class RouteRankFragment : Fragment() {
                     )
                 )
                 viewModel.onDetailNavigated()
+            }
+        }
+
+        viewModel.navigateToProgress.observe(viewLifecycleOwner) { isProgressBar ->
+            if (isProgressBar) {
+                findNavController().navigate(MapFragmentDirections.navigateToProgressBarDialogFragment())
+
+            } else {
+                findNavController().popBackStack()
             }
         }
 

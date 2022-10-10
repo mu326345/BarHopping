@@ -30,6 +30,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/guideline2" />
 
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/e_huang"
+            app:layout_constraintTop_toTopOf="@id/guideline2" />
+
         <com.airbnb.lottie.LottieAnimationView
             android:layout_width="344dp"
             android:layout_height="496dp"

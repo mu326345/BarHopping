@@ -2,7 +2,10 @@ package com.yuyu.barhopping.login
 
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.os.Handler
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +20,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.yuyu.barhopping.Application
-import com.yuyu.barhopping.BuildConfig
 import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.User
@@ -32,6 +34,8 @@ class GoogleLoginFragment : Fragment() {
     private val viewModel by viewModels<GoogleLoginViewModel> {
         ViewModelFactory((context?.applicationContext as Application).repository)
     }
+    private lateinit var prefs: SharedPreferences
+    var userId = ""
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +47,21 @@ class GoogleLoginFragment : Fragment() {
         binding = FragmentGoogleLoginBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(requireContext())
+
+        if(checkUserSignInBefore()) { // prefs有資料
+            binding.signInButton.visibility = View.GONE
+            val handler = Handler()
+            handler.postDelayed(Runnable {
+                viewModel.checkUser(userId, null)
+            }, 1500)
+        } else {
+            binding.progress.visibility = View.GONE
+            binding.signInButton.setOnClickListener {
+                signIn()
+            }
+        }
+
         val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(getString(R.string.server_client_id))
 //            .requestId()
@@ -51,10 +70,6 @@ class GoogleLoginFragment : Fragment() {
             .build()
 
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), googleSignInOptions)
-
-        binding.signInButton.setOnClickListener {
-            signIn()
-        }
 
         viewModel.navigateToMap.observe(viewLifecycleOwner) {
             if(it != null && it == true) {
@@ -101,6 +116,7 @@ class GoogleLoginFragment : Fragment() {
                     null,
                     null
                 )
+                prefs.edit().putString("userId", it.id).apply()
                 viewModel.checkUser(user.id, user)
             }
         } catch (e: ApiException) {
@@ -108,6 +124,15 @@ class GoogleLoginFragment : Fragment() {
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             Log.w(TAG, "exception=" + e.message);
+        }
+    }
+
+    private fun checkUserSignInBefore(): Boolean {
+        userId = prefs.getString("userId", "").toString()
+        if(userId.isEmpty()) {
+            return false
+        } else {
+            return true
         }
     }
 

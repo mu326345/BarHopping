@@ -32,6 +32,10 @@ class RouteRankViewModel : ViewModel() {
     val collectionList: LiveData<List<String>>
         get() = _collectionList
 
+    private val _navigateToProgress = MutableLiveData<Boolean>()
+    val navigateToProgress: LiveData<Boolean>
+        get() = _navigateToProgress
+
     init {
         snapRouteData()
         getUserCollection()
@@ -182,6 +186,14 @@ class RouteRankViewModel : ViewModel() {
 
     fun onDetailNavigated() {
         _navigateToDetail.value = null
+    }
+
+    fun navigateToProgress() {
+        _navigateToProgress.value = true
+    }
+
+    fun onNavigateProgress() {
+        _navigateToProgress.value = false
     }
 
     companion object {

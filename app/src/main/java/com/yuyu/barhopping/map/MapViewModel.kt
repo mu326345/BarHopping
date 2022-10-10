@@ -124,10 +124,6 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
     val canTakePhoto: LiveData<Boolean>
         get() = _canTakePhoto
 
-    init {
-//        checkState()
-    }
-
     fun checkState() {
         UserManager.user?.let {
             _onRoute.value = it.onRoute != null
