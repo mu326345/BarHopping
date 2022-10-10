@@ -1,5 +1,6 @@
 package com.yuyu.barhopping.post
 
+import android.animation.Animator
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
@@ -10,6 +11,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -24,6 +26,8 @@ import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.AutocompleteActivity
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.yuyu.barhopping.CommonField
+import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentPostBinding
 import com.yuyu.barhopping.map.MapFragment
@@ -53,9 +57,9 @@ class PostFragment : Fragment() {
 
         binding.addLocationEdit.setOnFocusChangeListener { view, isChange ->
             val intent = Autocomplete.IntentBuilder(
-                AutocompleteActivityMode.FULLSCREEN,
+                AutocompleteActivityMode.OVERLAY,
                 MapFragment.fields
-            ).setCountry("TW")
+            ).setCountry(CommonField.TW)
                 .build(requireContext())
 
             startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE)
@@ -69,7 +73,7 @@ class PostFragment : Fragment() {
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
-            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         }
 
         return binding.root

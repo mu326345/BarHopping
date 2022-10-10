@@ -94,7 +94,7 @@ class PostViewModel: ViewModel() {
             updatePostIdToUser(barPostRef.id)
             _success.value = true
         } else {
-            _error.value = "Please check finish your commend"
+            _error.value = "請先確定評論都有填寫喔～～"
         }
     }
 

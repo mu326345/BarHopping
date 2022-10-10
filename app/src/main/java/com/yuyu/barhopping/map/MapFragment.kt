@@ -53,6 +53,7 @@ import com.yuyu.barhopping.util.PermissionUtils.isPermissionGranted
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.w3c.dom.Comment
 
 
 class MapFragment : Fragment(),
@@ -151,7 +152,7 @@ class MapFragment : Fragment(),
                             val intent = Autocomplete.IntentBuilder(
                                 AutocompleteActivityMode.OVERLAY,
                                 fields
-                            ).setCountry("TW")
+                            ).setCountry(CommonField.TW)
                                 .build(it)
 
                             when (view?.id) {

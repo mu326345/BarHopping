@@ -15,91 +15,106 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/new_post"
+        <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:gravity="center"
-            android:text="@string/bar_post"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@id/post_image"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/post_image"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/light_gray"
-            android:scaleType="center"
-            android:src="@drawable/ic_baseline_add_a_photo_24"
-            android:text="@string/take_photo_post"
-            android:textSize="28sp"
-            app:layout_constraintBottom_toTopOf="@id/commend_edit_outlined"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/new_post" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/commend_edit_outlined"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
-            android:hint="@string/add_commend"
-            app:boxStrokeColor="@color/e_huang"
-            app:layout_constraintEnd_toEndOf="@id/post_image"
-            app:layout_constraintStart_toStartOf="@id/post_image"
-            app:layout_constraintTop_toBottomOf="@id/post_image">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/commend_edit"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="left"
-                android:text="@={viewModel.commend}" />
+                android:layout_height="match_parent">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <TextView
+                    android:id="@+id/new_post"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:text="@string/bar_post"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/post_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/add_location_outlined"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/add_locate"
-            app:boxStrokeColor="@color/e_huang"
-            app:layout_constraintEnd_toEndOf="@id/commend_edit_outlined"
-            app:layout_constraintStart_toStartOf="@id/commend_edit_outlined"
-            app:layout_constraintTop_toBottomOf="@id/commend_edit_outlined">
+                <ImageView
+                    android:id="@+id/post_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:background="@color/light_gray"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_baseline_add_a_photo_24"
+                    android:text="@string/take_photo_post"
+                    android:textSize="28sp"
+                    app:layout_constraintBottom_toTopOf="@id/commend_edit_outlined"
+                    app:layout_constraintDimensionRatio="1:1"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/new_post" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/add_location_edit"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="left"
-                android:text="@={viewModel.selectPositionName}" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/commend_edit_outlined"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:hint="@string/add_commend"
+                    app:boxStrokeColor="@color/e_huang"
+                    app:layout_constraintEnd_toEndOf="@id/post_image"
+                    app:layout_constraintStart_toStartOf="@id/post_image"
+                    app:layout_constraintTop_toBottomOf="@id/post_image">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/commend_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:text="@={viewModel.commend}" />
 
-        <Button
-            android:id="@+id/share_btn"
-            style="@style/step_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/share"
-            app:layout_constraintEnd_toEndOf="@id/add_location_outlined"
-            app:layout_constraintStart_toStartOf="@id/add_location_outlined"
-            app:layout_constraintTop_toBottomOf="@id/add_location_outlined" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/add_location_outlined"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/add_locate"
+                    app:boxStrokeColor="@color/e_huang"
+                    app:layout_constraintEnd_toEndOf="@id/commend_edit_outlined"
+                    app:layout_constraintStart_toStartOf="@id/commend_edit_outlined"
+                    app:layout_constraintTop_toBottomOf="@id/commend_edit_outlined">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/add_location_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="left"
+                        android:text="@={viewModel.selectPositionName}" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/share_btn"
+                    style="@style/step_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="@string/share"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/add_location_outlined"
+                    app:layout_constraintStart_toStartOf="@id/add_location_outlined"
+                    app:layout_constraintTop_toBottomOf="@id/add_location_outlined" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

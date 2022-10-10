@@ -18,6 +18,7 @@
         <entry key="app/src/main/res/layout/fragment_google_login.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/fragment_map.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_person_rank.xml" value="0.2778965369816161" />
+        <entry key="app/src/main/res/layout/fragment_post.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/fragment_qr_code_dialog.xml" value="0.16545784224841342" />
         <entry key="app/src/main/res/layout/fragment_qr_code_scanner.xml" value="0.26054732041049034" />
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.25" />

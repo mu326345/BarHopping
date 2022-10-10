@@ -11,4 +11,5 @@ object CommonField {
     const val BAR_POST = "BarPost"
     const val ROUTE_COMMEND = "RouteCommend"
     const val TIME = "time"
+    const val TW = "TW"
 }
