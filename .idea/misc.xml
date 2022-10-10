@@ -3,10 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/collection_select.xml" value="0.153" />
         <entry key="app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.2045" />
+        <entry key="app/src/main/res/drawable/ic_baseline_star_24.xml" value="0.149" />
         <entry key="app/src/main/res/drawable/ic_baseline_wine_bar_24.xml" value="0.2975" />
         <entry key="app/src/main/res/drawable/set_all_corner.xml" value="0.183" />
         <entry key="app/src/main/res/drawable/set_bottom_sheet_corner.xml" value="0.2975" />
+        <entry key="app/src/main/res/drawable/star_collection.xml" value="0.153" />
+        <entry key="app/src/main/res/drawable/star_collection_select.xml" value="0.153" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/bottom_sheet_route_detail.xml" value="0.2863247863247863" />
         <entry key="app/src/main/res/layout/fragment_all_success_dialog.xml" value="0.14322359982898675" />
@@ -18,7 +22,7 @@
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.16545784224841342" />
         <entry key="app/src/main/res/layout/fragment_route_detail.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/fragment_route_rank.xml" value="0.2778965369816161" />
-        <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_sheet_route_detail.xml" value="0.5681186283595923" />
         <entry key="app/src/main/res/layout/item_sheet_route_friend_item.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/item_step1.xml" value="0.2778965369816161" />

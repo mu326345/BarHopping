@@ -187,7 +187,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="75dp"
             android:text="@string/detail_hint"
             android:textColor="@color/gray"
             app:layout_constraintBottom_toBottomOf="parent"

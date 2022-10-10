@@ -11,18 +11,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yuyu.barhopping.MainActivity
-import com.yuyu.barhopping.data.NewRouteStore
 import com.yuyu.barhopping.databinding.FragmentRouteRankBinding
 
 class RouteRankFragment : Fragment() {
 
     private lateinit var binding: FragmentRouteRankBinding
     private val viewModel by viewModels<RouteRankViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel.addCollectionAndRouteToMediator()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,39 +86,8 @@ class RouteRankFragment : Fragment() {
                 viewModel.navigateToDetail(it)
             })
 
-        viewModel.collectAndRouteMediatorLiveData.observe(viewLifecycleOwner) {
-            val list = it.first?.map {
-                NewRouteStore(
-                    it.id,
-                    it.startPoint,
-                    it.startLat,
-                    it.startLon,
-                    it.endPoint,
-                    it.endLat,
-                    it.endLon,
-                    it.marketCount,
-                    it.length,
-                    it.hardDegree,
-                    it.comments,
-                    it.points,
-                    it.paths,
-                    it.time,
-                    it.userName,
-                    it.userIcon,
-                    it.userId,
-                    false
-                )
-            }
-            it.second?.forEach { collection ->
-                list?.forEach { newRouteStore ->
-                    if (collection == newRouteStore.id) {
-                        newRouteStore.userLike = true
-                    }
-                }
-            }
-            it.first?.let {
-                (binding.recyclerLayout.adapter as RouteRankAdapter).submitList(list)
-            }
+        viewModel.newRouteItem.observe(viewLifecycleOwner) {
+            (binding.recyclerLayout.adapter as RouteRankAdapter).submitList(it)
         }
 
         viewModel.navigateToDetail.observe(viewLifecycleOwner) {

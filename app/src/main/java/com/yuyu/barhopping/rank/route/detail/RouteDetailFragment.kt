@@ -1,5 +1,6 @@
 package com.yuyu.barhopping.rank.route.detail
 
+import android.animation.Animator
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.data.PointData
 import com.yuyu.barhopping.databinding.FragmentRouteDetailBinding
@@ -45,6 +47,24 @@ class RouteDetailFragment :
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.detail_map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        (activity as MainActivity).animateShowBottomNav(object : Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator?) {
+//                TODO("Not yet implemented")
+            }
+
+            override fun onAnimationEnd(p0: Animator?) {
+//                TODO("Not yet implemented")
+            }
+
+            override fun onAnimationCancel(p0: Animator?) {
+//                TODO("Not yet implemented")
+            }
+
+            override fun onAnimationRepeat(p0: Animator?) {
+//                TODO("Not yet implemented")
+            }
+        })
 
         binding.goNavigate.setOnClickListener {
             viewModel.routeStore.value?.let {

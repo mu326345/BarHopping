@@ -5,13 +5,13 @@
 
     <data>
 
-        <variable
-            name="itemPosition"
-            type="Integer" />
+<!--        <variable-->
+<!--            name="itemPosition"-->
+<!--            type="Integer" />-->
 
-        <variable
-            name="viewModel"
-            type="com.yuyu.barhopping.rank.route.RouteRankViewModel" />
+<!--        <variable-->
+<!--            name="viewModel"-->
+<!--            type="com.yuyu.barhopping.rank.route.RouteRankViewModel" />-->
 
         <variable
             name="routeStore"
@@ -73,21 +73,16 @@
                 app:layout_constraintStart_toStartOf="@id/user_name_tv"
                 app:layout_constraintTop_toBottomOf="@id/user_name_tv" />
 
-            <com.google.android.material.checkbox.MaterialCheckBox
+            <ImageView
                 android:id="@+id/star_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/white"
-                android:button="@drawable/collection_select"
-                android:checked="@{routeStore.userLike}"
                 android:gravity="center"
-                android:onCheckedChanged="@{viewModel.getCheckedListener()}"
-                android:tag="@{itemPosition}"
+                android:src="@drawable/ic_baseline_star_border_24"
                 app:layout_constraintBottom_toBottomOf="@+id/user_icon_card"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/user_icon_card"
-                app:useMaterialThemeColors="false" />
+                app:layout_constraintTop_toTopOf="@+id/user_icon_card" />
 
             <ImageView
                 android:id="@+id/line"
