@@ -17,6 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterManager
 import com.yuyu.barhopping.Application
+import com.yuyu.barhopping.MainActivity
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentClusterBinding
 import com.yuyu.barhopping.factory.ViewModelFactory
@@ -45,6 +46,7 @@ class ClusterFragment :
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        (activity as MainActivity).animateShowBottomNav(null)
 
         binding = FragmentClusterBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner

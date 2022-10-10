@@ -150,7 +150,7 @@ class RouteRankViewModel : ViewModel() {
 
             db.collection(CommonField.USER)
                 .document(it)
-                .collection("routeCollection")
+                .collection(CommonField.ROUTE_COLLECTION)
                 .document(routeId)
                 .set(id)
                 .addOnSuccessListener {
@@ -167,7 +167,7 @@ class RouteRankViewModel : ViewModel() {
         UserManager.user?.id?.let {
             db.collection(CommonField.USER)
                 .document(it)
-                .collection("routeCollection")
+                .collection(CommonField.ROUTE_COLLECTION)
                 .document(routeId)
                 .delete()
                 .addOnSuccessListener { Log.d(TAG, "DocumentSnapshot successfully deleted!") }

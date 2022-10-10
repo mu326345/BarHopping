@@ -1,7 +1,5 @@
 package com.yuyu.barhopping.util
 
-import android.util.Log
-import com.yuyu.barhopping.data.MarketName
 import java.text.SimpleDateFormat
 import java.util.*
 

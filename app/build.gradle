@@ -60,6 +60,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore-ktx:24.1.0'
     implementation 'com.google.firebase:firebase-storage-ktx:20.0.1'
     implementation 'androidx.leanback:leanback:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
 //    implementation 'com.google.android.libraries.places:places:2.6.0'
     implementation 'com.google.maps.android:places-ktx:0.4.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'

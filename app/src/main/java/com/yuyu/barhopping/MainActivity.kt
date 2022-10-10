@@ -162,14 +162,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun animateShowBottomNav(listener: Animator.AnimatorListener) {
+    fun animateShowBottomNav(listener: Animator.AnimatorListener?) {
         ObjectAnimator.ofFloat(
             binding.bottomNavView,
             View.TRANSLATION_Y,
             binding.bottomNavView.height.toFloat(),
             0f
         ).apply {
-            addListener(listener)
+            if(listener != null) {
+                addListener(listener)
+            }
             duration = 500
             start()
         }

@@ -13,7 +13,7 @@ import com.yuyu.barhopping.rank.route.RouteRankAdapter.*
 class RouteRankAdapter(private val onClickListener: OnClickListener): ListAdapter<NewRouteStore, RouteRankViewHolder>(DiffCallback) {
 
     class RouteRankViewHolder(private var binding: ItemRouteRankBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(routeStore: NewRouteStore, viewModel: RouteRankViewModel, position: Int) {
+        fun bind(routeStore: NewRouteStore, viewModel: RouteRankViewModel) {
             binding.routeStore = routeStore
             binding.starImg.apply {
                 if(routeStore.userLike == false) {
@@ -46,7 +46,7 @@ class RouteRankAdapter(private val onClickListener: OnClickListener): ListAdapte
         holder.itemView.setOnClickListener {
             onClickListener.click(item)
         }
-        holder.bind(item, RouteRankViewModel(), position)
+        holder.bind(item, RouteRankViewModel())
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<NewRouteStore>() {

@@ -86,11 +86,9 @@ class PersonRankFragment : Fragment() {
             }
         })
 
-        viewModel.userItem.observe(
-            viewLifecycleOwner, Observer {
+        viewModel.userItem.observe(viewLifecycleOwner) {
                 adapter.submitList(it)
             }
-        )
 
         return binding.root
     }

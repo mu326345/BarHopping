@@ -46,7 +46,7 @@
             android:maxLines="1"
             android:singleLine="true"
             android:marqueeRepeatLimit="-1"
-            android:text="@string/marquee_tv"
+            android:text="@string/marquee_rank"
             app:layout_constraintBottom_toTopOf="@id/line"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/volume_img"

@@ -10,6 +10,9 @@ object CommonField {
     const val MARKET_ID = "marketId"
     const val BAR_POST = "BarPost"
     const val ROUTE_COMMEND = "RouteCommend"
+    const val ROUTE_COLLECTION = "routeCollection"
+    const val BAR_ID = "barId"
+    const val BAR_COLLECTION = "barCollection"
     const val TIME = "time"
     const val TW = "TW"
 }
