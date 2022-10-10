@@ -5,9 +5,10 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.yuyu.barhopping.data.Route
+import com.yuyu.barhopping.CommonField
 import com.yuyu.barhopping.data.User
 
 class PersonRankViewModel : ViewModel() {
@@ -25,22 +26,24 @@ class PersonRankViewModel : ViewModel() {
     }
 
     private fun snapUserData() {
-        db.collection("User").addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(ContentValues.TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-
-            if(snapshot != null) {
-                for(x in snapshot.documents) {
-                    val userList = x.toObject(User::class.java)
-
-                    if (userList != null) {
-                        list.add(userList)
-                    }
+        val docRef = db.collection(CommonField.USER)
+        docRef.orderBy("marketCount", Query.Direction.DESCENDING).orderBy("barPost", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w(ContentValues.TAG, "Listen failed.", e)
+                    return@addSnapshotListener
                 }
-                _userItem.value = list
+
+                if (snapshot != null) {
+                    for (x in snapshot.documents) {
+                        val userList = x.toObject(User::class.java)
+
+                        if (userList != null) {
+                            list.add(userList)
+                        }
+                    }
+                    _userItem.value = list
+                }
             }
-        }
     }
 }

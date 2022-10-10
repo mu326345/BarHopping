@@ -10,7 +10,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.yuyu.barhopping.R
 import com.yuyu.barhopping.databinding.FragmentRankBinding
 
-
 class RankFragment : Fragment() {
 
     private lateinit var binding: FragmentRankBinding

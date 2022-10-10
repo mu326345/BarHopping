@@ -35,3 +35,8 @@ fun bindLength(textView: TextView, length: Long) {
 fun bindStore(textView: TextView, store: Long) {
     textView.text = "${store}間"
 }
+
+@BindingAdapter("store")
+fun bindStore(textView: TextView, store: Int) {
+    textView.text = "${store}間"
+}

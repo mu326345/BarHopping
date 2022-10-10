@@ -23,6 +23,7 @@
         <entry key="app/src/main/res/layout/fragment_rank.xml" value="0.25" />
         <entry key="app/src/main/res/layout/fragment_route_detail.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/fragment_route_rank.xml" value="0.2999104744852283" />
+        <entry key="app/src/main/res/layout/item_person_rank.xml" value="0.2778965369816161" />
         <entry key="app/src/main/res/layout/item_route_rank.xml" value="0.25" />
         <entry key="app/src/main/res/layout/item_sheet_route_detail.xml" value="0.5681186283595923" />
         <entry key="app/src/main/res/layout/item_sheet_route_friend_item.xml" value="0.2778965369816161" />

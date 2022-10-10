@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.yuyu.barhopping.MainActivity
@@ -33,6 +34,7 @@ class PersonRankFragment : Fragment() {
         binding.recyclerLayout.adapter = adapter
         recyclerLayout.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+//        GridLayoutManager(requireContext(), 2)
         recyclerLayout.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             var canHide = true
             var canShow = true

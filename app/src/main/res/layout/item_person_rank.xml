@@ -22,18 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/title_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:text="@{user.title}"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/card_constrain"
-                tools:text="超級肝硬化" />
-
             <androidx.cardview.widget.CardView
                 android:id="@+id/user_img_card"
                 android:layout_width="100dp"
@@ -44,7 +32,7 @@
                 app:cardCornerRadius="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/title_tv">
+                app:layout_constraintTop_toTopOf="@id/card_constrain">
 
                 <ImageView
                     android:id="@+id/user_img"
@@ -58,35 +46,62 @@
                 android:id="@+id/user_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:text="@{user.name}"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toTopOf="@+id/market_tv"
+                app:layout_constraintBottom_toTopOf="@id/finish_tv"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/user_img_card"
                 app:layout_constraintTop_toTopOf="@+id/user_img_card"
-                app:layout_constraintVertical_chainStyle="spread_inside"
+                app:layout_constraintVertical_chainStyle="spread"
                 tools:text="yuyu" />
+
+            <TextView
+                android:id="@+id/finish_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/finished"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/user_img_card"
+                app:layout_constraintTop_toBottomOf="@id/user_name_tv" />
+
+            <ImageView
+                android:id="@+id/line"
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:background="@color/light_gray"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/bar_tv"
+                app:layout_constraintStart_toEndOf="@+id/market_tv"
+                app:layout_constraintTop_toBottomOf="@id/finish_tv" />
 
             <TextView
                 android:id="@+id/market_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="2dp"
                 android:text="@string/market_total"
-                app:layout_constraintBottom_toTopOf="@+id/bar_tv"
-                app:layout_constraintStart_toStartOf="@id/user_name_tv"
-                app:layout_constraintTop_toBottomOf="@+id/user_name_tv"
-                app:layout_constraintVertical_chainStyle="spread" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/line"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/user_img_card"
+                app:layout_constraintTop_toBottomOf="@id/finish_tv"
+                tools:layout_editor_absoluteY="65dp" />
 
             <TextView
                 android:id="@+id/market_number_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="4家"
-                app:layout_constraintStart_toEndOf="@id/market_tv"
-                app:layout_constraintTop_toTopOf="@id/market_tv"
+                android:layout_marginBottom="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/market_tv"
+                app:layout_constraintStart_toStartOf="@+id/market_tv"
+                app:layout_constraintTop_toBottomOf="@+id/market_tv"
+                app:store="@{user.marketCount.size()}"
                 tools:text="6家" />
 
             <TextView
@@ -94,50 +109,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/bar_total"
-                app:layout_constraintBottom_toTopOf="@+id/follow_tv"
-                app:layout_constraintStart_toStartOf="@id/market_tv"
-                app:layout_constraintTop_toBottomOf="@+id/market_tv" />
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/line"
+                app:layout_constraintTop_toTopOf="@+id/market_tv" />
 
             <TextView
                 android:id="@+id/bar_number_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="8家"
-                app:layout_constraintStart_toEndOf="@id/bar_tv"
-                app:layout_constraintTop_toTopOf="@id/bar_tv"
-                tools:text="8家"
-                app:store="@{user.barPost.size()}"/>
-
-            <TextView
-                android:id="@+id/follow_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/following"
-                app:layout_constraintBottom_toBottomOf="@+id/user_img_card"
-                app:layout_constraintHorizontal_bias="0.5"
+                android:layout_marginBottom="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/bar_tv"
                 app:layout_constraintStart_toStartOf="@id/bar_tv"
-                app:layout_constraintTop_toBottomOf="@+id/bar_tv" />
-
-            <TextView
-                android:id="@+id/follow_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="0"
-                app:layout_constraintStart_toEndOf="@id/follow_tv"
-                app:layout_constraintTop_toTopOf="@id/follow_tv" />
-
-            <ImageButton
-                android:id="@+id/follow_btn"
-                style="@style/step_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="16dp"
-                android:backgroundTint="@color/white"
-                android:src="@drawable/ic_add_24"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/user_name_tv" />
+                app:layout_constraintTop_toBottomOf="@id/bar_tv"
+                app:store="@{user.barPost.size()}"
+                tools:text="8間" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
