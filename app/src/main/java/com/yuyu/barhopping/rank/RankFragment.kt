@@ -1,10 +1,10 @@
 package com.yuyu.barhopping.rank
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
 import com.yuyu.barhopping.R
@@ -17,10 +17,6 @@ class RankFragment : Fragment() {
     private lateinit var rankAdapter: RankAdapter
     private lateinit var viewPager: ViewPager2
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -32,7 +28,6 @@ class RankFragment : Fragment() {
         rankAdapter = RankAdapter(this)
         viewPager = binding.viewpagerRank
         viewPager.adapter = rankAdapter
-
 
         // Rank viewpager title
         val tabLayout = binding.tabsRank
@@ -49,8 +44,12 @@ class RankFragment : Fragment() {
             }
         }.attach()
 
-
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.marqueeTv.isSelected = true
     }
 
     private val tabIcon = listOf(

@@ -18,6 +18,48 @@
             app:tabIndicatorColor="@color/e_huang"
             app:tabSelectedTextColor="@color/e_huang" />
 
+        <ImageView
+            android:id="@+id/volume_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:src="@drawable/ic_baseline_volume_up_24"
+            app:layout_constraintBottom_toTopOf="@id/line"
+            app:layout_constraintEnd_toStartOf="@id/marquee_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabs_rank" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/marquee_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:gravity="center_vertical"
+            android:ellipsize="marquee"
+            android:textColor="@color/black"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:marqueeRepeatLimit="-1"
+            android:text="@string/marquee_tv"
+            app:layout_constraintBottom_toTopOf="@id/line"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/volume_img"
+            app:layout_constraintTop_toBottomOf="@id/tabs_rank" />
+
+        <ImageView
+            android:id="@+id/line"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray"
+            app:layout_constraintBottom_toTopOf="@id/viewpager_rank"
+            app:layout_constraintTop_toBottomOf="@id/volume_img" />
+
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewpager_rank"
             android:layout_width="match_parent"
@@ -25,7 +67,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tabs_rank" />
+            app:layout_constraintTop_toBottomOf="@id/line" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

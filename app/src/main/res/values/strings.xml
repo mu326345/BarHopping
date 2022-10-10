@@ -51,6 +51,7 @@
     <string name="degree">難易程度：</string>
     <string name="go_navigate">開始遊戲</string>
     <string name="detail_hint">點擊地標，地圖右下可以切換Googl Map導航</string>
+    <string name="marquee_tv">歡迎來到酒精路跑～   這是酒精跑馬燈   來看看大家最近都在哪裡酒精路跑吧！！   或是看看自己有沒有上名人榜！！</string>
 
     <!-- new post -->
     <string name="bar_post">酒吧新貼文</string>
