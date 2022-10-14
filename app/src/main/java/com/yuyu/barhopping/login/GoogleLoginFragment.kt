@@ -112,7 +112,7 @@ class GoogleLoginFragment : Fragment() {
                     it.displayName ?: "",
                     "",
                     it.photoUrl.toString(),
-                    "",
+                    null,
                     null,
                     null
                 )
@@ -129,6 +129,7 @@ class GoogleLoginFragment : Fragment() {
 
     private fun checkUserSignInBefore(): Boolean {
         userId = prefs.getString("userId", "").toString()
+        Log.v("yy", "userId = $userId")
         if(userId.isEmpty()) {
             return false
         } else {

@@ -58,7 +58,7 @@ class BottomSheetAdapter :
                     Log.v("yy", "market unknown type")
                 }
             }
-            binding.marketIcon.setImageResource(resId)
+            binding.marketIcon.setImageDrawable(context.resources.getDrawable(resId))
             binding.executePendingBindings()
         }
     }

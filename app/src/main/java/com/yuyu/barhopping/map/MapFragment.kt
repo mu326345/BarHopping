@@ -84,6 +84,7 @@ class MapFragment : Fragment(),
         setupPlaceApi()
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -352,6 +353,12 @@ class MapFragment : Fragment(),
                                 }
                             }
                         }
+                        map?.setOnMarkerClickListener(object : GoogleMap.OnMarkerClickListener {
+                            override fun onMarkerClick(marker: Marker): Boolean {
+                                viewModel.onMarkerClick(marker)
+                                return false
+                            }
+                        })
                     }
 
                     StepTypeFilter.STEP3 -> {
@@ -504,7 +511,7 @@ class MapFragment : Fragment(),
         map = googleMap
 
         googleMap.uiSettings.isMyLocationButtonEnabled = false
-        googleMap.setOnMarkerClickListener(setOnMarkerClickListener)
+//        googleMap.setOnMarkerClickListener(setOnMarkerClickListener)
         googleMap.setOnMyLocationClickListener(onMyLocationClickListener)
         googleMap.setOnMyLocationButtonClickListener(onMyLocationButtonClickListener)
 
@@ -984,13 +991,13 @@ class MapFragment : Fragment(),
         }
     }
 
-    private val setOnMarkerClickListener = object : GoogleMap.OnMarkerClickListener {
-        override fun onMarkerClick(marker: Marker): Boolean {
-            viewModel.onMarkerClick(marker)
-
-            return false
-        }
-    }
+//    private val setOnMarkerClickListener = object : GoogleMap.OnMarkerClickListener {
+//        override fun onMarkerClick(marker: Marker): Boolean {
+//            viewModel.onMarkerClick(marker)
+//
+//            return false
+//        }
+//    }
 
 
     companion object {

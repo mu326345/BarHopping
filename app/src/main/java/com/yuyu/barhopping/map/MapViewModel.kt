@@ -505,7 +505,7 @@ class MapViewModel(val repository: FirebaseRepository) : ViewModel() {
      */
     private fun updatePartnerLocation(location: Location) {
         UserManager.user?.let { user ->
-            user.onRoute?.let {
+            user.onRoute?.isNotEmpty().toString().let {
                 db.collection("Routes")
                     .document(it)
                     .collection("Partners")
@@ -632,8 +632,8 @@ private fun canTakePhoto(currentLatLng: LatLng, nextMarketLatLng: LatLng): Boole
             currentLatLng, nextMarketLatLng
         ).toInt()
 
-//        return distance <= 20
-        return true
+        return distance <= 20
+//        return true
     }
 
     // 1.3.0 flow gogo
